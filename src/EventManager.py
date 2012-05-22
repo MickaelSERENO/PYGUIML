@@ -1,5 +1,5 @@
 import sfml as sf
-import copy
+from copy import copy
 
 class EventManager:
 	nbrKey = 321
@@ -11,6 +11,7 @@ class EventManager:
 			self._keys = list()
 			self._click = list()
 			self._mousePos = sf.Vector2f()
+			self._oldMousePos = sf.Vector2f()
 			self._elapsedTime = 0
 			self._clock = sf.Clock()
 			self._isInputKeys = list()
@@ -22,6 +23,7 @@ class EventManager:
 			self._enteredText = False
 			self._text = 0
 			self._hasPressedKeyMouse = False
+			self.defaultWindowSize = copy(window.size)
 
 			i = 0
 			for i in range(EventManager.nbrKey):
@@ -78,6 +80,7 @@ class EventManager:
 				self._isInputClick[event.button] = False
 
 			if event.type == sf.Event.MOUSE_MOVED:
+				self._oldMousePos = copy(self._mousePos)
 				self._mousePos = sf.Vector2f(event.x, event.y)
 
 			if event.type == sf.Event.CLOSED:
@@ -131,6 +134,9 @@ class EventManager:
 	def _getMousePos(self):
 		return self._mousePos
 
+	def _getOldWindowSize(self):
+		return self._oldMousePos
+
 	def _getElaspedTime(self):
 		return self._elapsedTime
 
@@ -149,6 +155,7 @@ class EventManager:
 	text = property(_getText)
 	enteredText = property(_getEnteredText)
 	mousePos = property(_getMousePos)
+	oldMousePos = property(_getOldMousePos)
 	elapsedTime = property(_getElaspedTime)
 	hasPressedKey = property(_getHasPressedKey)
 	isResize = property(_isResize)
