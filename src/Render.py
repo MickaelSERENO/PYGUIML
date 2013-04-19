@@ -13,6 +13,9 @@ class Render:
 
 		self._view = sf.View()
 
+	def show(self):
+		raise NotImplementedError
+
 	def moveView(self, pos):
 		self._view.move(pos)
 		self.view = self._view
@@ -20,6 +23,9 @@ class Render:
 	def resizeView(self, size):
 		self._view.size(size)
 		self.view = self._view
+
+	def resetView(self):
+		raise NotImplementedError
 
 	def setViewPosition(self, pos):
 		self._view.viewport(sf.FloatRect(pos.x, pos.y, self._view.size.x, self._view.size.y))

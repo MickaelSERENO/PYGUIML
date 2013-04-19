@@ -23,7 +23,8 @@ class EventManager:
 			self._enteredText = False
 			self._text = 0
 			self._hasPressedKeyMouse = False
-			self.defaultWindowSize = copy(window.size)
+			self._defaultWindowSize = copy(window.size)
+			self._multiplicateMouse = sf.Vector2f(1,1)
 
 			i = 0
 			for i in range(EventManager.nbrKey):
@@ -87,16 +88,30 @@ class EventManager:
 				self._w.close()
 
 			if event.type == sf.Event.RESIZED:
-				if(self._newWindowSize != sf.Vector2f(event.width, event.height)):
+				if(self._newWindowSize != sf.Vector2f(event.width,\
+						event.height)):
 					self._isResize = True
-					self._oldWindowSize = sf.Vector2f(self._newWindowSize.x, self._newWindowSize.y)
-					self._newWindowSize = sf.Vector2f(event.width, event.height)
+					self._oldWindowSize = sf.Vector2f(self._newWindowSize.x,\
+							self._newWindowSize.y)
+					self._newWindowSize = sf.Vector2f(event.width,\
+							event.height)
 
 		if self._keys[sf.Keyboard.BACK]:
 			self._enteredText = False
 
+		if self._isResize and self._defaultWindowSize.x != 0 and\
+				self._defaultWindowSize.y != 0:
+			self._multiplicateMouse.x = self._newWindowSize.x / \
+					self._defaultWindowSize.x;
+			self._multiplicateMouse.y = self._newWindowSize.y / \
+					self._defaultWindowSize.y;
+		
+
 	def isMouseInRect(self, rect):
-		if self._mousePos.x > rect.left and	self._mousePos.y > rect.top and	self._mousePos.x < rect.left + rect.width and self._mousePos.y < rect.top + rect.height :
+		if self._mousePos.x > rect.left and\
+				self._mousePos.y > rect.top and\
+				self._mousePos.x < rect.left + rect.width and\
+				self._mousePos.y < rect.top + rect.height :
 			return True
 
 		return False
@@ -125,39 +140,14 @@ class EventManager:
 		else:
 			return False
 
-	def _getText(self):
-		return self._text
-
-	def _getEnteredText(self):
-		return self._enteredText
-
-	def _getMousePos(self):
-		return self._mousePos
-
-	def _getOldWindowSize(self):
-		return self._oldMousePos
-
-	def _getElaspedTime(self):
-		return self._elapsedTime
-
-	def _getHasPressedKey(self):
-		return self._hasPressedKeyKey
-
-	def _isResize(self):
-		return self._isResize
-
-	def _getOldWindowSize(self):
-		return self._oldWindowSize
-
-	def _getNewWindowSize(self):
-		return self._newWindowSize
-
-	text = property(_getText)
-	enteredText = property(_getEnteredText)
-	mousePos = property(_getMousePos)
-	oldMousePos = property(_getOldMousePos)
-	elapsedTime = property(_getElaspedTime)
-	hasPressedKey = property(_getHasPressedKey)
-	isResize = property(_isResize)
-	oldWindowSize = property(_getOldWindowSize)
-	newWindowSize = property(_getNewWindowSize)
+	text = property(lambda self:self._text)
+	enteredText = property(lambda self:self._enteredText)
+	mousePos = property(lambda self:self._mousePos)
+	oldMousePos = property(lambda self:self._oldMousePos)
+	elapsedTime = property(lambda self:self._elapsedTime)
+	hasPressedKey = property(lambda self:self._hasPressedKey)
+	isResize = property(lambda self:self._isResize)
+	oldWindowSize = property(lambda self:self._oldWindowSize)
+	newWindowSize = property(lambda self:self._newWindowSize)
+	defaultWindowSize = property(lambda self:self._defaultWindowSize)
+	multiplicateMouse = property(lambda self:self._multiplicateMouse)
