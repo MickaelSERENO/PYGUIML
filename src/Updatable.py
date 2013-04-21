@@ -24,7 +24,7 @@ class Updatable:
 				child.updateFocus()
 
 	def update(self, drawables):
-		"""this methode Update all child of this Widget. 
+		"""THIS methode Update all child of this Widget. 
 		It launch them Update() for drawing there"""
 
 		for child in self._child:
@@ -92,7 +92,7 @@ class Updatable:
 			self._parent.addChild(self, pos)
 
 	parent = property(lambda self:self._parent,\
-			lambda self, parent: self._setParent(parent)
+			lambda self, parent: self._setParent(parent))
 	child = property(lambda self:self._child)
 	changeWindow = property(lambda self:self._changeWindow)
 	event = property(lambda self:self._event)

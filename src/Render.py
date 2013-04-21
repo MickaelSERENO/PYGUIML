@@ -1,7 +1,7 @@
 import sfml as sf
 from Widget import Widget
 
-class Render:
+class Render(Widget):
 	"""Basic virtual class for all Render's class"""
 
 	def __init__(self, parent, rect, backgroundColor=sf.Color.BLACK, title=str(), backgroundImage=Image()):
