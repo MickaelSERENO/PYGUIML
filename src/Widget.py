@@ -10,7 +10,7 @@ def enum(*seq, **keys):
 
 Position = enum('TopLeft','TopRight','Center','BottomLeft','BottomRight')
 
-class Widget(Updatable:
+class Widget(Updatable):
 	"""Basic class for create Widgets"""
 
 	widgetFocus = None
@@ -18,18 +18,17 @@ class Widget(Updatable:
 	def __init__(self, parent=0, rect=sf.IntRect(0,0,0,0)):
 		Updatable.__init__(self,parent)
 		self.isDrawing = True
-		self.isStaticToView = False
+		self._isStaticToView = False
 		self.canFocus = True
 		self.movingiAllChild = False
 
 		self._origin = sf.Vector2f(0,0)
+		self._posOrigin = Position.TopLeft
+
 		self._pos = sf.Vector2f(rect.left,rect.top)
-		self._posSaved = copy(self._pos)
 		self._dimensions = sf.Vector2f(rect.width, rect.height)
 		self._virtualPos = copy(self._pos)
 		self._virtualDimensions = copy(self._dimensions)
-		self._posOnScreen = sf.Vector2f(rect.left -getRenderViewPosition().x,\
-				rect.top - getRenderViewPosition().y)
 		self._scale = sf.Vector2f(1,1)
 
 	def getCopyWidget(self):
@@ -41,139 +40,197 @@ class Widget(Updatable:
 		return copyWidget
 
 	def updateFocus(self):
+
 		if self.canFocus:
-			renderParentViewPosition = getRenderViewPosition()
-			getPosOnScreen()
 			if self.isDrawing and isinstance(self._event,EventManager) and\
 				self._event.isMouseInRect(getRectOnScreen()):
-				Updatable._focusIsChecked = False
 				Widget.widgetFocus = self
 			Updatable.updateFocus(self)
 
-	def update(self, render):
+	def update(self, render=None):
+		if not isinstance(render,Render):
+			render = getRender()
+
 		if self._changeWindow:
-			self.setRect(self._getRect())
-		if self.isStaticToView:
-			posInit = copy(self._posSaved)
-			setPosition(self._posSaved.x + render.getViewPosition().x,\
-					self._posSaved.y + render.getViewPosition().y);
+			if self._isStaticToView:
+				self.setRect(self._virtualPos - render.getViewPosition(),\
+						self._virtualDimensions)
+			else:
+				self.setRect(self._getVirtualRect())
+
+		if self.isDrawing and render.isInView(self._getVirtuallRect()):
+			self._draw(render):
+
+	def draw(self, render=None):
+		pass
 			
 	def drawAllWidget(self, drawing):
-		"""If you want to show the Widget, put drawing to true, else to false"""
+		"""If you want to show the Widget, put drawing to true"""
 		for child in self._child:
-			child._isDrawing = True
-
-	def scale(self, scale):
-		"""scale is a sf.Vector2f type. This methode set the dimensions and the positions of the widget"""
-		self.dimensions = sf.Vector2f(self._virtualDimensions.x * scale.x, self.dimensions.y * scale.y)
+			if isinstance(child,Widget):
+				child._isDrawing = True
 
 	def move(self, moving):
 		"""This methode move the widgets. moving is a sf.Vector2f type"""
-		self.pos = sf.Vector2f(self._virtualPos.x + moving.x, self._virtualPos.y + moving.y)
+		self.pos = (self._virtualPos + moving, false)
+
+	def setPositionOnScreen(self, position, withOrigin):
+		render = getRender()
+		if self._isStaticToView and isinstance(render, Render):
+			self._setPosition(position-render.getViewPosition(), withOrigin)
+		else:
+			self._setPosition(position, withOrigin)
+
+	def scale(self, scale):
+		"""scale is a sf.Vector2f type.
+		This methode set the dimensions of the widget"""
+		self._scale = sf.Vector2f(x * self._scale.x, y*self._scale.y)
+		self.dimensions = sf.Vector2f(self._virtualDimensions.x * scale.x,\
+				self.dimensions.y * scale.y)
 
 	def addSize(self, addingSize):
-		"""This methode add a size at the widget. addingSize is a sf.Vector2f type"""
-		self.dimensions = sf.Vector2f(self._virtualDimensions.x + addingSize.x, self._virtualDimensions.y + addingSize.y)
-
-	def getEvent(self):
-		if isinstance(parent, Widget):
-			return self._parent.getEvent()
-		else:
-			return False
-
+		"""This methode add a size at the widget.
+		addingSize is a sf.Vector2f type"""
+		self.dimensions = sf.Vector2f(self._virtualDimensions.x+addingSize.x,\
+				self._virtualDimensions.y + addingSize.y)
+	
 	def resizeWidget(selfi, defaultWindowSize, newWindowSize):
-		"""Thie methode resize correctly the Widgets"""
+		"""This methode resize correctly the Widgets"""
 
-		self._dimensions.x = self._virtualDimensions.x * newWindowSize.x / defaultWindowSize.x
-		self._pos.x = self._virtualPos.x * newWindowSize.x / defaultWindowSize.x
+		self._dimensions.x = self._virtualDimensions.x * \
+				newWindowSize.x / defaultWindowSize.x
+		self._pos.x =\
+				self._virtualPos.x * newWindowSize.x / defaultWindowSize.x
 
-		self._dimensions.y = self._virtualDimensions.y * newWindowSize.y / defaultWindowSize.y
-		self._pos.y = self._virtualPos.y * newWindowSize.y / defaultWindowSize.y
+		self._dimensions.y = self._virtualDimensions.y * \
+				newWindowSize.y / defaultWindowSize.y
+		self._pos.y =\
+				self._virtualPos.y * newWindowSize.y / defaultWindowSize.y
 
 		for child in self._child
 			child.resizeWidget(defaultWindowSize, newWindowSize);
 
-	def _getRect(self):
-		return sf.FloatRect(self._pos.x, self._pos.y, self._dimensions.x, self._dimensions.y)
-
-	def _getVirtualPos(self):
-		return sf.FloatRect(self._virtualPos.x, self._virtualPos.y, self._virtualDimensions.x, self._virtualDimensions.y)
-
-	def _setRect(self, rect):
-		"""rect is a sf.FloatRect type. This methode set the dimensions and the positions of the widget"""
-		self._setDimensions(sf.Vector2f(rect.width, rect.height))
-		self._setPos(sf.Vector2f(rect.left, rect.top))
-
-	def _setPos(self, pos):
+	def setPos(self, pos, withOrigin):
 		if self.movingAllChild:
 			for child in self._child:
-				child.move(pos.x - self._virtualPos.x, pos.y - self._virtualPos.y)
+				child.move(pos.x - self._virtualPos.x, \
+						pos.y - self._virtualPos.y)
 
-		event = self.getEvent()
-		if event:
+		render = self.getRender()
+		addView = sf.Vector2f(0,0)
+
+		if isinstance(render,Render) and self._isStaticToView:
+			addView = copy(render.getViewPosition())
+
+		if isinstance(self._event, EventManager):
 			defaultWindowSize = event.defaultWindowSize
 			if defaultWindowSize.x != 0 and defaultWindowSize.y != 0:
-				newWindowSize = event.
-				self._pos = sf.Vector2f(pos.x * newWindowSize.x / defaultWindowSize.x, pos.y * newWindowSize.y / defaultWindowSize.y)
+				newWindowSize = event.newWindowSize
+
+				if withOrigin:
+					self._pos = sf.Vector2f((pos + self._origin + addView) *\
+							newWindowSize / defaultWindowSize)
+				else:
+					self._pos = sf.Vector2f((self.pos + addView) *\
+							newWindowSize / defaultWindowSize)
 			else:
-				self._pos = copy(pos)
+				if withOrigin:
+					self._pos = sf.Vector2f(pos+  self._origin + addView)
+				else:
+					self._pos = sf.Vector2f(pos+addView)
 
 		else:
-			self._pos = copy(pos)
-		self._virtualPos = copy(pos)
+			if withOrigin:
+				self._pos = sf.Vector2f(pos + self._origin + addView)
+			else:
+				self._pos = sf.Vector2f(pos+addView)
 
-	def _setDimensions(self, dimensions):
-		self._dimensions = dimensions
-		event = self.getEvent()
-		if event:
+		if withOrigin:
+			self._virtualPos = sf.Vector2f(pos + self._origin + addView)
+		else:
+			self._virtualPos = sf.Vector2f(pos+addView)
+
+	def setDimensions(self, dimensions):
+		self._scale = sf.Vector2f(1,1)
+		if isinstance(self._event, EventManager):
 			defaultWindowSize = event.defaultWindowSize
 			if defaultWindowSize.x != 0 and defaultWindowSize.y != 0:
-				newWindowSize = event.
-				self._dimensions = sf.Vector2f(dimensions.x * newWindowSize.x / defaultWindowSize.x, dimensions.y * newWindowSize.y / defaultWindowSize.y)
+				newWindowSize = event.newWindowSize
+				self._dimensions = sf.Vector2f(\
+						dimensions.x * newWindowSize.x / defaultWindowSize.x,\
+						dimensions.y * newWindowSize.y / defaultWindowSize.y)
 			else:
 				self._dimensions = copy(dimensions)
 
 		else:
 			self._dimensions = copy(dimensions)
 		self._virtualDimensions = copy(dimensions)
+		self._setOriginPos(self._posOrigin)
 
-	def _setParent(self, parent, pos=-1):
-		"""Set the object's Widget parent"""
+	def setIsStaticToView(self, new, change=True):
+		"""Methode for set your widget static on the view or not"""
+		self._isStaticToView = copy(new)
+		if change:
+			self.pos = self._pos
 
-		if isinstance(self._parent, Widget):
-			self._parent.removeChild(self)
+	def getVirtualPos(self):
+		return sf.FloatRect(self._virtualPos.x, self._virtualPos.y,\
+				self._virtualDimensions.x, self._virtualDimensions.y)
 
-		self._parent = parent
+	def _setOrigin(self, newOrigin):
+		"""Change the origin of the widget"""
+		self.move = sf.Vector2f(newOrigin-self._origin)
+		self._origin = newOrigin
+		self._posOrigin = Other
 
-		if isinstance(self._parent, Widget):
-			self._parent.addChild(self, pos)
+	def _setOriginPos(self, position):
+		back = copy(m_origin)
 
-	def _getPos(self):
-		return self._pos
+		if position = Position.TopLeft:
+			self._origin = sf.Vector2f(0,0)
+		elif position = Position.TopRight:
+			self._origin = sf.Vector2f(self._virtualSize.x,0)
+		elif position = Position.Center:
+			self._origin = sf.Vector2f(self._virtualSize/2)
+		elif position = Position.BottomLeft:
+			self._origin = sf.Vector2f(0,self._virtualSize.y)
+		elif position = Position.BottomRight:
+			self._origin = copy(self._virtualSize)
 
-	def _getVirtualPos(self):
-		return self._virtualPos
+		self.move(self._origin-back)
+		self._posOrigin = position
+	
+	def _getRect(self):
+		"""Set the Rect of the view"""
+		return sf.FloatRect(self.pos(False),\
+				self._dimensions.x, self._dimensions.y)
 
-	def _getDimensions(self):
-		return self._dimensions
 
-	def _getVirtualDimensions(self):
-		return self._virtualDimensions
+	def _setRect(self, rect):
+		"""rect is a sf.FloatRect type.
+		This methode set the dimensions and the positions of the widget"""
+		self._setDimensions(sf.Vector2f(rect.width, rect.height))
+		self._setPos(sf.Vector2f(rect.left, rect.top), False)
 
-	def _getParent(self):
-		return self._parent
+	isStaticToView = property(lambda self : self._isStaticToView, \
+			lambda self,static: self._setIsStaticToView(static))
 
-	def _drawWidget(self, drawing):
-		self._isDrawing = drawing
+	origin = property(lambda self: self._origin,\
+			lambda self,origin : self._setOrigin(origin))
+	posOrigin = property(lambda  self: self._posOrigin,\
+			lambda self,position : self._setOriginPos(position))
 
-	def _resizeWidget(self, pos, size):
-		self._dimensions = size
-		self._pos = pos
+	dimensions = property(lambda self :	self._dimensions,\
+			lambda self, dimension, : self._setDimensions(dimension))
+	virtualDimensions = property(lambda self : self._virtualDimensions)
 
-	dimensions = property(_getDimensions, _setDimensions)
-	virtualDimensions = property(_getVirtualDimensions)
-	pos = property(_getPos, _setPos)
-	virtualPos = property(_getVirtualPos)
-	parent = property(_getParent, _setParent)
-	rect = property(_getRect, _setRect)
-	virtualRect = property(_getVirtualRect)
+	pos = property(lambda self: self.getPos(), \
+			lambda self,pos : self._setPos(pos))
+	virtualPos = property(lambda self: self._getVirtualPos())
+
+	rect = property(lambda self:self._getRect(),\
+			lambda self, rect:self._setRect(rect))
+	virtualRect = property(lambda self:self._getVirtualRect())
+
+	globalScale = property(lambda self:self._scale,\
+			lambda self,newScale : self._setScale(newScale)

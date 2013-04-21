@@ -6,7 +6,7 @@ class Updatable:
 	_focusIsChecked = False
 	def __init__(parent=0):
 		self._changeWindow = False
-		self._event = False
+		self._event = None
 		self._child = list()
 		self._parent = None
 		self.setParent(parent)
@@ -29,6 +29,7 @@ class Updatable:
 
 		for child in self._child:
 			child.update(drawables)
+		self._changeWindow=False
 	
 	def removeChild(self, child):
 		"""Remove child in the object"""
@@ -68,7 +69,13 @@ class Updatable:
 			return self._parent.getEventFromRootParent()
 		return None
 
-	def _setParent(self, parent, pos=-1):
+	def getRender(self):
+		if isinstance(self._parent, Updatable):
+			return self._parent.getRender()
+		else:
+			return None
+
+	def setParent(self, parent, pos=-1):
 		"""Set the Updatable's parent"""
 
 		if isinstance(self._parent, Widget):
@@ -80,12 +87,12 @@ class Updatable:
 
 		if event is not self._event:
 			self._changeWindow = True
-		
 
 		if isinstance(self._parent, Widget):
 			self._parent.addChild(self, pos)
 
-	parent = property(lambda self:self._parent, lambda self: self._setParent)
+	parent = property(lambda self:self._parent,\
+			lambda self, parent: self._setParent(parent)
 	child = property(lambda self:self._child)
 	changeWindow = property(lambda self:self._changeWindow)
 	event = property(lambda self:self._event)
