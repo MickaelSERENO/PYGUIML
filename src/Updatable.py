@@ -49,16 +49,15 @@ class Updatable:
 
 		child._parent = 0
 
-	def addChild(self, child, pos=-1):
+	def addChild(self, child, pos="End"):
 		"""child become a widget's child"""
 		if child._parent is not self:
 			child._parent = self,pos
 	
+		if pos=="End":
+			pos = len(self._child)
 		if not self.isChild(child):
-			if pos < 0:
-				self._child.append(child)
-			else:
-				self._child.insert(pos, child)
+			self._child.insert(pos, child)
 
 	def isChild(self, child):
 		""" This methode say if child is a widget's child"""
@@ -75,7 +74,7 @@ class Updatable:
 		else:
 			return None
 
-	def setParent(self, parent, pos=-1):
+	def setParent(self, parent, pos="End"):
 		"""Set the Updatable's parent"""
 
 		if isinstance(self._parent, Widget):
