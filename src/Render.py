@@ -1,27 +1,28 @@
 import sfml as sf
+from Image import Image
 from Widget import Widget
-from Image import image
 
-class Render(Widget):
+class Render(Widget, sf.RenderTarget):
 	"""Basic virtual class for all Render's class"""
 
 	def __init__(self, parent, rect, backgroundColor=sf.Color.BLACK,\
 			title=str(), backgroundImage=Image()):
-		Widget.__init__(parent, rect)
+		sf.RenderTarget.__init__(self)
+		Widget.__init__(self,parent, rect)
 		self.canFocus = False
 		self.backgroundColor = copy(backgroundColor)
-		self._backgroundImage = backgroundImage.getCopyWidget
+		self._backgroundImage = backgroundImage
 		sefl._backgroundImage.setParent = (self, 0)
 		self._backgroundImage.rect = self.rect
-
-		self._view = sf.View()
+		self.view = sf.View()
 
 	def show(self, render):
 		raise NotImplementedError
 
-	def moveView(self, pos):
-		self._view.move(pos)
-		self.view = self._view
+	def moveView(self, movee):
+		newView = copy(self.view)
+		newView.move(move)
+		self.view = newView
 
 	def resizeView(self, size):
 		self._view.size(size)
@@ -30,15 +31,50 @@ class Render(Widget):
 	def resetView(self):
 		raise NotImplementedError
 
+	def setView(self, view):
+		back = getViewPosition()
+		self._view = view
+
+		for child in self._child:
+			if isinstance(child,Widget) and child.isStaticToView:
+				child.setPos(child.pos - back)
+
 	def setViewPosition(self, pos):
-		self._view.viewport(sf.FloatRect(pos.x, pos.y, self._view.size.x, self._view.size.y))
-		self.view = self._view
+		viewCopy = copy(self._view)
+		viewCopy.center = sf.Vector2f(pos - self._view.size / 2)
+		self.view = viewCopy
+
+	def getViewPosition(self):
+		return sf.Vector2f(self._view.center + self._view.size / 2)
+
+	def getSommeViewPosition(self):
+		render = Widget.getRender()
+		if isinstance(render,Render):
+			return sf.Vector2f(render.getSommeViewPosition() +\
+					self.getViewPosition())
+		else:
+			return self.getViewPosition()
+
+	def getViewport(self):
+		return self._view.viewport
+
+	def getViewRect(self):
+		return sf.FloatRect(self._view.getViewPosition().x,\
+				self._view.getViewPosition().y, \
+				self._view.size.x, self._view.size.y)
+
+	def getRender(self):
+		return self
+
+	def isInView(self,rect):
+		return functions.rectCollision(rect,self.getViewRect())
 
 	def _setBackgroundImage(self, backgroundImage):
 		self._backgroundImage = backgroundImage.getCopyWidget
 		self._backgroundImage.rect = self.rect
 		self._backgroundImage.setParent(self.parent, 0)
 	
+	@view.setter
 	def _setView(self, view): #It is a lot of use for refresh the view
 		self._view = view
 
@@ -46,9 +82,12 @@ class Render(Widget):
 		self._view.viewport = rect
 		self.view = self._view
 
+	def _setTitle(self, title):
+		self._title  = title
 	backgroundImage = property(lambda self:self._backgroundImage,\
 			_setBackgroundImage)
-	view = property(lambda self:self._view,\
-			lambda self,view:self._setView(view))
 	viewport = property(lambda self:self._view.viewport,\
 			lambda self,rect : self._setViewport(rect))
+	title = property(lambda self:self._title,\
+			lambda self,title : self._setTitle(title))
+

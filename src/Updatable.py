@@ -4,7 +4,7 @@ from EventManager import EventManager
 class Updatable:
 	"""Basic class who can update a child hierarchy"""
 	_focusIsChecked = False
-	def __init__(parent=0):
+	def __init__(self, parent=0):
 		self._changeWindow = False
 		self._event = None
 		self._child = list()
@@ -64,7 +64,7 @@ class Updatable:
 		return child in self._child
 	
 	def getEventFromRootParent(self):
-		if isinstance(parent, Updatable):
+		if isinstance(self._parent, Updatable):
 			return self._parent.getEventFromRootParent()
 		return None
 
@@ -77,7 +77,7 @@ class Updatable:
 	def setParent(self, parent, pos="End"):
 		"""Set the Updatable's parent"""
 
-		if isinstance(self._parent, Widget):
+		if isinstance(self._parent, Updatable):
 			self._parent.removeChild(self)
 
 		event = self.getEventFromRootParent()
@@ -87,11 +87,11 @@ class Updatable:
 		if event is not self._event:
 			self._changeWindow = True
 
-		if isinstance(self._parent, Widget):
+		if isinstance(self._parent, Updatable):
 			self._parent.addChild(self, pos)
 
 	parent = property(lambda self:self._parent,\
-			lambda self, parent: self._setParent(parent))
+			lambda self, parent: self.setParent(parent))
 	child = property(lambda self:self._child)
 	changeWindow = property(lambda self:self._changeWindow)
 	event = property(lambda self:self._event)

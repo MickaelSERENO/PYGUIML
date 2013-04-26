@@ -26,7 +26,6 @@ class Image(Widget):
 
 		self._sprite = sf.Sprite(self._texture)
 
-		# if rect == sf.FloatRect(0,0,0,0):
 		if rect.width == 0 and rect.height == 0:
 			self.rect = self._sprite.global_bounds
 		else:
@@ -55,15 +54,15 @@ class Image(Widget):
 			drawable.append(self._sprite)
 		Widget.update(self, drawable)
 
-	def _setPos(self, position):
-		Widget._setPos(self, position)
+	def setPos(self, position, withOrigin):
+		Widget.setPos(self, position, withOrigin)
 		self._sprite.position = position
 
-	def _setDimensions(self, size):
+	def setDimensions(self, size):
 		if self._sprite.texture:
 				self._sprite.scale = sf.Vector2f(size.x / self.sprite.local_bounds.width, size.y / self.sprite.local_bounds.height)
 
-		Widget._setDimensions(self, size)
+		Widget.setDimensions(self, size)
 
 	def setTextureRect(self, rect):
 		self.sprite.texture_rect(rect)
@@ -145,5 +144,3 @@ class Image(Widget):
 
 	sprite = property(_getSprite, setSource)
 	texture = property(_getTexture)
-	pos = property(Widget._getPos, _setPos)
-	dimensions = property(Widget._getDimensions, _setDimensions)

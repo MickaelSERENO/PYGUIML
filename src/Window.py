@@ -1,20 +1,20 @@
 import sfml as sf
 from Render import Render
 from EventManager import EventManager
-from Image import Image
-
 
 class Window(Render, sf.RenderWindow):
 	"""This class create a window
 	Cette classe créé une fenêtre"""
 
-	def __init__(self, videoMode, title, parent=0, framerateLimit=60, colorBackground = sf.Color.BLACK, imageBackground = Image()):
+	def __init__(self, videoMode, title, parent=0, framerateLimit=60,\
+			colorBackground = sf.Color.BLACK, imageBackground = Image()):
 		sf.RenderWindow.__init__(self, videoMode, title)
-		Render.__init__(self, parent, sf.FloatRect(0, 0, videoMode.width, videoMode.height), backgroundColor, backgroundImage)
+		Render.__init__(self, parent, sf.FloatRect(0, 0, videoMode.width,\
+				videoMode.height), backgroundColor, backgroundImage)
 
+		self._isStaticToView = False
+		self.position = sf.Vector2f(0,0)
 		self.framerate_limit = framerateLimit
-		self._framerate = framerateLimit
-		self.colorBackground = colorBackground
 		self._event = EventManager(self)
 		self.resetView()
 
@@ -56,16 +56,10 @@ class Window(Render, sf.RenderWindow):
 		self.addChild(self._imageBackground, 1)
 		self._imageBackground.rect = sf.FloatRect(0, 0, self._dimensions.x, self._dimensions.y)
 
-		
-	def _getFramerate(self):
-		return self._framerate
-
 	def _resizeWidget(self, pos, size):
 		self._dimensions = size
 
 	def getEvent(self):
 		return self._event
 	
-	imageBackground = property(_getImageBackground, _setImageBackground)
-	framerate = property(_getFramerate)
 	event = property(getEvent)

@@ -2,10 +2,11 @@ import sfml as sf
 from EventManager import EventManager
 from copy import copy
 from Updatable import Updatable
+import functions
 
 def enum(*seq, **keys):
-	enums = dict(zip(seq,range(len(keys))),**keys)
-	return type("Enum", (), keys);
+	enums = dict(zip(seq,range(len(seq))),**keys)
+	return type("Enum", (), enums);
 
 Position = enum('TopLeft','TopRight','Center','BottomLeft','BottomRight')
 
@@ -19,7 +20,7 @@ class Widget(Updatable):
 		self.isDrawing = True
 		self._isStaticToView = False
 		self.canFocus = True
-		self.movingiAllChild = False
+		self.movingAllChild = False
 
 		self._origin = sf.Vector2f(0,0)
 		self._posOrigin = Position.TopLeft
@@ -47,6 +48,7 @@ class Widget(Updatable):
 			Updatable.updateFocus(self)
 
 	def update(self, render=None):
+		from Render import Render
 		if not isinstance(render,Render):
 			render = getRender()
 
@@ -71,11 +73,11 @@ class Widget(Updatable):
 
 	def move(self, moving):
 		"""This methode move the widgets. moving is a sf.Vector2f type"""
-		self.pos = (self._virtualPos + moving, false)
+		self.setPos = (self._virtualPos + moving, False)
 
-	def setPositionOnScreen(self, position, withOrigin):
+	def setPositionOnScreen(self, position, withOrigin=True):
 		render = getRender()
-		if self._isStaticToView and isinstance(render, Render):
+		if self._isStaticToView and render is not None:
 			self._setPosition(position-render.getViewPosition(), withOrigin)
 		else:
 			self._setPosition(position, withOrigin)
@@ -115,7 +117,7 @@ class Widget(Updatable):
 			if isinstance(child,Widget):
 				child.resizeWidget(defaultWindowSize, newWindowSize);
 
-	def setPos(self, pos, withOrigin):
+	def setPos(self, pos, withOrigin=True):
 		if self.movingAllChild:
 			for child in self._child:
 				child.move(pos.x - self._virtualPos.x, \
@@ -124,7 +126,7 @@ class Widget(Updatable):
 		render = self.getRender()
 		addView = sf.Vector2f(0,0)
 
-		if isinstance(render,Render) and self._isStaticToView:
+		if render is not None and self._isStaticToView:
 			addView = copy(render.getViewPosition())
 
 		if isinstance(self._event, EventManager):
@@ -133,27 +135,26 @@ class Widget(Updatable):
 				newWindowSize = event.newWindowSize
 
 				if withOrigin:
-					self._pos = sf.Vector2f((pos - self._origin + addView) *\
-							newWindowSize / defaultWindowSize)
+					self._pos = (pos - self._origin + addView) *\
+							newWindowSize / defaultWindowSize
 				else:
-					self._pos = sf.Vector2f((self.pos + addView) *\
-							newWindowSize / defaultWindowSize)
+					self._pos = (self.pos + addView) * \
+							newWindowSize / defaultWindowSize
 			else:
 				if withOrigin:
-					self._pos = sf.Vector2f(pos - self._origin + addView)
+					self._pos = pos - self._origin + addView
 				else:
-					self._pos = sf.Vector2f(pos+addView)
+					self._pos = pos+addView
 
 		else:
 			if withOrigin:
-				self._pos = sf.Vector2f(pos - self._origin + addView)
+				self._pos = pos - self._origin + addView
 			else:
-				self._pos = sf.Vector2f(pos+addView)
-
+				self._pos = pos+addView
 		if withOrigin:
-			self._virtualPos = sf.Vector2f(pos - self._origin + addView)
+			self._virtualPos = pos - self._origin + addView
 		else:
-			self._virtualPos = sf.Vector2f(pos+addView)
+			self._virtualPos = pos+addView
 
 	def setDimensions(self, dimensions):
 		self._scale = sf.Vector2f(1,1)
@@ -161,15 +162,15 @@ class Widget(Updatable):
 			defaultWindowSize = event.defaultWindowSize
 			if defaultWindowSize.x != 0 and defaultWindowSize.y != 0:
 				newWindowSize = event.newWindowSize
-				self._dimensions = sf.Vector2f(\
+				self._dimensions = \
 						dimensions.x * newWindowSize.x / defaultWindowSize.x,\
-						dimensions.y * newWindowSize.y / defaultWindowSize.y)
+						dimensions.y * newWindowSize.y / defaultWindowSize.y
 			else:
-				self._dimensions = copy(dimensions)
+				self._dimensions = dimensions
 
 		else:
-			self._dimensions = copy(dimensions)
-		self._virtualDimensions = copy(dimensions)
+			self._dimensions = dimensions
+		self._virtualDimensions = dimensions
 		self._setOriginPos(self._posOrigin)
 
 	def setIsStaticToView(self, new, change=True):
@@ -178,7 +179,7 @@ class Widget(Updatable):
 		if change:
 			self.pos = self._pos
 
-	def getPos(self, withOrigin):
+	def getPos(self, withOrigin=True):
 		if withOrigin:
 			if self._pos.x == 0 and self.__pos.y == 0:
 				return self._origin 
@@ -198,9 +199,9 @@ class Widget(Updatable):
 		else:
 			return self._pos
 
-	def getPosOnScreen(self, withOrigin):
+	def getPosOnScreen(self, withOrigin=True):
 		render = self.getRender()
-		if isinstance(render,Render):
+		if render is not None:
 			if self._event:
 				defaultWindowSize = self._event.defaultWindowSize()
 				if defaultWindowSize.x != 0 and defaultWindowSize.y != 0:
@@ -211,18 +212,19 @@ class Widget(Updatable):
 			
 		return self.getVirtualPos(withOrigin)
 
-	def getVirtualPos(self, withOrigin):
+	def getVirtualPos(self, withOrigin=True):
 		if withOrigin:
 			return sf.Vector2f(self._virtualPos + self._origin)
 		return self._virtualPos
 
-	def getVirtualPosOnScreen(self, withOrigin):
+	def getVirtualPosOnScreen(self, withOrigin=True):
 		render = self.getRender()
-		if isinstance(render,Render):
+		if render is not None:
 			return self.getVirtualPos(withOrigin)-render.getViewPosition()
 		else:
 			return self.getVirtualPos(withOrigin)
 
+			print("they are Rect")
 	def _setOrigin(self, newOrigin):
 		"""Change the origin of the widget"""
 		self.move = sf.Vector2f(newOrigin-self._origin)
@@ -230,7 +232,7 @@ class Widget(Updatable):
 		self._posOrigin = Other
 
 	def _setOriginPos(self, position):
-		back = copy(m_origin)
+		back = copy(self._origin)
 
 		if position == Position.TopLeft:
 			self._origin = sf.Vector2f(0,0)
@@ -260,8 +262,10 @@ class Widget(Updatable):
 	def _setRect(self, rect):
 		"""rect is a sf.FloatRect type.
 		This methode set the dimensions and the positions of the widget"""
-		self._setDimensions(sf.Vector2f(rect.width, rect.height))
-		self._setPos(sf.Vector2f(rect.left, rect.top), False)
+		if isinstance(rect,sf.FloatRect):
+			self.setPos(sf.Vector2f(rect.left, rect.top), False)
+			self.setDimensions(sf.Vector2f(rect.width, rect.height))
+			print("they are Rect")
 
 	isStaticToView = property(lambda self : self._isStaticToView, \
 			lambda self,static: self._setIsStaticToView(static))
@@ -276,7 +280,7 @@ class Widget(Updatable):
 	virtualDimensions = property(lambda self : self._virtualDimensions)
 
 	pos = property(lambda self: self.getPos(), \
-			lambda self,pos : self._setPos(pos))
+			lambda self,pos : self.setPos(pos))
 	posOnScreen = property(lambda self:self.getPosOnScreen(),\
 			lambda self,position:self.setPosOnScreen())
 	virtualPos = property(lambda self: self._getVirtualPos())
@@ -291,5 +295,3 @@ class Widget(Updatable):
 
 	globalScale = property(lambda self:self._scale,\
 			lambda self,newScale : self._setScale(newScale))
-
-from Render import Render
