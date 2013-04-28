@@ -14,7 +14,7 @@ class Render(Widget, sf.RenderTarget):
 		self._backgroundImage = backgroundImage
 		sefl._backgroundImage.setParent = (self, 0)
 		self._backgroundImage.rect = self.rect
-		self.view = sf.View()
+		sf.RenderTarget.view.fset(self,sf.View())
 
 	def show(self, render):
 		raise NotImplementedError
@@ -30,14 +30,6 @@ class Render(Widget, sf.RenderTarget):
 
 	def resetView(self):
 		raise NotImplementedError
-
-	def setView(self, view):
-		back = getViewPosition()
-		self._view = view
-
-		for child in self._child:
-			if isinstance(child,Widget) and child.isStaticToView:
-				child.setPos(child.pos - back)
 
 	def setViewPosition(self, pos):
 		viewCopy = copy(self._view)
@@ -74,20 +66,27 @@ class Render(Widget, sf.RenderTarget):
 		self._backgroundImage.rect = self.rect
 		self._backgroundImage.setParent(self.parent, 0)
 	
-	@view.setter
-	def _setView(self, view): #It is a lot of use for refresh the view
-		self._view = view
+	def _setView(self, view):
+		back = getViewPosition()
+		sf.RenderTarget.view.fset(self,view)
+
+		for child in self._child:
+			if isinstance(child,Widget) and child.isStaticToView:
+				child.setPos(child.pos - back)
 
 	def _setViewport(self, rect):
-		self._view.viewport = rect
-		self.view = self._view
+		newView = copy(self.view)
+		newView.viewport = rect
+		self.view = newView
 
 	def _setTitle(self, title):
 		self._title  = title
 	backgroundImage = property(lambda self:self._backgroundImage,\
 			_setBackgroundImage)
-	viewport = property(lambda self:self._view.viewport,\
+	viewport = property(lambda self:sf.RenderTarget.view.fget(self).viewport,\
 			lambda self,rect : self._setViewport(rect))
 	title = property(lambda self:self._title,\
 			lambda self,title : self._setTitle(title))
-
+	
+	view = property(lambda self:sf.RenderTarget.view.fget(self),\
+			lambda self,view : self._setView(view))
