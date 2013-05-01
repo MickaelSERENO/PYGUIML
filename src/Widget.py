@@ -13,6 +13,7 @@ Position = enum('TopLeft','TopRight','Center','BottomLeft','BottomRight')
 class Widget(Updatable):
 	"""Basic class for create Widgets"""
 
+	filesLoading = dict()
 	widgetFocus = None
 
 	def __init__(self, parent=0, rect=sf.IntRect(0,0,0,0)):
@@ -48,19 +49,20 @@ class Widget(Updatable):
 			Updatable.updateFocus(self)
 
 	def update(self, render=None):
-		from Render import Render
-		if not isinstance(render,Render):
-			render = getRender()
+		if not render:
+			render = self.getRender()
 
-		if self._changeWindow:
-			if self._isStaticToView:
-				self.setRect(self._virtualPos - render.getViewPosition(),\
-						self._virtualDimensions)
-			else:
-				self.setRect(self._getVirtualRect())
+		if render:
+			if self._changeWindow:
+				if self._isStaticToView:
+					self.setRect(self._virtualPos - render.getViewPosition(),\
+							self._virtualDimensions)
+				else:
+					self.setRect(self._getVirtualRect())
 
-		if self.isDrawing and render.isInView(self._getVirtuallRect()):
-			self._draw(render)
+			if self.isDrawing and render.isInView(self._getVirtuallRect()):
+				self._draw(render)
+		super().update()
 
 	def draw(self, render=None):
 		pass
@@ -75,8 +77,8 @@ class Widget(Updatable):
 		"""This methode move the widgets. moving is a sf.Vector2f type"""
 		self.setPos = (self._virtualPos + moving, False)
 
-	def setPositionOnScreen(self, position, withOrigin=True):
-		render = getRender()
+	def setPosOnScreen(self, position, withOrigin=True):
+		render = self.getRender()
 		if self._isStaticToView and render is not None:
 			self._setPosition(position-render.getViewPosition(), withOrigin)
 		else:
@@ -177,7 +179,12 @@ class Widget(Updatable):
 		"""Methode for set your widget static on the view or not"""
 		self._isStaticToView = copy(new)
 		if change:
-			self.pos = self._pos
+			if self._isStaticToView:
+				self.pos = self._pos
+			else:
+				render = self.getRender()
+				if render:
+					self.pos = self._pos - render.getViewPosition()
 
 	def getPos(self, withOrigin=True):
 		if withOrigin:
@@ -224,7 +231,6 @@ class Widget(Updatable):
 		else:
 			return self.getVirtualPos(withOrigin)
 
-			print("they are Rect")
 	def _setOrigin(self, newOrigin):
 		"""Change the origin of the widget"""
 		self.move = sf.Vector2f(newOrigin-self._origin)
@@ -268,7 +274,7 @@ class Widget(Updatable):
 			print("they are Rect")
 
 	isStaticToView = property(lambda self : self._isStaticToView, \
-			lambda self,static: self._setIsStaticToView(static))
+			lambda self,static: self.setIsStaticToView(static))
 
 	origin = property(lambda self: self._origin,\
 			lambda self,origin : self._setOrigin(origin))

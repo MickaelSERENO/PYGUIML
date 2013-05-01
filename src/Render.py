@@ -1,6 +1,7 @@
 import sfml as sf
 from Image import Image
 from Widget import Widget
+from copy import copy
 
 class Render(Widget, sf.RenderTarget):
 	"""Basic virtual class for all Render's class"""
@@ -10,10 +11,7 @@ class Render(Widget, sf.RenderTarget):
 		sf.RenderTarget.__init__(self)
 		Widget.__init__(self,parent, rect)
 		self.canFocus = False
-		self.backgroundColor = copy(backgroundColor)
-		self._backgroundImage = backgroundImage
-		sefl._backgroundImage.setParent = (self, 0)
-		self._backgroundImage.rect = self.rect
+		self.backgroundColor = backgroundColor
 		sf.RenderTarget.view.fset(self,sf.View())
 
 	def show(self, render):
@@ -24,6 +22,11 @@ class Render(Widget, sf.RenderTarget):
 		newView.move(move)
 		self.view = newView
 
+	def zoomView(self,zoom):
+		newView = copy(self.view)
+		newView.zoom(zoom)
+		self.view = newView
+
 	def resizeView(self, size):
 		self._view.size(size)
 		self.view = self._view
@@ -31,13 +34,23 @@ class Render(Widget, sf.RenderTarget):
 	def resetView(self):
 		raise NotImplementedError
 
+	def setViewSize(self, size):
+		newView = copy(self.view)
+		newView.size = size
+		self.view = newView
+
 	def setViewPosition(self, pos):
 		viewCopy = copy(self._view)
-		viewCopy.center = sf.Vector2f(pos - self._view.size / 2)
+		viewCopy.center = sf.Vector2f(pos - self.view.size / 2)
+		self.view = viewCopy
+
+	def setViewport(self, viewport):
+		viewCopy = copy(self._view)
+		viewCopy.viewport = viewport 
 		self.view = viewCopy
 
 	def getViewPosition(self):
-		return sf.Vector2f(self._view.center + self._view.size / 2)
+		return sf.Vector2f(self.view.center + self.view.size / 2)
 
 	def getSommeViewPosition(self):
 		render = Widget.getRender()
@@ -46,9 +59,6 @@ class Render(Widget, sf.RenderTarget):
 					self.getViewPosition())
 		else:
 			return self.getViewPosition()
-
-	def getViewport(self):
-		return self._view.viewport
 
 	def getViewRect(self):
 		return sf.FloatRect(self._view.getViewPosition().x,\
@@ -59,15 +69,16 @@ class Render(Widget, sf.RenderTarget):
 		return self
 
 	def isInView(self,rect):
-		return functions.rectCollision(rect,self.getViewRect())
+		return functions.rectCollision(rect,self.view.viewport)
 
 	def _setBackgroundImage(self, backgroundImage):
-		self._backgroundImage = backgroundImage.getCopyWidget
-		self._backgroundImage.rect = self.rect
+		self._backgroundImage = backgroundImage
+		self._backgroundImage.pos = sf.Vector2f(0,0)
+		self._backgroundImage.dimensions = self.dimensions
 		self._backgroundImage.setParent(self.parent, 0)
 	
 	def _setView(self, view):
-		back = getViewPosition()
+		back = self.getViewPosition()
 		sf.RenderTarget.view.fset(self,view)
 
 		for child in self._child:
@@ -81,8 +92,9 @@ class Render(Widget, sf.RenderTarget):
 
 	def _setTitle(self, title):
 		self._title  = title
+
 	backgroundImage = property(lambda self:self._backgroundImage,\
-			_setBackgroundImage)
+			lambda self,image: self._setBackgroundImage(image))
 	viewport = property(lambda self:sf.RenderTarget.view.fget(self).viewport,\
 			lambda self,rect : self._setViewport(rect))
 	title = property(lambda self:self._title,\

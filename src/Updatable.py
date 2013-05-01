@@ -23,12 +23,12 @@ class Updatable:
 			else:
 				child.updateFocus()
 
-	def update(self, drawables):
+	def update(self, render=None):
 		"""THIS methode Update all child of this Widget. 
 		It launch them Update() for drawing there"""
 
 		for child in self._child:
-			child.update(drawables)
+			child.update(render)
 		self._changeWindow=False
 	
 	def removeChild(self, child):
