@@ -40,7 +40,7 @@ class EventManager:
 
 	def update(self):
 		"""Update the class : it see if there are news events"""
-		self._elapsedTime = self._clock.elapsed_time.as_milliseconds()
+		self._elapsedTime = self._clock.elapsed_time.as_microseconds()
 		self._clock.restart()
 
 		if self._hasPressedKeyMouse:
@@ -96,7 +96,7 @@ class EventManager:
 					self._newWindowSize = sf.Vector2f(event.width,\
 							event.height)
 
-		if self._keys[sf.Keyboard.BACK]:
+		if self._keys[sf.Keyboard.BACK_SPACE]:
 			self._enteredText = False
 
 		if self._isResize and self._defaultWindowSize.x != 0 and\

@@ -1,65 +1,75 @@
 import sfml as sf
 from Render import Render
+from Updatable import Updatable
+from Widget import Widget
 from EventManager import EventManager
+from Image import Image
 
 class Window(Render, sf.RenderWindow):
 	"""This class create a window
 	Cette classe créé une fenêtre"""
 
 	def __init__(self, videoMode, title, parent=0, framerateLimit=60,\
-			colorBackground = sf.Color.BLACK, imageBackground = Image()):
+			backgroundColor = sf.Color.BLACK, backgroundImage = Image()):
 		sf.RenderWindow.__init__(self, videoMode, title)
 		Render.__init__(self, parent, sf.FloatRect(0, 0, videoMode.width,\
 				videoMode.height), backgroundColor, backgroundImage)
 
 		self._isStaticToView = False
-		self.position = sf.Vector2f(0,0)
+		self.position = (0,0)
 		self.framerate_limit = framerateLimit
 		self._event = EventManager(self)
 		self.resetView()
+		self.clear(backgroundColor)
 
-	def update(self, drawable=None):
-		"""Update the Window. It Update all event, and update framerate. It Draw and display also all drawable' widgets child"""
-		if self._isDrawing:
+	def updateFocus(self):
+		return;
+
+	def update(self):
+		"""Update the Window. It Update all event, and update framerate.
+		It Draw and display also all widgets child"""
+		if self.isDrawing:
 			self._event.update()
-			self._framerate = 1/(self.event.elapsedTime * 0.001)
+			self._framerate = 1/(self.event.elapsedTime*10**-6)
 
-			if self.getEvent().isResize:
-				Widget.resizeWidget(self.event.defaultWindowSize, self.event.newWindowSize)
+			if self.event.isResize:
+				Widget.resizeWidget(self.event.defaultWindowSize,\
+						self.event.newWindowSize)
 	
-			self.clear(self.colorBackground)
-			if drawable is None:
-				drawable = list()
-			Widget.update(self, drawable)
-			self.show(drawable)
+			Widget.widgetFocus =  None
+			Updatable._focusIsChecked = False
 
-	def show(self, drawable):
-		"""Show all drawables. Often, you needn't call this methode but call the Update methode"""
-		for it in drawable:
-			self.draw(it)
-		self.display()
+			self.clear(self.backgroundColor)
+
+			if self.event.isMouseInRect(self.rectOnScreen):
+				Updatable.updateFocus(self)
+			Widget.update(self, self)
+			self.display()
+
+	def getEventFromRootParent(self):
+		return self._event
 
 	def _setDimensions(self, size):
 		Widget.dimensions = size
 		sf.RenderWindow.size = size
-		self._imageBackground.scale = sf.Vector2f(size.x/self._imageBackground.local_bounds, size.y/self._imageBackground.local_bounds)
-		
-	def _setPos(self, position):
-		Widget._setPos(self, position)
+		self._imageBackground.scale = sf.Vector2f(\
+				size.x/self._imageBackground.local_bounds,\
+				size.y/self._imageBackground.local_bounds)
+
+	def getPosOnScreen(self, *args):
+		return sf.Vector2f(0,0)
+
+	def setPos(self, position, *args):
+		Widget.setPos(position, False)
 		self.position = position
+
+	def _setView(self,view):
+		sf.RenderWindow.view.__set__(self, view)
+		Render._setView(self,view)
 	
-	def _getImageBackground(self):
-		return self._imageBackground
-
-	def _setImageBackground(self, background):
-		self._imageBackground = background.getCopyWidget()
-		self.addChild(self._imageBackground, 1)
-		self._imageBackground.rect = sf.FloatRect(0, 0, self._dimensions.x, self._dimensions.y)
-
 	def _resizeWidget(self, pos, size):
 		self._dimensions = size
-
-	def getEvent(self):
-		return self._event
 	
-	event = property(getEvent)
+	event = property(lambda self:self._event)
+	framerate = property(lambda self:1/self._event.elapsedTime*0.001)
+	setPosOnScreen = setPos

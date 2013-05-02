@@ -10,7 +10,7 @@ class Image(Widget):
 	textures = dict()
 
 	def __init__(self, parent=0, source=sf.Sprite(), delTextureCreated=True,\
-			rect=sf.FloatRect(0,0,0,0)):
+			rect= sf.FloatRect(0,0,0,0)):
 		"""source can be a sf.Texture, a bytes string or a sf.Sprite() type"""
 		Widget.__init__(self, parent, rect)
 		self.focus = False

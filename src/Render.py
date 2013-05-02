@@ -12,7 +12,6 @@ class Render(Widget, sf.RenderTarget):
 		Widget.__init__(self,parent, rect)
 		self.canFocus = False
 		self.backgroundColor = backgroundColor
-		sf.RenderTarget.view.fset(self,sf.View())
 
 	def show(self, render):
 		raise NotImplementedError
@@ -32,7 +31,7 @@ class Render(Widget, sf.RenderTarget):
 		self.view = self._view
 
 	def resetView(self):
-		raise NotImplementedError
+		self.view = self.default_view
 
 	def setViewSize(self, size):
 		newView = copy(self.view)
@@ -50,7 +49,8 @@ class Render(Widget, sf.RenderTarget):
 		self.view = viewCopy
 
 	def getViewPosition(self):
-		return sf.Vector2f(self.view.center + self.view.size / 2)
+		return sf.Vector2f(self.view.center[0],self.view.center[1]) + \
+				sf.Vector2f(self.view.size[0],self.view.size[1]) / 2
 
 	def getSommeViewPosition(self):
 		render = Widget.getRender()
@@ -79,7 +79,7 @@ class Render(Widget, sf.RenderTarget):
 	
 	def _setView(self, view):
 		back = self.getViewPosition()
-		sf.RenderTarget.view.fset(self,view)
+		sf.RenderTarget.view.__set__(self,view)
 
 		for child in self._child:
 			if isinstance(child,Widget) and child.isStaticToView:
@@ -100,5 +100,5 @@ class Render(Widget, sf.RenderTarget):
 	title = property(lambda self:self._title,\
 			lambda self,title : self._setTitle(title))
 	
-	view = property(lambda self:sf.RenderTarget.view.fget(self),\
+	view = property(lambda self:sf.RenderTarget.view.__get__(self),\
 			lambda self,view : self._setView(view))

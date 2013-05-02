@@ -60,7 +60,7 @@ class Widget(Updatable):
 				else:
 					self.setRect(self._getVirtualRect())
 
-			if self.isDrawing and render.isInView(self._getVirtuallRect()):
+			if self.isDrawing and render.isInView(self._getVirtualRect()):
 				self._draw(render)
 		super().update()
 
@@ -75,7 +75,7 @@ class Widget(Updatable):
 
 	def move(self, moving):
 		"""This methode move the widgets. moving is a sf.Vector2f type"""
-		self.setPos = (self._virtualPos + moving, False)
+		self.setPos(self._virtualPos + moving, False)
 
 	def setPosOnScreen(self, position, withOrigin=True):
 		render = self.getRender()
@@ -188,7 +188,7 @@ class Widget(Updatable):
 
 	def getPos(self, withOrigin=True):
 		if withOrigin:
-			if self._pos.x == 0 and self.__pos.y == 0:
+			if self._pos.x == 0 and self._pos.y == 0:
 				return self._origin 
 			elif self._pos.x == 0:
 					return sf.Vector2f(self._origin.x, \
@@ -213,7 +213,7 @@ class Widget(Updatable):
 				defaultWindowSize = self._event.defaultWindowSize()
 				if defaultWindowSize.x != 0 and defaultWindowSize.y != 0:
 					newWindowSize = self._event.newWindowSize()
-					return sf.Vector2f(self.getPosition(withOrigin) -\
+					return sf.Vector2f(self.getPos(withOrigin) -\
 						render.getViewPosition() *\
 						newWindowSize / defaultWindowSize)\
 			
@@ -221,7 +221,7 @@ class Widget(Updatable):
 
 	def getVirtualPos(self, withOrigin=True):
 		if withOrigin:
-			return sf.Vector2f(self._virtualPos + self._origin)
+			return self._virtualPos + self._origin
 		return self._virtualPos
 
 	def getVirtualPosOnScreen(self, withOrigin=True):
@@ -257,21 +257,29 @@ class Widget(Updatable):
 	def _getRect(self):
 		"""Set the Rect of the view"""
 		return sf.FloatRect(\
-				self.getPosition(False).y, self.getPosition(False).y,\
+				self._pos.x, self._pos.y,\
 				self._dimensions.x, self._dimensions.y)
+
+	def _getRectOnScreen(self):
+		pos = self.getPosOnScreen(False)
+		return sf.FloatRect(pos.x,pos.y,\
+				self._dimensions.x, self._dimensions.y)
+
+	def _getVirtualRectOnScreen(self):
+		pos = self.getVirtualPosOnScreen(False)
+		return sf.FloatRect(pos.x,pos.y,\
+				self._virtualDimensions.x, self._virtualDimensions.y)
 
 	def _getVirtualRect(self):
 		return sf.FloatRect(\
-				self.getVirtualPos(False).x, self.getVirtualPos(False).y,\
+				self._virtualPos.x, self._virtualPos.y,\
 				self._virtualDimensions.x, self._virtualDimensions.y)
 
 	def _setRect(self, rect):
 		"""rect is a sf.FloatRect type.
 		This methode set the dimensions and the positions of the widget"""
-		if isinstance(rect,sf.FloatRect):
-			self.setPos(sf.Vector2f(rect.left, rect.top), False)
-			self.setDimensions(sf.Vector2f(rect.width, rect.height))
-			print("they are Rect")
+		self.setPos(sf.Vector2f(rect.left, rect.top), False)
+		self.setDimensions(sf.Vector2f(rect.width, rect.height))
 
 	isStaticToView = property(lambda self : self._isStaticToView, \
 			lambda self,static: self.setIsStaticToView(static))
@@ -289,7 +297,7 @@ class Widget(Updatable):
 			lambda self,pos : self.setPos(pos))
 	posOnScreen = property(lambda self:self.getPosOnScreen(),\
 			lambda self,position:self.setPosOnScreen())
-	virtualPos = property(lambda self: self._getVirtualPos())
+	virtualPos = property(lambda self: self.getVirtualPos())
 	virtualPosOnScreen = property(lambda self:self.getVirtualPosOnScreen())
 
 	rect = property(lambda self:self._getRect(),\
