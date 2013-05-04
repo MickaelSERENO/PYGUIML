@@ -11,9 +11,10 @@ class Window(Render, sf.RenderWindow):
 
 	def __init__(self, videoMode, title, parent=0, framerateLimit=60,\
 			backgroundColor = sf.Color.BLACK, backgroundImage = Image()):
+
 		sf.RenderWindow.__init__(self, videoMode, title)
-		Render.__init__(self, parent, sf.FloatRect(0, 0, videoMode.width,\
-				videoMode.height), backgroundColor, backgroundImage)
+		Render.__init__(self, parent, sf.Rectangle(sf.Vector2(),\
+				videoMode.size), backgroundColor, backgroundImage)
 
 		self._isStaticToView = False
 		self.position = (0,0)
@@ -32,32 +33,31 @@ class Window(Render, sf.RenderWindow):
 			self._event.update()
 			self._framerate = 1/(self.event.elapsedTime*10**-6)
 
-			if self.event.isResize:
-				Widget.resizeWidget(self.event.defaultWindowSize,\
-						self.event.newWindowSize)
+			if self._event.isResize:
+				Render._setSize(self,self.size)
+				Widget._resizeWidget(self)
+				print("ok")
+				
 	
 			Widget.widgetFocus =  None
 			Updatable._focusIsChecked = False
 
-			self.clear(self.backgroundColor)
 
 			if self.event.isMouseInRect(self.rectOnScreen):
 				Updatable.updateFocus(self)
 			Widget.update(self, self)
 			self.display()
+			self.clear(self.backgroundColor)
 
 	def getEventFromRootParent(self):
 		return self._event
 
-	def _setDimensions(self, size):
-		Widget.dimensions = size
-		sf.RenderWindow.size = size
-		self._imageBackground.scale = sf.Vector2f(\
-				size.x/self._imageBackground.local_bounds,\
-				size.y/self._imageBackground.local_bounds)
+	def _setSize(self, size):
+		print("ok")
+		Widget.size.__set__(self,size)
 
 	def getPosOnScreen(self, *args):
-		return sf.Vector2f(0,0)
+		return sf.Vector2(0,0)
 
 	def setPos(self, position, *args):
 		Widget.setPos(position, False)
@@ -68,8 +68,11 @@ class Window(Render, sf.RenderWindow):
 		Render._setView(self,view)
 	
 	def _resizeWidget(self, pos, size):
-		self._dimensions = size
+		self._size = size
+		self._virtualSize = size
 	
+	size = sf.RenderWindow.size
+	virtualSize = size
 	event = property(lambda self:self._event)
 	framerate = property(lambda self:1/self._event.elapsedTime*0.001)
 	setPosOnScreen = setPos

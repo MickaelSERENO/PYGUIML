@@ -16,21 +16,21 @@ class Widget(Updatable):
 	filesLoading = dict()
 	widgetFocus = None
 
-	def __init__(self, parent=0, rect=sf.IntRect(0,0,0,0)):
+	def __init__(self, parent=0, rect=sf.Rectangle()):
 		Updatable.__init__(self,parent)
 		self.isDrawing = True
 		self._isStaticToView = False
 		self.canFocus = True
 		self.movingAllChild = False
 
-		self._origin = sf.Vector2f(0,0)
+		self._origin = sf.Vector2(0,0)
 		self._posOrigin = Position.TopLeft
 
-		self._pos = sf.Vector2f(rect.left,rect.top)
-		self._dimensions = sf.Vector2f(rect.width, rect.height)
+		self._pos = sf.Vector2(rect.left,rect.top)
+		self._size = sf.Vector2(rect.width, rect.height)
 		self._virtualPos = copy(self._pos)
-		self._virtualDimensions = copy(self._dimensions)
-		self._scale = sf.Vector2f(1,1)
+		self._virtualSize = copy(self._size)
+		self._scale = sf.Vector2(1,1)
 
 	def getCopyWidget(self):
 		"""This methode return a copy of this Widget.
@@ -55,13 +55,13 @@ class Widget(Updatable):
 		if render:
 			if self._changeWindow:
 				if self._isStaticToView:
-					self.setRect(self._virtualPos - render.getViewPosition(),\
-							self._virtualDimensions)
+					self.setRect(self.virtualPos - render.getViewPosition(),\
+							self.virtualSIze)
 				else:
 					self.setRect(self._getVirtualRect())
 
 			if self.isDrawing and render.isInView(self._getVirtualRect()):
-				self._draw(render)
+				self.draw(render)
 		super().update()
 
 	def draw(self, render=None):
@@ -74,7 +74,7 @@ class Widget(Updatable):
 				child._isDrawing = True
 
 	def move(self, moving):
-		"""This methode move the widgets. moving is a sf.Vector2f type"""
+		"""This methode move the widgets. moving is a sf.Vector2 type"""
 		self.setPos(self._virtualPos + moving, False)
 
 	def setPosOnScreen(self, position, withOrigin=True):
@@ -85,35 +85,35 @@ class Widget(Updatable):
 			self._setPosition(position, withOrigin)
 
 	def scale(self, scale):
-		"""scale is a sf.Vector2f type.
-		This methode set the dimensions of the widget"""
-		self._scale = sf.Vector2f(x * self._scale.x, y*self._scale.y)
-		self.dimensions = sf.Vector2f(self._virtualDimensions.x * scale.x,\
-				self.dimensions.y * scale.y)
+		"""scale is a sf.Vector2 type.
+		This methode set the size of the widget"""
+		self._scale = sf.Vector2(x * self._scale.x, y*self._scale.y)
+		self.size = sf.Vector2(self.virtualSize.x * scale.x,\
+				self.size.y * scale.y)
 
 	def addSize(self, addingSize):
 		"""This methode add a size at the widget.
-		addingSize is a sf.Vector2f type"""
-		self.dimensions = sf.Vector2f(self._virtualDimensions.x+addingSize.x,\
-				self._virtualDimensions.y + addingSize.y)
+		addingSize is a sf.Vector2 type"""
+		self.size = sf.Vector2(self.virtualSize.x+addingSize.x,\
+				self.virtualSize.y + addingSize.y)
 	
-	def resizeWidget(selfi, defaultWindowSize, newWindowSize):
+	def _resizeWidget(self):
 		"""This methode resize correctly the Widgets"""
 
-		newWindowSize = self._event.newWindowSize()
-		defaultWindowSize = self._event.defaultWindowSize()
+		newWindowSize = self._event.newWindowSize
+		defaultWindowSize = self._event.defaultWindowSize
 
 		if defaultWindowSize.x != 0:
-			self._dimensions.x = self._virtualDimensions.x * \
+			self._size.x = self.virtualSize.x * \
 					newWindowSize.x / defaultWindowSize.x
 			self._pos.x =\
-					self._virtualPos.x * newWindowSize.x / defaultWindowSize.x
+					self.virtualPos.x * newWindowSize.x / defaultWindowSize.x
 
 		if defaultWindowSize.y !=0:
-			self._dimensions.y = self._virtualDimensions.y * \
+			self._size.y = self.virtualSize.y * \
 					newWindowSize.y / defaultWindowSize.y
 			self._pos.y =\
-					self._virtualPos.y * newWindowSize.y / defaultWindowSize.y
+					self.virtualPos.y * newWindowSize.y / defaultWindowSize.y
 
 		for child in self._child:
 			if isinstance(child,Widget):
@@ -126,10 +126,11 @@ class Widget(Updatable):
 						pos.y - self._virtualPos.y)
 
 		render = self.getRender()
-		addView = sf.Vector2f(0,0)
+		addView = sf.Vector2(0,0)
 
 		if render is not None and self._isStaticToView:
-			addView = copy(render.getViewPosition())
+			addView = copy(render.getViewRectWithZoom())
+			addView = sf.Vector2(addView.left, addView.top)
 
 		if isinstance(self._event, EventManager):
 			defaultWindowSize = event.defaultWindowSize
@@ -158,21 +159,21 @@ class Widget(Updatable):
 		else:
 			self._virtualPos = pos+addView
 
-	def setDimensions(self, dimensions):
-		self._scale = sf.Vector2f(1,1)
+	def setSize(self, size):
+		self._scale = sf.Vector2(1,1)
 		if isinstance(self._event, EventManager):
-			defaultWindowSize = event.defaultWindowSize
+			defaultWindowSize = self._event.defaultWindowSize
 			if defaultWindowSize.x != 0 and defaultWindowSize.y != 0:
-				newWindowSize = event.newWindowSize
-				self._dimensions = \
-						dimensions.x * newWindowSize.x / defaultWindowSize.x,\
-						dimensions.y * newWindowSize.y / defaultWindowSize.y
+				newWindowSize = self._event.newWindowSize
+				self._size = \
+						size.x * newWindowSize.x / defaultWindowSize.x,\
+						size.y * newWindowSize.y / defaultWindowSize.y
 			else:
-				self._dimensions = dimensions
+				self._size = size
 
 		else:
-			self._dimensions = dimensions
-		self._virtualDimensions = dimensions
+			self._size = size
+		self._virtualSize = size
 		self._setOriginPos(self._posOrigin)
 
 	def setIsStaticToView(self, new, change=True):
@@ -184,21 +185,24 @@ class Widget(Updatable):
 			else:
 				render = self.getRender()
 				if render:
-					self.pos = self._pos - render.getViewPosition()
+					viewPosition = render.getViewRectWithZoom()
+					viewPosition = sf.Vector2(viewPosition.left,\
+							viewPosition.top)
+					self.pos = self._pos - viewPosition
 
 	def getPos(self, withOrigin=True):
 		if withOrigin:
 			if self._pos.x == 0 and self._pos.y == 0:
 				return self._origin 
 			elif self._pos.x == 0:
-					return sf.Vector2f(self._origin.x, \
+					return sf.Vector2(self._origin.x, \
 							self._pos.y/self._virtualPos.y*\
 							(self._virtualPos.y+self._origin.y))
 			elif self._pos.y==0:
-				return sf.Vector2f(self._pos.x/self._virtualPos.x*\
+				return sf.Vector2(self._pos.x/self._virtualPos.x*\
 						(self._virtualPos.x+self._origin.x), self._origin.y)
 			else:
-				return sf.Vector2f(self._pos.x/se._virtualPos.x*\
+				return sf.Vector2(self._pos.x/se._virtualPos.x*\
 						(self._virtualPos.x+self._origin.x),\
 						self._pos.y/self._virtualPos.y*\
 						(self._virtualPos.y+self._origin.y))
@@ -213,7 +217,7 @@ class Widget(Updatable):
 				defaultWindowSize = self._event.defaultWindowSize()
 				if defaultWindowSize.x != 0 and defaultWindowSize.y != 0:
 					newWindowSize = self._event.newWindowSize()
-					return sf.Vector2f(self.getPos(withOrigin) -\
+					return sf.Vector2(self.getPos(withOrigin) -\
 						render.getViewPosition() *\
 						newWindowSize / defaultWindowSize)\
 			
@@ -231,9 +235,21 @@ class Widget(Updatable):
 		else:
 			return self.getVirtualPos(withOrigin)
 
+	def getSizeOnScreen(self):
+		render = self.getRender()
+		if render:
+			return self._size*render.getViewScale().size
+		return self._size
+
+	def getVitualSizeOnScreen(self):
+		render = self.Render()
+		if render:
+			return self.virtualSize*render.getViewScale().size
+		return self.virtualSize
+
 	def _setOrigin(self, newOrigin):
 		"""Change the origin of the widget"""
-		self.move = sf.Vector2f(newOrigin-self._origin)
+		self.move = sf.Vector2(newOrigin-self._origin)
 		self._origin = newOrigin
 		self._posOrigin = Other
 
@@ -241,45 +257,39 @@ class Widget(Updatable):
 		back = copy(self._origin)
 
 		if position == Position.TopLeft:
-			self._origin = sf.Vector2f(0,0)
+			self._origin = sf.Vector2(0,0)
 		elif position == Position.TopRight:
-			self._origin = sf.Vector2f(self._virtualSize.x,0)
+			self._origin = sf.Vector2(self.virtualSize.x,0)
 		elif position == Position.Center:
-			self._origin = sf.Vector2f(self._virtualSize/2)
+			self._origin = sf.Vector2(self.virtualSize/2)
 		elif position == Position.BottomLeft:
-			self._origin = sf.Vector2f(0,self._virtualSize.y)
+			self._origin = sf.Vector2(0,self.virtualSize.y)
 		elif position == Position.BottomRight:
-			self._origin = copy(self._virtualSize)
+			self._origin = copy(self.virtualSIze)
 
 		self.move(self._origin-back)
 		self._posOrigin = position
 	
 	def _getRect(self):
 		"""Set the Rect of the view"""
-		return sf.FloatRect(\
-				self._pos.x, self._pos.y,\
-				self._dimensions.x, self._dimensions.y)
+		return sf.Rectangle(self._pos, self._size)
 
 	def _getRectOnScreen(self):
-		pos = self.getPosOnScreen(False)
-		return sf.FloatRect(pos.x,pos.y,\
-				self._dimensions.x, self._dimensions.y)
+		return sf.Rectangle(self.getPosOnScreen(False),\
+				self.getSizeOnScreen())
 
 	def _getVirtualRectOnScreen(self):
-		pos = self.getVirtualPosOnScreen(False)
-		return sf.FloatRect(pos.x,pos.y,\
-				self._virtualDimensions.x, self._virtualDimensions.y)
+		return sf.Rectangle(self.getVirtualPosOnScreen(False),\
+				self.getVirtualSizeOnScreen())
 
 	def _getVirtualRect(self):
-		return sf.FloatRect(\
-				self._virtualPos.x, self._virtualPos.y,\
-				self._virtualDimensions.x, self._virtualDimensions.y)
+		return sf.Rectangle(self.virtualPos, self.virtualSize)
 
 	def _setRect(self, rect):
-		"""rect is a sf.FloatRect type.
-		This methode set the dimensions and the positions of the widget"""
-		self.setPos(sf.Vector2f(rect.left, rect.top), False)
-		self.setDimensions(sf.Vector2f(rect.width, rect.height))
+		"""rect is a sf.Rectangle type.
+		This methode set the size and the positions of the widget"""
+		self.setPos(rect.position, False)
+		self.setSize(rect.size)
 
 	isStaticToView = property(lambda self : self._isStaticToView, \
 			lambda self,static: self.setIsStaticToView(static))
@@ -289,9 +299,9 @@ class Widget(Updatable):
 	posOrigin = property(lambda  self: self._posOrigin,\
 			lambda self,position : self._setOriginPos(position))
 
-	dimensions = property(lambda self :	self._dimensions,\
-			lambda self, dimension, : self._setDimensions(dimension))
-	virtualDimensions = property(lambda self : self._virtualDimensions)
+	size = property(lambda self : self._size,\
+			lambda self, dimension, : self.setSize(dimension))
+	virtualSize = property(lambda self : self._virtualSize)
 
 	pos = property(lambda self: self.getPos(), \
 			lambda self,pos : self.setPos(pos))

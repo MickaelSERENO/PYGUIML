@@ -9,8 +9,9 @@ class Image(Widget):
 
 	textures = dict()
 
-	def __init__(self, parent=0, source=sf.Sprite(), delTextureCreated=True,\
-			rect= sf.FloatRect(0,0,0,0)):
+	def __init__(self,parent=0, source=sf.Image.create(20,20,sf.Color.BLACK),\
+			delTextureCreated=True,\
+			rect= sf.Rectangle()):
 		"""source can be a sf.Texture, a bytes string or a sf.Sprite() type"""
 		Widget.__init__(self, parent, rect)
 		self.focus = False
@@ -51,7 +52,7 @@ class Image(Widget):
 						self._sprite.texture.size.y - size, size)
 
 				for j in range(int(topLeft.y)):
-					pixel = image.get_pixel(sf.Vector2f(i,j))
+					pixel = image.get_pixel(sf.Vector2(i,j))
 					pixel.a = 255 * (1 - \
 							max(min((math.sqrt((i-size)**2 +\
 							(j-size)**2)-size+1)/2, 1), 0))
@@ -59,7 +60,7 @@ class Image(Widget):
 
 				for j in range(int(self._sprite.texture.size.y-1),\
 						int(bottomLeft.y), -1):
-					pixel = image.get_pixel(sf.Vector2f(i,j))
+					pixel = image.get_pixel(sf.Vector2(i,j))
 					pixel.a = 255 * (1 - \
 							max(min((math.sqrt((i-size)**2 +\
 							(j-size-self._sprite.texture.size.y)**2)-\
@@ -67,7 +68,7 @@ class Image(Widget):
 					image.set_pixel(i, j, pixel)
 
 				for j in range(int(topRight.y)):
-					pixel = image.get_pixel(sf.Vector2f(i,j))
+					pixel = image.get_pixel(sf.Vector2(i,j))
 					pixel.a = 255 * (1 - \
 							max(min((math.sqrt(\
 							(i-size-self._sprite.texture.size.x)**2 +\
@@ -76,7 +77,7 @@ class Image(Widget):
 
 				for j in range(int(self._sprite.texture.size.y-1),\
 						int(bottomRight.y), -1):
-					pixel = image.get_pixel(sf.Vector2f(i,j))
+					pixel = image.get_pixel(sf.Vector2(i,j))
 					pixel.a = 255 * (1 - \
 							max(min((math.sqrt(\
 							(i-size-self._sprite.texture.size.x)**2 +\
@@ -89,7 +90,7 @@ class Image(Widget):
 
 		else:
 			render = sf.RenderTexture
-			render.size = sf.Vector2f(m_virtualSize.x, m_virtualSize.y)
+			render.size = sf.Vector2(m_virtualSize.x, m_virtualSize.y)
 			render.draw(m_sprite)
 			render.display()
 			self.setSource(render.texture)
@@ -99,7 +100,7 @@ class Image(Widget):
 		"""This Methode set the object's sprite with a texture,
 		a sprite, a image or a bytes string type"""
 
-		texture = sf.Texture()
+		texture = None
 		keyTexture = str()
 		keyTexture = "texture"+str(len(Image.textures))
 
@@ -107,15 +108,15 @@ class Image(Widget):
 			if source in Widget.filesLoading:
 				texture = Widget.filesLoading(source)
 			else:
-				texture = sf.Texture.load_from_file(source)
+				texture = sf.Texture.from_file(source)
 				Widget.filesLoading[source] = texture
 
 		elif isinstance(source, sf.Image):
-			texture = sf.Texture.load_from_image(source)
+			texture = sf.Texture.from_image(source)
 			self._textureCreated[keyTexture]=texture
 
 		elif isinstance(source, sf.Texture):
-			texture = sf.Texture(source)
+			texture = source
 			self._textureCreated[keyTexture]=texture
 
 		elif isinstance(source, sf.Sprite):
@@ -126,7 +127,7 @@ class Image(Widget):
 			raise TypeError("source is not sf.Image type or\
 					sf.Texture type or sf.Sprite type or bytes type")
 
-		if not isinstance(source,bytes):
+		if texture:
 			Image.textures[keyTexture]=texture
 
 		self._sprite = sf.Sprite(texture)
@@ -136,12 +137,12 @@ class Image(Widget):
 		Widget.setPos(self, position, withOrigin)
 		self._sprite.position = self.virtualPos
 
-	def setDimensions(self, size):
-		Widget.setDimensions(self, size)
+	def setSize(self, size):
+		Widget.setSize(self, size)
 		if self._sprite.texture:
-				self._sprite.scale = sf.Vector2f(self.virtualDimensions.x /\
+				self._sprite.ratio = sf.Vector2(self.virtualSize.x /\
 						self.sprite.local_bounds.width,\
-						self.virtualDimensions.y /\
+						self.virtualSize.y /\
 						self.sprite.local_bounds.height)
 
 	def setTextureRect(self, rect):
@@ -150,21 +151,12 @@ class Image(Widget):
 	def setRotation(self, angle):
 		self.sprite.rotate(angle)
 
-	def setOrigin(self, origin):
-		self._sprite.origin = origin
-
-	def setOriginMiddle(self):
-		self.setOrigin(self.size.x/2, self.size.y/2)
-
-	def setOriginRight(self):
-		self.setOrigin(self.size.x, 0)
-
 	def setColor(self, color):
 		self._sprite.color = color
 
 	def setColorPixel(self, pos, color):
 		"""This methode change the pixel color in the position pos.
-		Pos is a Vector2f type"""
+		Pos is a Vector2 type"""
 
 		image = self._texture.copy_to_image()
 		image.set_pixel(x, y, color)
@@ -173,8 +165,8 @@ class Image(Widget):
 	def setPlageColor(self, rect, color):
 		"""This methode set a pixels plage and set there color"""
 		try:
-			if rect.left + rect.width > self.dimensions.x or\
-					rect.top + rect.height > self.dimensions.y:
+			if rect.left + rect.width > self.size.x or\
+					rect.top + rect.height > self.size.y:
 				raise ValueError("ERROR : \
 						The Plage color don't can be in the sprite")
 		except ValueError:
@@ -187,16 +179,16 @@ class Image(Widget):
 					image.set_pixel(i, j, color)
 			sel.setSource(image)
 
-	def lighten(self, rect = sf.FloatRect(0, 0, 0, 0)):
+	def lighten(self, rect = sf.Rectangle()):
 		"""This methode lighten the image"""
 		rect2 = rect
-		if rect == sf.FloatRect(0, 0, 0, 0):
+		if rect == sf.Rectangle():
 			rect2 = self.rect
 	
 		#Test if the rect is a correct value
 		try:
-			if rect2.left + rect2.width > self.dimensions.x or\
-					rect2.top + rect2.height > self.dimensions.y:
+			if rect2.left + rect2.width > self.size.x or\
+					rect2.top + rect2.height > self.size.y:
 				raise ValueError("ERROR :\
 						The Plage color don't can be in the sprite")
 		except ValueError:
