@@ -7,18 +7,20 @@ class Label(Widget):
 	def __init__(self, parent=None, source=sf.Text(),\
 			position = sf.Vector2(0, 0), characterSize = 12):
 		"""parent is a widget objet, source a str objet or a sf.Text objet,
-		position is a sf.Vector2f objet and characterSize is a int objet"""
+		position is a sf.Vector2 objet and characterSize is a int objet"""
 
 		if isinstance(source, str):
-			Widget.__init__(self, parent, sf.FloatRect(position, sf.Vector2(\
+			Widget.__init__(self, parent, sf.Rectangle(position, sf.Vector2(\
 					characterSize * len(source), characterSize)))
+			self._text = sf.Text(source, character_size = characterSize)
 		elif isinstance(source, sf.Text):
-			Widget.__init__(self, parent, sf.FloatRect(position, sf.Vector2(\
+			Widget.__init__(self, parent, sf.Rectangle(position, sf.Vector2(\
 					characterSize * len(source.string), characterSize)))
+			self._text = source
+			self.characterSize = characterSize
 		else:
 			raise TypeError("Source is not a str objet or a sf.Text object")
 
-		self._text = sf.Text(source, character_size = characterSize)
 		self.canFocus = False
 		self.characterSize = character_size
 
@@ -41,35 +43,35 @@ class Label(Widget):
 		
 		self._text.color = pixel
 
-	def setOrigin(self, origin):
-		"""This methode set the object's origin"""
-
-		self._text.origin = origin
-
 	def rotate(self, angle):
 		self._text.rotate(angle)
-
-	def setStyle(self, style):
-		self._text.style(style)
 
 	def _setPos(self, position):
 		print("OK")
 		self._text.position = position
 		Widget._setPos(self, position)
 
-	def setFontText(self, font):
-		self._text.font = font
-
 	def setTextWidthSize(self, size):
-		self.setCharacterSize(size / len(self._text.string));
+		if len(self._text.string) != 0:
+			self.CharacterSize = self.characterSize*size / self.virtualSize.x
+
+	def setTextHeightSize(self, size):
+		for i in range(i, m_text.getGlobalBounds().height):
+			self.characterSize = i
+			if i > 1 and self.virtualSize.y > 1:
+				return
+		self.characterSize = i-1
 
 	def _setCharacterSize(self, size):
 		self._text.character_size = size
-		Widget._setDimensions(self, sf.Vector2f(self._text.global_bounds.width, self._text.global_bounds.height))
+		Widget._setSize(self, sf.Vector2(self._text.global_bounds.width,\
+				self._text.global_bounds.height))
 
-	def _setDimensions(self, size):
-		self._text.scale = sf.Vector2f(size.x/self._text.local_bounds.width, size.y/self._text.local_bounds.height)
-		Widget._setDimensions(self, sf.Vector2f(self._text.local_bounds.width, self._text.local_bounds.height))
+	def _setSize(self, size):
+		self._text.scale = sf.Vector2(size.x/self._text.local_bounds.width,\
+				size.y/self._text.local_bounds.height)
+		Widget._setSize(self, sf.Vector2(self._text.local_bounds.width,\
+				self._text.local_bounds.height))
 
 	def _setSource(self, source):
 		if isinstance(source, str):
@@ -80,5 +82,6 @@ class Label(Widget):
 	text = property(lambda self:self._text, _setSource)
 	characterSize = property(lambda self:self._text.character_size,\
 			_setCharacterSize)
-	color = property(lambda self:self._text.color,\
-			lambda self,color : sf.Text.color.__fset__(self._text, color))
+	color = sf.Text.color
+	font = sf.Text.font
+	style = sf.Text.style
