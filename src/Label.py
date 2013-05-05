@@ -53,14 +53,11 @@ class Label(Widget):
 
 	def setTextWidthSize(self, size):
 		if len(self._text.string) != 0:
-			self.CharacterSize = self.characterSize*size / self.virtualSize.x
+			self.characterSize = self.characterSize*size / self.virtualSize.x
 
 	def setTextHeightSize(self, size):
-		for i in range(i, m_text.getGlobalBounds().height):
-			self.characterSize = i
-			if i > 1 and self.virtualSize.y > 1:
-				return
-		self.characterSize = i-1
+		if len(self._text.string) != 0:
+			self.characterSize = self.characterSize*size / self.virtualSize.y
 
 	def _setCharacterSize(self, size):
 		self._text.character_size = size

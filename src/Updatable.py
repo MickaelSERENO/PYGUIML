@@ -9,6 +9,7 @@ class Updatable:
 		self._event = None
 		self._child = list()
 		self._parent = None
+		self.canUpdate = True
 		self.setParent(parent)
 
 	def __del__(self):

@@ -18,7 +18,7 @@ class Widget(Updatable):
 
 	def __init__(self, parent=0, rect=sf.Rectangle()):
 		Updatable.__init__(self,parent)
-		self.isDrawing = True
+		self._isDrawing = True
 		self._isStaticToView = False
 		self.canFocus = True
 		self.movingAllChild = False
@@ -49,24 +49,31 @@ class Widget(Updatable):
 			Updatable.updateFocus(self)
 
 	def update(self, render=None):
-		if not render:
-			render = self.getRender()
+		if self.canUpdate:
+			if not render:
+				render = self.getRender()
 
-		if render:
-			if self._changeWindow:
-				if self._isStaticToView:
-					self.setRect(self.virtualPos - render.getViewPosition(),\
-							self.virtualSIze)
-				else:
-					self.setRect(self._getVirtualRect())
+			if render:
+				if self._changeWindow:
+					if self._isStaticToView:
+						self.setRect(self.virtualPos -\
+								render.getViewPosition(), self.virtualSize)
+					else:
+						self.setRect(self._getVirtualRect())
 
-			if self.isDrawing and render.isInView(self._getVirtualRect()):
-				self.draw(render)
+				if self.isDrawing and render.isInView(self._getVirtualRect()):
+					self.draw(render)
 		super().update()
 
 	def draw(self, render=None):
+		"""Draw the Widget on the render"""
 		pass
 			
+	def drawWidget(self, draw=True):
+		"""If you want thatt at the next update your
+		widget will be drawing or not"""
+		self._isDrawing = draw
+
 	def drawAllWidget(self, drawing):
 		"""If you want to show the Widget, put drawing to true"""
 		for child in self._child:
@@ -319,3 +326,6 @@ class Widget(Updatable):
 
 	globalScale = property(lambda self:self._scale,\
 			lambda self,newScale : self._setScale(newScale))
+	event = property(lambda self:self._event)
+	isDrawing = property(lambda self:self._isDrawing,\
+			lambda self,draw:self.drawWidget(draw))
