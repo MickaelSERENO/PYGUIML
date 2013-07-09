@@ -10,11 +10,9 @@ class CheckBox(Widget, Active):
 		self._rectangle = sf.RectangleShape(rect.size)
 		self._line = [sf.VertexArray(sf.PrimitiveType.LINES, 2),\
 				sf.VertexArray(sf.PrimitiveType.LINES, 2)]
-		self.howActiveKeyboard = sf.Keyboard.SPACE
-		self.howActiveMouse = sf.Mouse.LEFT
 
-		self.outlineColorRectangle = sf.Color.WHITE
-		self.outlineThickness = 2
+		self.outlineRectangleColor = sf.Color.WHITE
+		self.outlineRectangleThickness = 2
 		self.crossColor = sf.Color.BLACK
 		self.rect = rect
 
@@ -30,3 +28,68 @@ class CheckBox(Widget, Active):
 			if self.isActive:
 				render.draw(self._line[0])
 				render.draw(self._line[1])
+
+	def setPos(self, pos, withOrigin=True):
+		Widget.setPos(self, pos, withOrigin)
+		self._rectangle.position = self.virtualPos + \
+				sf.Vector2(self.outlineRectangleThickness,\
+				self.outlineRectangleThickness)
+
+		self._line[0][0].position = self.virtualPos + \
+				sf.Vector2(self.outlineRectangleThickness,\
+				self.outlineRectangleThickness)
+
+		self._line[0][1].position = self.virtualPos + self.virtualSize - \
+				sf.Vector2(self.outlineRectangleThickness,\
+				self.outlineRectangleThickness)
+
+		self._line[1][0].position = self.virtualPos +\
+				sf.Vector2(0, self.virtualSize.y) +  \
+				sf.Vector2(self.outlineRectangleThickness, \
+				self.outlineRectangleThickness)
+
+		self._line[1][1].position = self.virtualPos + \
+				sf.Vector2(self.virtualSize.x, 0) - \
+				sf.Vector2(self.outlineRectangleThickness,\
+				self.outlineRectangleThickness)
+				
+	def setSize(self, size):
+		Widget.setSize(self, size)
+		self._rectangle.size = size -\
+				sf.Vector2(2*self.outlineRectangleThickness,\
+				2*self.outlineRectangleThickness)
+		self.pos = self.virtualPos
+
+	def howSelect(self):
+		return Widget.widgetFocus is self
+
+	def howActive(self):
+		return self.isSelect and self.event and \
+				(self.event.getOneMouseClicked(self.howActiveMouse) or\
+				self.event.getOnePressedKeys(self.howActiveKeyboard))
+
+	def _setCrossColor(self, color):
+		for line in self._line:
+			for dote in line:
+				dote.color = color
+
+	def _setOutlineRectangleColor(self, color):
+		self._rectangle.outline_color = color
+
+	def _setFillRectangleColor(self, color):
+		self._rectangle.fill_color = color
+
+	def _setOutlineRectangleThickness(self, size):
+		self._rectangle.outline_thikness = size
+		self.size = self.virtualSize
+
+	outlineRectangleColor=property(lambda self:self._rectangle.outline_color,\
+				lambda self, color:self._setOutlineRectangleColor(color))
+	outlineRectangleThickness =\
+			property(lambda self:self._rectangle.outline_thikness,\
+				lambda self, size:self._setOutlineRectangleThickness(size))
+	fillRectangleColor = property(lamnda self:self._rectangle.fill_color,\
+			lambda self, color:self._setFillRectangleColor(color))
+
+	crossColor = property(lambda self:self._line[0].color,\
+			lambda self, color:self._setCrossColor(color))

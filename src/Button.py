@@ -42,8 +42,6 @@ class Button(Widget, Active):
 		elif self._hasLabel:
 			self.rect = self._text.rect
 
-		self.howActiveKeyboard = sf.Keyboard.SPACE
-		self.howActiveMouse = sf.Mouse.LEFT
 		self.drawWidget(True)
 
 	@decorator.forUpdate
