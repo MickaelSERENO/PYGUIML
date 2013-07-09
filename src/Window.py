@@ -12,9 +12,9 @@ class Window(Render, sf.RenderWindow):
 	def __init__(self, videoMode, title, parent=0, framerateLimit=60,\
 			backgroundColor = sf.Color.BLACK, backgroundImage = Image()):
 
-		sf.RenderWindow.__init__(self, videoMode, title)
 		Render.__init__(self, parent, sf.Rectangle(sf.Vector2(),\
 				videoMode.size), backgroundColor, backgroundImage)
+		sf.RenderWindow.__init__(self, videoMode, title)
 
 		self._isStaticToView = False
 		self.position = (0,0)
@@ -33,11 +33,10 @@ class Window(Render, sf.RenderWindow):
 			self._event.update()
 			self._framerate = 1/(self.event.elapsedTime*10**-6)
 
+			print(self.size)
 			if self._event.isResize:
 				Render._setSize(self,self.size)
 				Widget._resizeWidget(self)
-				print("ok")
-				
 	
 			Widget.widgetFocus =  None
 			Updatable._focusIsChecked = False
@@ -53,8 +52,9 @@ class Window(Render, sf.RenderWindow):
 		return self._event
 
 	def _setSize(self, size):
-		print("ok")
+		sf.RenderWindow.size.__set__(self, size)
 		Widget.size.__set__(self,size)
+		self._event._defaultWindowSize = size
 
 	def getPosOnScreen(self, *args):
 		return sf.Vector2(0,0)
@@ -71,8 +71,9 @@ class Window(Render, sf.RenderWindow):
 		self._size = size
 		self._virtualSize = size
 	
-	size = sf.RenderWindow.size
+	size = property(lambda self : sf.RenderWindow.size.__get__(self), _setSize)
 	virtualSize = size
 	event = property(lambda self:self._event)
 	framerate = property(lambda self:1/self._event.elapsedTime*0.001)
 	setPosOnScreen = setPos
+	draw = sf.RenderWindow.draw

@@ -23,7 +23,7 @@ class EventManager:
 			self._enteredText = False
 			self._text = 0
 			self._hasPressedKeyMouse = False
-			self._defaultWindowSize = copy(window.size)
+			self._defaultWindowSize = sf.Vector2(window.size)
 			self._multiplicateMouse = sf.Vector2(1,1)
 
 			i = 0
@@ -104,7 +104,6 @@ class EventManager:
 					self._defaultWindowSize.x
 			self._multiplicateMouse.y = self._newWindowSize.y / \
 					self._defaultWindowSize.y
-		
 
 	def isMouseInRect(self, rect):
 		if self._mousePos.x > rect.left and\

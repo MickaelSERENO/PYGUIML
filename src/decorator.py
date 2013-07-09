@@ -5,7 +5,7 @@ def forDrawing(function):
 		if self.isDrawing:
 			if not render:
 				render = self.getRender()
-			return funcion(self, render, *args, **kwargs)
+			return function(self, render, *args, **kwargs)
 
 		return Widget.draw(self, render, *args, **kwargs)
 	return returnForDrawing

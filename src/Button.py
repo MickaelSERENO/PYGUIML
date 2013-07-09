@@ -63,9 +63,8 @@ class Button(Widget, Active):
 			self._text.posOrigin = Position.Center
 			self._textLighten = Position.Center
 
-	def updateSelection(self):
-		self._isSelect = Widget.widgetFocus is self
-		return Active.updateSelection(self)
+	def howSelect(self):
+		return Widget.widgetFocus is self
 
 	def selectIt(self):
 		self.lightUpDrawable(True)
@@ -73,11 +72,10 @@ class Button(Widget, Active):
 	def deselectIt(self):
 		self.lightUpDrawable(False)
 
-	def updateActive(self):
-		self._isActive = self.isSelect and self.event and \
+	def howActive(self):
+		return self.isSelect and self.event and \
 				(self.event.getOneMouseClicked(self.howActiveMouse) or\
 				self.event.getOnePressedKeys(self.howActiveKeyboard))
-		return Active.updateSelection(self)
 
 	def lightUpDrawable(self, lighten = True):
 		"""Light Up the Button if lighten is True value"""

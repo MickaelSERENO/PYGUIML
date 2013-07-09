@@ -13,9 +13,9 @@ class CheckBox(Widget, Active):
 		self.howActiveKeyboard = sf.Keyboard.SPACE
 		self.howActiveMouse = sf.Mouse.LEFT
 
-		self.outlineColorRectangle = sf::Color::WWHITE
+		self.outlineColorRectangle = sf.Color.WHITE
 		self.outlineThickness = 2
-		self.crossColor = sf::Color::BLACK
+		self.crossColor = sf.Color.BLACK
 		self.rect = rect
 
 	@decorator.forUpdate
@@ -30,5 +30,3 @@ class CheckBox(Widget, Active):
 			if self.isActive:
 				render.draw(self._line[0])
 				render.draw(self._line[1])
-
-	def _setSize(self, size):

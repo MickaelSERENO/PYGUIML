@@ -19,7 +19,7 @@ class Updatable:
 
 	def updateFocus(self):
 		for child in self._child:
-			if Updatable._focusIsCheck:
+			if Updatable._focusIsChecked:
 				return
 			else:
 				child.updateFocus()

@@ -133,7 +133,7 @@ class Image(Widget):
 		self._sprite = sf.Sprite(texture)
 		self.rect = self.rect
 
-	def setPos(self, position, withOrigin):
+	def setPos(self, position, withOrigin=True):
 		Widget.setPos(self, position, withOrigin)
 		self._sprite.position = self.virtualPos
 

@@ -14,9 +14,6 @@ class Render(Widget):
 		self.backgroundColor = backgroundColor
 		self._backgroundImage = backgroundImage
 
-	def show(self, render):
-		raise NotImplementedError
-
 	def moveView(self, move):
 		newView = self.view
 		newView.move(move.x, move.y)
@@ -28,7 +25,7 @@ class Render(Widget):
 		self.view = newView
 
 	def resizeView(self, size):
-		self.view.size(size)
+		self.view.size = size
 		self.view = self.view
 
 	def resetView(self):
@@ -39,9 +36,18 @@ class Render(Widget):
 		newView.size = size
 		self.view = newView
 
+	def setViewCenter(self, center):
+		viewCopy = self.view
+		viewCopy.center = center
+		self.view = viewCopy
+
 	def setViewPosition(self, pos):
 		viewCopy = self.view
 		viewCopy.center = sf.Vector2(pos - self.view.size / 2)
+		viewCopy.viewport.width -= viewCopy.viewport.left
+		viewCopy.viewport.heigth -= viewCopy.viewport.top
+		viewCopy.viewport.left = 0
+		viewCopy.viewport.top = 0
 		self.view = viewCopy
 
 	def setViewport(self, viewport):
@@ -49,46 +55,55 @@ class Render(Widget):
 		viewCopy.viewport = viewport 
 		self.view = viewCopy
 
+	def getViewPositionWithViewport(self):
+		return sf.Vector2(self.view.center.x,self.view.center.y) - \
+				sf.Vector2(self.view.size.x,self.view.size.y) / 2 + \
+				self.viewport.position * self.view.size
+
 	def getViewPosition(self):
-		return sf.Vector2(self.view.center[0],self.view.center[1]) + \
-				sf.Vector2(self.view.size[0],self.view.size[1]) / 2
+		return sf.Vector2(self.view.center.x,self.view.center.y) - \
+				sf.Vector2(self.view.size.x,self.view.size.y) / 2 
+	
+	def getViewPositionWithZoom(self):
+		if self.event:
+			return self.view.position * \
+					(self.event.newWindowSize / self.event.defaultWindowSize)
+
+	def getViewSizeWithViewport(self):
+		return self.view.size * (self.viewport.size-self.viewport.position)
+
+	def getViewSizeWithZoom(self):
+		return self.getViewSizeWithViewport() * self.getViewScale()
 
 	def getSommeViewPosition(self):
-		render = Widget.getRender()
-		rect = self.getViewRectWithZoom()
-		if isinstance(render,Render):
-			return sf.Vector2(render.getSommeViewPosition() +\
-					sf.Vector2(rect.left, rect.top))
+		render = self.getRender()
+		if isinstance(render,Render) and render is not self:
+			return render.getSommeViewPosition() + self.getViewPosition()
 		else:
-			return sf.Vector2(rect.left, rect.top)
+			return self.getViewPosition()
+
+	def getSommeViewPositionWithZoom(self):
+		return self.getSommeViewPosition() * self.getViewScale()
 
 	def getViewRect(self):
-		return sf.Rectangle(self.getViewPosition(), self.view.size)
+		return sf.Rectangle(self.getViewPosition(),\
+				self.getViewSizeWithViewport())
 
 	def getViewRectWithZoom(self):
 		viewRect = self.getViewRect()
-		scale = self.getViewScale()
-		return sf.Rectangle(\
-				sf.Vector2(viewRect.left*scale.left, viewRect.top*scale.top),\
-				sf.Vector2(viewRect.width * scale.width,\
-					viewRect.height * scale.height))
+		return sf.Rectangle(self.getSommeViewPositionWithZoom(),\
+				self.getViewSizeWithZoom())
 
 	def getRender(self):
 		return self
 
 	def isInView(self,rect):
-		return functions.rectCollision(rect,self.view.viewport)
+		return functions.rectCollision(rect,self.getViewRectWithZoom())
 
 	def getViewScale(self):
-		if self.size.x != 0 or self.size.x != 0:
-			return sf.Rectangle(sf.Vector2(\
-					self.viewport.left*self.view.size.x+1,\
-					self.viewport.top * self.view.size.y + 1),\
-					\
-					sf.Vector2(self.viewport.width / \
-					(self.view.size.x / self.size.x),\
-					self.viewport.height / (self.view.size.y / self.size.y)))
-		return sf.Rectangle(sf.Vector2(1,1),sf.Vector2(1,1))
+		if self.event and self.event.defaultWindowSize != 0:
+			return self.event.newWindowSize / self.event.defaultWindowSize
+		return sf.Vector2(1,1)
 
 	def _setSize(self,size):
 		self._backgroundImage.size = size
@@ -109,6 +124,8 @@ class Render(Widget):
 		for child in self._child:
 			if isinstance(child,Widget) and child.isStaticToView:
 				child.setPos(child.pos - back)
+				child.relativePositionOnView = child.relativePositionOnView
+				self.relativePositionOnView = self.relativePositionOnView
 
 	def _setViewport(self, rect):
 		newView = self.view

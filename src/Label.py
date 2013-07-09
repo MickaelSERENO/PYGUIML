@@ -1,5 +1,6 @@
 import sfml as sf
 from Widget import Widget
+import decorator
 
 class Label(Widget):
 	"""This class inherit of Widget class. It managed the Text"""
@@ -13,21 +14,24 @@ class Label(Widget):
 			Widget.__init__(self, parent, sf.Rectangle(position, sf.Vector2(\
 					characterSize * len(source), characterSize)))
 			self._text = sf.Text(source, character_size = characterSize)
+
 		elif isinstance(source, sf.Text):
 			Widget.__init__(self, parent, sf.Rectangle(position, sf.Vector2(\
 					characterSize * len(source.string), characterSize)))
 			self._text = source
 			self.characterSize = characterSize
+
 		else:
 			raise TypeError("Source is not a str objet or a sf.Text object")
 
 		self.canFocus = False
-		self.characterSize = character_size
+		self.characterSize = characterSize
 
+	@decorator.forDrawing
 	def draw(self, render=None):
-		if not render:
-			render = self.getRender()
-		render.draw(self._text)
+		if render:
+			print("ok")
+			render.draw(self._text)
 
 	def lighten(self):
 		"""Lighten the Text"""
@@ -51,6 +55,12 @@ class Label(Widget):
 		self._text.position = position
 		Widget._setPos(self, position)
 
+	def _setFont(self, font):
+		self._text.font = font
+
+	def _setColor(self, color):
+		self._text.color = color
+
 	def setTextWidthSize(self, size):
 		if len(self._text.string) != 0:
 			self.characterSize = self.characterSize*size / self.virtualSize.x
@@ -61,8 +71,8 @@ class Label(Widget):
 
 	def _setCharacterSize(self, size):
 		self._text.character_size = size
-		Widget._setSize(self, sf.Vector2(self._text.global_bounds.width,\
-				self._text.global_bounds.height))
+		self.size = sf.Vector2(self._text.global_bounds.width,\
+				self._text.global_bounds.height)
 
 	def _setSize(self, size):
 		self._text.scale = sf.Vector2(size.x/self._text.local_bounds.width,\
@@ -79,6 +89,5 @@ class Label(Widget):
 	text = property(lambda self:self._text, _setSource)
 	characterSize = property(lambda self:self._text.character_size,\
 			_setCharacterSize)
-	color = sf.Text.color
-	font = sf.Text.font
-	style = sf.Text.style
+	color = property(lambda self:self._text.color, _setColor)
+	font = property(lambda self:self._text.font, _setFont)
