@@ -20,6 +20,7 @@ class Window(Render, sf.RenderWindow):
 		self.position = (0,0)
 		self.framerate_limit = framerateLimit
 		self._event = EventManager(self)
+		print(self.event.defaultWindowSize)
 		self.resetView()
 		self.clear(backgroundColor)
 
@@ -33,7 +34,6 @@ class Window(Render, sf.RenderWindow):
 			self._event.update()
 			self._framerate = 1/(self.event.elapsedTime*10**-6)
 
-			print(self.size)
 			if self._event.isResize:
 				Render._setSize(self,self.size)
 				Widget._resizeWidget(self)
@@ -44,6 +44,8 @@ class Window(Render, sf.RenderWindow):
 
 			if self.event.isMouseInRect(self.rectOnScreen):
 				Updatable.updateFocus(self)
+			else:
+				Widget.widgetFocus = None
 			Widget.update(self, self)
 			self.display()
 			self.clear(self.backgroundColor)

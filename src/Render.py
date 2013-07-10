@@ -66,7 +66,7 @@ class Render(Widget):
 	
 	def getViewPositionWithZoom(self):
 		if self.event:
-			return self.view.position * \
+			return self.getViewPosition(self) * \
 					(self.event.newWindowSize / self.event.defaultWindowSize)
 
 	def getViewSizeWithViewport(self):
@@ -101,7 +101,8 @@ class Render(Widget):
 		return functions.rectCollision(rect,self.getViewRectWithZoom())
 
 	def getViewScale(self):
-		if self.event and self.event.defaultWindowSize != 0:
+		if self.event and \
+				(self.event.defaultWindowSize.x != 0 or self.event.defaultWindowSize.y != 0):
 			return self.event.newWindowSize / self.event.defaultWindowSize
 		return sf.Vector2(1,1)
 

@@ -19,6 +19,9 @@ class Image(Widget):
 		self.delTextureCreated = delTextureCreated
 		self._textureCreated = dict()
 
+		self._texture = None
+		self._sprite = None
+
 		self.setSource(source)
 
 		if rect.width == 0 and rect.height == 0:
@@ -128,6 +131,7 @@ class Image(Widget):
 					sf.Texture type or sf.Sprite type or bytes type")
 
 		if texture:
+			self._texture = texture
 			Image.textures[keyTexture]=texture
 
 		self._sprite = sf.Sprite(texture)
@@ -183,12 +187,12 @@ class Image(Widget):
 		"""This methode lighten the image"""
 		rect2 = rect
 		if rect == sf.Rectangle():
-			rect2 = self.rect
+			rect2 = sf.Rectangle(sf.Vector2(0,0), self.virtualSize)
 	
 		#Test if the rect is a correct value
 		try:
-			if rect2.left + rect2.width > self.size.x or\
-					rect2.top + rect2.height > self.size.y:
+			if rect2.left + rect2.width > self.virtualSize.x or\
+					rect2.top + rect2.height > self.virtualSize.y:
 				raise ValueError("ERROR :\
 						The Plage color don't can be in the sprite")
 		except ValueError:
@@ -196,16 +200,16 @@ class Image(Widget):
 
 		else:
 			image = self._texture.copy_to_image()
-			for i in range(rect2.left, rect2.left + rect2.width):
-				for j in range(rect2.top, rect2.top + rect2.height):
-					pixel = image.get_pixel(i, j)
+			for i in range(rect2.left, rect2.left + rect2.width-1):
+				for j in range(rect2.top, rect2.top + rect2.height-1):
+					pixel = image[i,j]
 					c = float(pixel.r)/255
 					pixel.r = 255*(3*c*c-2*c*c*c)
 					c = float(pixel.g)/255
 					pixel.g = 255*(3*c*c-2*c*c*c)
 					c = float(pixel.b)/255
 					pixel.b = 255*(3*c*c-2*c*c*c)
-					image.set_pixel(i, j, pixel)
+					image[i, j] = pixel
 			self.setSource(image)
 
 	sprite = property(lambda self:self._sprite, setSource)

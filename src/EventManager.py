@@ -23,7 +23,7 @@ class EventManager:
 			self._enteredText = False
 			self._text = 0
 			self._hasPressedKeyMouse = False
-			self._defaultWindowSize = sf.Vector2(window.size)
+			self._defaultWindowSize = sf.Window.size.__get__(window)
 			self._multiplicateMouse = sf.Vector2(1,1)
 
 			i = 0

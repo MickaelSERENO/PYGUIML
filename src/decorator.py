@@ -15,7 +15,6 @@ def forUpdate(function):
 		if self.canUpdate:
 			if not render:
 				render = self.getRender()
-			return funcion(self, render, *args, **kwargs)
-
+			return function(self, render, *args, **kwargs)
 		return Widget.update(self, render, *args, **kwargs)
 	return returnForUpdate

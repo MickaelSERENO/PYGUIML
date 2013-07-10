@@ -43,9 +43,8 @@ class Widget(Updatable):
 		return copyWidget
 
 	def updateFocus(self):
-
 		if self.canFocus:
-			if self.isDrawing and isinstance(self._event,EventManager) and\
+			if self.canUpdate and isinstance(self._event,EventManager) and\
 				self._event.isMouseInRect(self.rectOnScreen):
 				Widget.widgetFocus = self
 			Updatable.updateFocus(self)
@@ -65,7 +64,7 @@ class Widget(Updatable):
 					else:
 						self._setRect(self._getVirtualRect())
 
-#			if self.isDrawing and render.isInView(self.rectOnScreen):
+			if self.isDrawing and render.isInView(self.rectOnScreen):
 				if render is not self:
 					self.draw(render)
 		super().update()
@@ -112,8 +111,8 @@ class Widget(Updatable):
 	def _resizeWidget(self):
 		"""This methode resize correctly the Widgets"""
 
-		newWindowSize = self._event.newWindowSize
-		defaultWindowSize = self._event.defaultWindowSize
+		newWindowSize = sf.Vector2(self._event.newWindowSize)
+		defaultWindowSize = sf.Vector2(self._event.defaultWindowSize)
 
 
 		if defaultWindowSize.x != 0:
@@ -138,7 +137,7 @@ class Widget(Updatable):
 				self.move(pos.x - self._virtualPos.x, \
 						pos.y - self._virtualPos.y)
 
-		if self._relativePositionOnView != None:
+		if self._relativePositionOnView == None:
 			render = self.getRender()
 			scale = sf.Vector2(1,1)
 
@@ -158,7 +157,7 @@ class Widget(Updatable):
 				self._virtualPos = pos
 
 	def setSize(self, size):
-		if self._relativeSizeOnView != None:
+		if self._relativeSizeOnView == None:
 			self._scale = sf.Vector2(1,1)
 			if isinstance(self._event, EventManager):
 				defaultWindowSize = self._event.defaultWindowSize

@@ -22,16 +22,21 @@ class Button(Widget, Active):
 		self._currentImage = self._image
 		self._useCharacterSize = None
 
+		self._hasImage = False
+		self._hasLabel = False
+
 		if image:
 			self._imageLighten.lighten()
 			self._image.canFocus = self._imageLighten.canFocus = False
 			self._image.isStaticToView =\
 					self._imageLighten.isStaticToView = False
+			self._hasImage = True
 		if text:
 			self._textLighten.lighten()
 			self._image.canFocus = self._imageLighten.canFocus = False
 			self._text.isStaticToView =\
 					self._textLighten.isStaticToView = False
+			self._hasLabel = True
 
 		if rect == sf.Rectangle() and not(self._image or self._text):
 			self.rect = rect
@@ -41,6 +46,7 @@ class Button(Widget, Active):
 
 		elif self._hasLabel:
 			self.rect = self._text.rect
+		print(self.rect)
 
 		self.drawWidget(True)
 
@@ -52,8 +58,10 @@ class Button(Widget, Active):
 	@decorator.forDrawing
 	def draw(self, render=None):
 		if render:
-			render.draw(self._currentImage)
-			render.draw(self._currentText)
+			if(self._currentImage):
+				render.draw(self._currentImage.sprite)
+			if(self._currentText):
+				render.draw(self._currentText.text)
 
 	def centerLabel(self):
 		"""Set The text at the button's middle"""
@@ -66,9 +74,11 @@ class Button(Widget, Active):
 
 	def selectIt(self):
 		self.lightUpDrawable(True)
+		Active.selectIt(self)
 
 	def deselectIt(self):
 		self.lightUpDrawable(False)
+		Active.deselectIt(self)
 
 	def howActive(self):
 		return self.isSelect and self.event and \
@@ -119,9 +129,8 @@ class Button(Widget, Active):
 			self._text.pos = self.pos + self.size/2
 			self._textLighten.pos = self.pos + self.size/2
 
-	def _setSize(self, size):
-		Widget._setSize(self, size)
-
+	def setSize(self, size):
+		Widget.setSize(self, size)
 		if self.hasImage:
 			self._image.size = self.virtualSize
 			self._imageLighten.size = self.virtualSize
