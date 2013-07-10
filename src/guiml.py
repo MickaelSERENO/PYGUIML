@@ -2,3 +2,8 @@ from Widget import Widget
 from Render import Render
 from Window import Window
 from EventManager import EventManager
+from Widget import *
+from Image import Image
+from Label import Label
+from CheckBox import CheckBox
+from CheckCircle import CheckCircle

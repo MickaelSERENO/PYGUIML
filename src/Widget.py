@@ -9,6 +9,7 @@ def enum(*seq, **keys):
 	return type("Enum", (), enums);
 
 Position = enum('TopLeft','TopRight','Center','BottomLeft','BottomRight')
+Direction = enum('Vertical', 'Horizontal')
 
 class Widget(Updatable):
 	"""Basic class for create Widgets"""
@@ -44,7 +45,7 @@ class Widget(Updatable):
 
 	def updateFocus(self):
 		if self.canFocus:
-			if self.canUpdate and self.howFocus
+			if self.canUpdate and self.howFocus():
 				Widget.widgetFocus = self
 			Updatable.updateFocus(self)
 
@@ -99,6 +100,10 @@ class Widget(Updatable):
 			self._setPosition(position, withOrigin)
 
 	def scale(self, scale):
+		self.size = sf.Vector2(self.virtualSize.x * scale.x,\
+				self.size.y * scale.y)
+
+	def _setScale(self, scale):
 		"""scale is a sf.Vector2 type.
 		This methode set the size of the widget"""
 		self._scale = sf.Vector2(x * self._scale.x, y*self._scale.y)
@@ -114,9 +119,10 @@ class Widget(Updatable):
 	def _resizeWidget(self):
 		"""This methode resize correctly the Widgets"""
 
-		newWindowSize = sf.Vector2(self._event.newWindowSize)
-		defaultWindowSize = sf.Vector2(self._event.defaultWindowSize)
+		newWindowSize = self._event.newWindowSize
+		defaultWindowSize = self._event.defaultWindowSize
 
+		print(defaultWindowSize)
 
 		if defaultWindowSize.x != 0:
 			self._size.x = self.virtualSize.x * \

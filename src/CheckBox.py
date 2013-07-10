@@ -4,9 +4,9 @@ import decorator
 from Active import Active
 
 class CheckBox(Widget, Active):
-	def __init__(self, parent, rect):
+	def __init__(self, parent=None, rect=sf.Rectangle(sf.Vector2(0,0), sf.Vector2(30,30))):
+		Widget.__init__(self, parent, rect)
 		Active.__init__(self)
-		Widget.__init__(self)
 		self._rectangle = sf.RectangleShape(rect.size)
 		self._line = [sf.VertexArray(sf.PrimitiveType.LINES, 2),\
 				sf.VertexArray(sf.PrimitiveType.LINES, 2)]
@@ -45,12 +45,12 @@ class CheckBox(Widget, Active):
 
 		self._line[1][0].position = self.virtualPos +\
 				sf.Vector2(0, self.virtualSize.y) +  \
-				sf.Vector2(self.outlineRectangleThickness, \
-				self.outlineRectangleThickness)
+				sf.Vector2(self.outlineRectangleThickness,\
+				-self.outlineRectangleThickness)
 
 		self._line[1][1].position = self.virtualPos + \
-				sf.Vector2(self.virtualSize.x, 0) - \
-				sf.Vector2(self.outlineRectangleThickness,\
+				sf.Vector2(self.virtualSize.x, 0) + \
+				sf.Vector2(-self.outlineRectangleThickness,\
 				self.outlineRectangleThickness)
 				
 	def setSize(self, size):
@@ -68,6 +68,12 @@ class CheckBox(Widget, Active):
 				(self.event.getOneMouseClicked(self.howActiveMouse) or\
 				self.event.getOnePressedKeys(self.howActiveKeyboard))
 
+	def activeIt(self):
+		self._active = not self._active
+
+	def disactiveIt(self):
+		return
+
 	def _setCrossColor(self, color):
 		for line in self._line:
 			for dote in line:
@@ -80,15 +86,15 @@ class CheckBox(Widget, Active):
 		self._rectangle.fill_color = color
 
 	def _setOutlineRectangleThickness(self, size):
-		self._rectangle.outline_thikness = size
+		self._rectangle.outline_thickness = size
 		self.size = self.virtualSize
 
 	outlineRectangleColor=property(lambda self:self._rectangle.outline_color,\
 				lambda self, color:self._setOutlineRectangleColor(color))
 	outlineRectangleThickness =\
-			property(lambda self:self._rectangle.outline_thikness,\
+			property(lambda self:self._rectangle.outline_thickness,\
 				lambda self, size:self._setOutlineRectangleThickness(size))
-	fillRectangleColor = property(lamnda self:self._rectangle.fill_color,\
+	fillRectangleColor = property(lambda self:self._rectangle.fill_color,\
 			lambda self, color:self._setFillRectangleColor(color))
 
 	crossColor = property(lambda self:self._line[0].color,\
