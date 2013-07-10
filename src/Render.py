@@ -78,7 +78,7 @@ class Render(Widget):
 	def getSommeViewPosition(self):
 		render = self.getRender()
 		if isinstance(render,Render) and render is not self:
-			return render.getSommeViewPosition() + self.getViewPosition()
+			return render.getSommeViewPosition() + self.getViewPositionWithViewport()
 		else:
 			return self.getViewPosition()
 

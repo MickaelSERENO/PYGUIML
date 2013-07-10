@@ -135,7 +135,7 @@ class Image(Widget):
 			Image.textures[keyTexture]=texture
 
 		self._sprite = sf.Sprite(texture)
-		self.rect = self.rect
+		self.rect = self.virtualRect
 
 	def setPos(self, position, withOrigin=True):
 		Widget.setPos(self, position, withOrigin)

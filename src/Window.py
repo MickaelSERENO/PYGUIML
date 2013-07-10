@@ -41,7 +41,6 @@ class Window(Render, sf.RenderWindow):
 			Widget.widgetFocus =  None
 			Updatable._focusIsChecked = False
 
-
 			if self.event.isMouseInRect(self.rectOnScreen):
 				Updatable.updateFocus(self)
 			else:

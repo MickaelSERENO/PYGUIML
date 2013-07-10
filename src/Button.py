@@ -163,7 +163,7 @@ class Button(Widget, Active):
 			self._image.isStaticToView = \
 					self._imageLighten.isStaticToView = False
 
-		self.rect = self.rect
+		self.rect = self.virtualRect
 	def _setText(self, text):
 		"""text is Label type"""
 
@@ -175,7 +175,7 @@ class Button(Widget, Active):
 			self._text.isStaticToView = \
 					self._textLighten.isStaticToView = False
 
-		self.rect = self.rect
+		self.rect = self.virtualRect
 		self.updateSelection()
 		self.centerLabel()
 

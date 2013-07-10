@@ -111,7 +111,6 @@ class EventManager:
 				self._mousePos.x < rect.left + rect.width and\
 				self._mousePos.y < rect.top + rect.height :
 			return True
-
 		return False
 
 	def getPressedKeys(self, key):
