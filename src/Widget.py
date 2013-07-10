@@ -44,10 +44,13 @@ class Widget(Updatable):
 
 	def updateFocus(self):
 		if self.canFocus:
-			if self.canUpdate and isinstance(self._event,EventManager) and\
-				self._event.isMouseInRect(self.rectOnScreen):
+			if self.canUpdate and self.howFocus
 				Widget.widgetFocus = self
 			Updatable.updateFocus(self)
+
+	def howFocus(self):
+		return isinstance(self._event, EventManager) and \
+				self._event.isMouseInRect(self.rectOnScreen)
 
 	def update(self, render=None):
 		if self.canUpdate:
@@ -159,18 +162,13 @@ class Widget(Updatable):
 	def setSize(self, size):
 		if self._relativeSizeOnView == None:
 			self._scale = sf.Vector2(1,1)
+			scale = sf.Vector2(1,1)
 			if isinstance(self._event, EventManager):
 				defaultWindowSize = self._event.defaultWindowSize
 				if defaultWindowSize.x != 0 and defaultWindowSize.y != 0:
-					newWindowSize = self._event.newWindowSize
-					self._size = \
-							size.x * newWindowSize.x / defaultWindowSize.x,\
-							size.y * newWindowSize.y / defaultWindowSize.y
-				else:
-					self._size = size
+					scale = self._event.newWindowSize / defaultWindowSize
 
-			else:
-				self._size = size
+			self._size = size*scale
 			self._virtualSize = size
 			self._setOriginPos(self._posOrigin)
 
