@@ -1,11 +1,11 @@
 import sfml as sf
 from Widget import Widget
 from Active import Active
-from function import isInEllipse
+from functions import isInEllipse
 import decorator
 
 class CheckCircle(Widget, Active):
-	def __init__(self, parent, radius=10, position = sf.Vector2(0,0), \
+	def __init__(self, parent=None, radius=10, position = sf.Vector2(0,0), \
 			bigCircleColor=sf.Color.WHITE, \
 			smallCircleColor=sf.Color.RED, smallCircleProportion = 0.5,\
 			origin = "radius"):
@@ -38,7 +38,7 @@ class CheckCircle(Widget, Active):
 
 	def howFocus(self):
 		if self._event:
-			return self.isInEllipse(self._event.mouse.mousePos, self.getPosOnScreen(False), self.sizeOnScreen)
+			return isInEllipse(self._event.mousePos, self.getPosOnScreen(False) + self.sizeOnScreen / 2, self.sizeOnScreen/2)
 
 	def setPos(self, pos, withOrigin = True):
 		Widget.setPos(self, pos, withOrigin)
