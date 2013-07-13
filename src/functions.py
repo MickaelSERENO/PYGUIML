@@ -11,3 +11,6 @@ def circle(x, centerx, centery, size):
 	y2 = (2*centery - sqrt(4*(-(x-centerx)*(x-centerx)+size*size)))/2
 	return sf.Vector2f(y1, y2)
 
+def isInEllipse(pos, center, radius):
+	return (pos.x - center.x)**2 / radius.x**2 + \
+			(pos.y - center.y)**2 / radius.y**2 <= 1
