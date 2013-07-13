@@ -188,7 +188,7 @@ class Layout(Widget):
 					for y in range(len(self._widget[0])):
 						if self._widget[x][y]:
 							self._widget[x][y].setPos(self.virtualPos +\
-									self.size - (self.size / self._getNumberCases() * sf.Vector2(x, y)) + \
+									self.size - (self.virtualSize / self._getNumberCases() * sf.Vector2(x, y)) + \
 									self._spacing * self._getNumberWidget(sf.Vector2(x, y), sf.Vector2(x, y)), False)
 	def setSize(self, size, autoDefineSize=False):
 		if autoDefineSize:
@@ -199,7 +199,7 @@ class Layout(Widget):
 			for y in range(len(self._widget[0])):
 				if self._widget:
 					self._widget[x][y].size = self._casePerWidget[x][y] * \
-							self.size / self._getNumberCases() -\
+							self.virtualSize / self._getNumberCases() -\
 							self.spacing / \
 							sf.Vector2(self._getNumberWidgetOnX(y), self._getNumberWidgetOnY(x)) 
 
