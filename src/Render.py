@@ -65,9 +65,11 @@ class Render(Widget):
 				sf.Vector2(self.view.size.x,self.view.size.y) / 2 
 	
 	def getViewPositionWithZoom(self):
-		if self.event:
+		render = self.getRender()
+		if render:
 			return self.getViewPosition(self) * \
-					(self.event.newWindowSize / self.event.defaultWindowSize)
+					(render.sizeOnScreen / \
+					render.getViewSizeWithViewport())
 
 	def getViewSizeWithViewport(self):
 		return self.view.size * (self.viewport.size-self.viewport.position)
@@ -101,9 +103,10 @@ class Render(Widget):
 		return functions.rectCollision(rect,self.getViewRectWithZoom())
 
 	def getViewScale(self):
-		if self.event and \
-				(self.event.defaultWindowSize.x != 0 or self.event.defaultWindowSize.y != 0):
-			return self.event.newWindowSize / self.event.defaultWindowSize
+		render = self.getRender()
+		if render and\
+				(render.getViewSizeWithViewport().x != 0 or render.getViewSizeWithViewport().y != 0):
+			return render.sizeOnScreen / render.getViewSizeWithViewport()
 		return sf.Vector2(1,1)
 
 	def _setSize(self,size):
@@ -127,6 +130,8 @@ class Render(Widget):
 				child.setPos(child.pos - back)
 				child.relativePositionOnView = child.relativePositionOnView
 				self.relativePositionOnView = self.relativePositionOnView
+
+		Widget._resizeWidget(self)
 
 	def _setViewport(self, rect):
 		newView = self.view

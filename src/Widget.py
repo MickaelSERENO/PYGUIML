@@ -121,7 +121,7 @@ class Widget(Updatable):
 		render = self.getRender()
 		if render:
 			size = render.size
-			viewSize = render.view.size
+			viewSize = render.getViewSizeWithViewport()
 
 			if viewSize.x != 0:
 				self._size.x = self.virtualSize.x * \
@@ -135,9 +135,9 @@ class Widget(Updatable):
 				self._pos.y =\
 						self.virtualPos.y * size.y / viewSize.y
 
-			for self in self._child:
-				if isinstance(self,Widget):
-					self._resizeWidget()
+			for widget in self._child:
+				if isinstance(widget,Widget):
+					widget._resizeWidget()
 
 	def setPos(self, pos, withOrigin=True):
 		if self.movingAllChild:
@@ -150,8 +150,8 @@ class Widget(Updatable):
 			scale = sf.Vector2(1,1)
 
 			if render:
-				if render.view.size.x != 0 and render.view.size.y != 0:
-					scale = render.virtualSize / render.view.size
+				if render.getViewSizeWithViewport().x != 0 and render.getViewSizeWithViewport().y != 0:
+					scale = render.virtualSize / render.getViewSizeWithViewport()
 
 				if withOrigin:
 					self._pos = (pos - self._origin) * scale
@@ -170,10 +170,11 @@ class Widget(Updatable):
 		if self._relativeSizeOnView == None:
 			self._scale = sf.Vector2(1,1)
 			scale = sf.Vector2(1,1)
+			render= self.getRender()
 
 			if render:
-				if render.view.size.x != 0 and render.view.size.y != 0:
-					scale = render.virtualSize / render.view.size
+				if render.getViewSizeWithViewport().x != 0 and render.getViewSizeWithViewport().y != 0:
+					scale = render.virtualSize / render.getViewSizeWithViewport()
 
 			self._size = size*scale
 			self._virtualSize = size
@@ -260,10 +261,11 @@ class Widget(Updatable):
 	def _getSizeOnScreen(self):
 		self._scale = sf.Vector2(1,1)
 		scale = sf.Vector2(1,1)
+		render = self.getRender()
 
 		if render:
-			if render.view.size.x != 0 and render.view.size.y != 0:
-				scale = render.sizeOnScreen / render.view.size
+			if render.getViewSizeWithViewport().x != 0 and render.getViewSizeWithViewport().y != 0:
+				scale = render.sizeOnScreen / render.getViewSizeWithViewport()
 
 		return self.virtualSize * scale
 	
@@ -292,14 +294,14 @@ class Widget(Updatable):
 		render = self.getRender()
 		if render and scale:
 			self._relativePositionOnView = None
-			self.pos = render.getViewSizeWithZoom() * scale
+			self.pos = render.getViewSizeWithViewportWithZoom() * scale
 		self._relativePositionOnView = scale
 
 	def _setRelativeSizeOnView(self, scale):
 		render = self.getRender()
 		if render and scale:
 			self._relativePositionOnView = None
-			self.size = render.getViewSizeWithZoom() * scale
+			self.size = render.getViewSizeWithViewportWithZoom() * scale
 		self._relativePositionOnView = scale
 
 	isStaticToView = property(lambda self : self._isStaticToView, \
