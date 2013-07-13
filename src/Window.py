@@ -67,10 +67,9 @@ class Window(Render, sf.RenderWindow):
 	def _setView(self,view):
 		sf.RenderWindow.view.__set__(self, view)
 		Render._setView(self,view)
-	
-	def _resizeWidget(self, pos, size):
-		self._size = size
-		self._virtualSize = size
+
+	def _resizeWidget(self):
+		return
 	
 	size = property(lambda self : sf.RenderWindow.size.__get__(self), _setSize)
 	virtualSize = size
@@ -78,3 +77,4 @@ class Window(Render, sf.RenderWindow):
 	framerate = property(lambda self:1/self._event.elapsedTime*0.001)
 	setPosOnScreen = setPos
 	draw = sf.RenderWindow.draw
+	sizeOnScreen = property(lambda self:self.size)
