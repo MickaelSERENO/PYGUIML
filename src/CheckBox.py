@@ -31,25 +31,25 @@ class CheckBox(Widget, Active):
 
 	def setPos(self, pos, withOrigin=True):
 		Widget.setPos(self, pos, withOrigin)
-		self._rectangle.position = self.virtualPos + \
+		self._rectangle.position = self.getPos(False) + \
 				sf.Vector2(self.outlineRectangleThickness,\
 				self.outlineRectangleThickness)
 
-		self._line[0][0].position = self.virtualPos + \
+		self._line[0][0].position = self.getPos(False) + \
 				sf.Vector2(self.outlineRectangleThickness,\
 				self.outlineRectangleThickness)
 
-		self._line[0][1].position = self.virtualPos + self.virtualSize - \
+		self._line[0][1].position = self.getPos(False) + self.size - \
 				sf.Vector2(self.outlineRectangleThickness,\
 				self.outlineRectangleThickness)
 
-		self._line[1][0].position = self.virtualPos +\
-				sf.Vector2(0, self.virtualSize.y) +  \
+		self._line[1][0].position = self.getPos(False) +\
+				sf.Vector2(0, self.size.y) +  \
 				sf.Vector2(self.outlineRectangleThickness,\
 				-self.outlineRectangleThickness)
 
-		self._line[1][1].position = self.virtualPos + \
-				sf.Vector2(self.virtualSize.x, 0) + \
+		self._line[1][1].position = self.getPos(False) + \
+				sf.Vector2(self.size.x, 0) + \
 				sf.Vector2(-self.outlineRectangleThickness,\
 				self.outlineRectangleThickness)
 				
@@ -58,7 +58,7 @@ class CheckBox(Widget, Active):
 		self._rectangle.size = size -\
 				sf.Vector2(2*self.outlineRectangleThickness,\
 				2*self.outlineRectangleThickness)
-		self.pos = self.virtualPos
+		self.pos = self.pos
 
 	def howSelect(self):
 		return Widget.widgetFocus is self
@@ -87,7 +87,7 @@ class CheckBox(Widget, Active):
 
 	def _setOutlineRectangleThickness(self, size):
 		self._rectangle.outline_thickness = size
-		self.size = self.virtualSize
+		self.size = self.size
 
 	outlineRectangleColor=property(lambda self:self._rectangle.outline_color,\
 				lambda self, color:self._setOutlineRectangleColor(color))

@@ -9,7 +9,7 @@ import sfml as sf
 class Button(Widget, Active):
 	"""This Widget is a Button. It regrouped a guiml.Image and guiml.Label.
 	With it, you can use a real Button."""
-	def __init__(self, parent, text=None, image=None, rect=sf.Rectangle()):
+	def __init__(self, parent=None, text=None, image=None, rect=sf.Rectangle()):
 		Widget.__init__(self, parent, rect)
 		Active.__init__(self)
 		
@@ -132,16 +132,16 @@ class Button(Widget, Active):
 	def setSize(self, size):
 		Widget.setSize(self, size)
 		if self.hasImage:
-			self._image.size = self.virtualSize
-			self._imageLighten.size = self.virtualSize
+			self._image.size = self.size
+			self._imageLighten.size = self.size
 
 		if self.hasLabel and not self.useCharacterSize:
-			self._text.setTextWidthSize(self.virtualSize.x)
-			self._textLighten.setTextWidthSize(self.virtualSize.x)
+			self._text.setTextWidthSize(self.size.x)
+			self._textLighten.setTextWidthSize(self.size.x)
 
-			if self.virtualSize.y > 0 and \
-					self._text.virtualSize.y > self.virtualSize.y :
-				self._text.setTextHeightSize(self.virtualSize.y)
+			if self.size.y > 0 and \
+					self._text.size.y > self.size.y :
+				self._text.setTextHeightSize(self.size.y)
 				self._textLighten.setTextHeightSize(self.virtyalSize.y)
 
 	def _drawWidget(drawing):
