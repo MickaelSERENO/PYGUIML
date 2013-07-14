@@ -1,5 +1,7 @@
 from Widget import *
 from itertools import *
+import traceback
+import sys
 
 class Layout(Widget):
 	def __init__(self, parent=0, rect=sf.Rectangle(), alignment=Position.Center,\
@@ -143,9 +145,8 @@ class Layout(Widget):
 					numberCases = self
 					self._widget[addX][y+addY] = self._widget[x][y]
 
-		self._delUselessWidget()
-
 		self.alignment = self.alignment
+		self._delUselessWidget()
 		if self.autoDefineSize :
 			self.autoDefineSize = True
 		else:
@@ -173,14 +174,15 @@ class Layout(Widget):
 		Widget.setPos(self, pos)
 		lastPosition = self.getPos(False)
 		if self.autoDefineSize :
+			self.alignment = self._alignment
 			maxSize = self._getMaximumWidgetSize()
 			for x in range(len(self._widget)):
 				for y in range(len(self._widget[0])):
 					if self._widget[x][y]:
+						numberWidget = sf.Vector2(x, y)
+						print(self._widget[x][y].origin)
 						self._widget[x][y].setPos(self.pos +\
-								self._getNumberWidget(sf.Vector2(x, y),\
-								sf.Vector2(x, y)) * self._spacing +\
-								maxSize * sf.Vector2(x, y))
+								numberWidget * maxSize + numberWidget * self._spacing)
 						lastPosition = self._widget[x][y].getPos(False) + maxSize * self._casePerWidget[x][y]
 			Widget.setSize(self, lastPosition - self.getPos(False), False)
 
@@ -195,7 +197,7 @@ class Layout(Widget):
 									self._spacing * sf.Vector2(x, y) / caseWidget)
 
 	def setSize(self, size, autoDefineSize=None):
-		if autoDefineSize != None and self.autoDefineSize == True or autoDefineSize==True:
+		if autoDefineSize == None and self.autoDefineSize == True or autoDefineSize==True:
 			return self.autoDefineSize == True
 		else:
 			Widget.setSize(self, size)
@@ -301,20 +303,23 @@ class Layout(Widget):
 		self._alignment = alignment
 		if self._autoDefineSize:
 			minimumSize = self._getMaximumWidgetSize()
-			for widgetList in self._widget:
-				for widget in widgetList:
+			for x, widgetList in enumerate(self._widget):
+				for y, widget in enumerate(widgetList):
 					if widget:
-						x, y = self.getWidgetPosition(widget)
+						totalSize = minimumSize * self._casePerWidget[x][y] +\
+								self.spacing * (self._casePerWidget[x][y])
 						if alignment == Position.TopLeft:
-							widget.posOrigin = alignment
+							widget.origin = sf.Vector2(0,0)
 						elif alignment == Position.TopRight:
-							widget.origin = sf.Vector2(minimumSize.x, 0)*self._casePerWidget[x][y] / 1
+							widget.origin = sf.Vector2(widget.size.x, 0) - \
+									sf.Vector2(totalSize.x, 0)
 						elif alignment == Position.BottomLeft:
-							widget.origin = sf.Vector2(0, minimumSize.y)*self._casePerWidget[x][y] / 1
+							widget.origin = sf.Vector2(0, widget.size.y) - \
+									sf.Vector2(0, totalSize.y)
 						elif alignment == Position.BottomRight:
-							widget.origin = minimumSize*self._casePerWidget[x][y] / 1
+							widget.origin = widget.size - totalSize
 						else:
-							widget.origin = minimumSize*self._casePerWidget[x][y] / 2
+							widget.origin = (widget.size - totalSize)/2
 
 			self._autoDefineSize = self.autoDefineSize
 		else:
@@ -325,6 +330,7 @@ class Layout(Widget):
 
 	def _setSpacing(self, space):
 		self._spacing = space
+
 		if self._autoDefineSize:
 			self.autoDefineSize = True
 		else:

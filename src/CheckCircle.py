@@ -43,15 +43,17 @@ class CheckCircle(Widget, Active):
 		Widget.setPos(self, pos, withOrigin)
 		self._bigCircle.position = self.getPos(False) - self.outlineBigCircleThickness
 		self._smallCircle.position = self.getPos(False) + \
-				(self._bigCircle.radius + 2*self.outlineBigCircleThickness -\
-				self._smallCircle.radius) + self.outlineSmallCircleThickness
+				(self._bigCircle.global_bounds.size / 2 + 2*self.outlineBigCircleThickness -\
+				self._smallCircle.global_bounds.size / 2) + self.outlineSmallCircleThickness
 
 	def setSize(self, size):
 		radius = min(size.x, size.y)
 		self.radius = radius/2
 		Widget.setSize(self, size)
-		self._bigCircle.scale(size/radius)
-		self._smallCircle.scale(size/radius)
+		print(size, "size")
+		if radius != 0:
+			self._bigCircle.ratio = (size/sf.Vector2(radius, radius))
+			self._smallCircle.ratio = (size/sf.Vector2(radius, radius))
 
 	def howActive(self):
 		return self.isSelect and self.event and (\

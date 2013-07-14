@@ -119,6 +119,8 @@ class Widget(Updatable):
 
 		if self._relativePositionOnView == None:
 			if withOrigin:
+				print("origin")
+				print(self.origin)
 				self._pos = pos - self.origin
 			else:
 				self._pos = pos
