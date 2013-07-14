@@ -7,3 +7,5 @@ from Image import Image
 from Label import Label
 from CheckBox import CheckBox
 from CheckCircle import CheckCircle
+from Layout import *
+from Active import *
