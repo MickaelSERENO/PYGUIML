@@ -50,10 +50,10 @@ class Label(Widget):
 	def rotate(self, angle):
 		self._text.rotate(angle)
 
-	def _setPos(self, position):
+	def setPos(self, position, withOrigin = True):
 		print("OK")
-		self._text.position = position
-		Widget._setPos(self, position)
+		Widget.setPos(self, position, withOrigin)
+		self._text.position = self.getPos(False)
 
 	def _setFont(self, font):
 		self._text.font = font

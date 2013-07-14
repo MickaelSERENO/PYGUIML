@@ -93,7 +93,7 @@ class Image(Widget):
 
 		else:
 			render = sf.RenderTexture
-			render.size = sf.Vector2(m_virtualSize.x, m_virtualSize.y)
+			render.size = sf.Vector2(m_size.x, m_size.y)
 			render.draw(m_sprite)
 			render.display()
 			self.setSource(render.texture)
@@ -135,18 +135,18 @@ class Image(Widget):
 			Image.textures[keyTexture]=texture
 
 		self._sprite = sf.Sprite(texture)
-		self.rect = self.virtualRect
+		self.rect = self.rect
 
 	def setPos(self, position, withOrigin=True):
 		Widget.setPos(self, position, withOrigin)
-		self._sprite.position = self.virtualPos
+		self._sprite.position = self.getPos(False)
 
 	def setSize(self, size):
 		Widget.setSize(self, size)
 		if self._sprite.texture:
-				self._sprite.ratio = sf.Vector2(self.virtualSize.x /\
+				self._sprite.ratio = sf.Vector2(self.size.x /\
 						self.sprite.local_bounds.width,\
-						self.virtualSize.y /\
+						self.size.y /\
 						self.sprite.local_bounds.height)
 
 	def setTextureRect(self, rect):
@@ -187,12 +187,12 @@ class Image(Widget):
 		"""This methode lighten the image"""
 		rect2 = rect
 		if rect == sf.Rectangle():
-			rect2 = sf.Rectangle(sf.Vector2(0,0), self.virtualSize)
+			rect2 = sf.Rectangle(sf.Vector2(0,0), self.size)
 	
 		#Test if the rect is a correct value
 		try:
-			if rect2.left + rect2.width > self.virtualSize.x or\
-					rect2.top + rect2.height > self.virtualSize.y:
+			if rect2.left + rect2.width > self.size.x or\
+					rect2.top + rect2.height > self.size.y:
 				raise ValueError("ERROR :\
 						The Plage color don't can be in the sprite")
 		except ValueError:
