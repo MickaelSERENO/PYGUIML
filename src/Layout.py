@@ -1,8 +1,9 @@
 from Widget import *
+from itertools import *
 
 class Layout(Widget):
 	def __init__(self, parent=0, rect=sf.Rectangle(), alignment=Position.Center,\
-			spacing = 0, autoDefineSize = None):
+			spacing = sf.Vector2(0,0), autoDefineSize = None):
 		Widget.__init__(self, parent, rect)
 		self._alignment = alignment
 		self._widget = list(list())
@@ -18,6 +19,7 @@ class Layout(Widget):
 
 	def __delitem__(self, pos):
 
+		self._widget[pos.x][pos.y].parent = None
 		self._widget[pos.x][pos.y] = None
 		self._casePerWidget[pos.x][pos.y] = sf.Vector2(1,1)
 
@@ -27,7 +29,7 @@ class Layout(Widget):
 		if self.autoDefineSize :
 			self.autoDefineSize = True
 		else:
-			self.rect = self.virtualRect
+			self.rect = self.rect
 
 	def _delUselessWidget(self):
 		stop = False
@@ -36,49 +38,51 @@ class Layout(Widget):
 			stop = True
 			check = [False, False, False, False]
 
-			if len(self._widget) != 0 and len(self._widget[0]) != 0:
-				if len(takewhile(lambda x : x == None, self._widget[0])) == \
-						len(self._widget[0]):
+			if len(self._widget) > 0 and len(self._widget[0]) > 0:
+				if len(list(takewhile(lambda x : x == None, self._widget[0]))) == \
+						len(self._widget[0]) and len(list(takewhile(lambda x : x != sf.Vector2(0,0), \
+						self._casePerWidget[0]))) == 0:
 					check[0] = True
-					self._widget.pop[0]
-					self._casePerWidget.pop[0]
+					self._widget.pop(0)
+					self._casePerWidget.pop(0)
 
-				if len(takewhile(lambda x : x == None, \
-						self._widget[-1])) == \
-						len(self._widget[-1]):
+				if len(self._widget) > 0 and len(list(takewhile(lambda x : x == None, \
+						self._widget[-1]))) == \
+						len(self._widget[-1]) and len(list(takewhile(lambda x : x != sf.Vector2(0,0), \
+						self._casePerWidget[-1]))) == 0:
 					check[1] = True
-					self._widget.pop[-1]
-					self._casePerWidget.pop[-1]
+					self._widget.pop(-1)
+					self._casePerWidget.pop(-1)
 
 				i = 0
 
-				for listWidget in self._widget:
-					if listWidget[-1] == None:
+				for listWidget, casePerWidget in zip(self._widget, self._casePerWidget):
+					if listWidget[-1] == None and casePerWidget[-1] != sf.Vector2(0,0):
 						i += 1
 					else:
 						break
 
-				if i == len(self._widget):
+				if i == len(self._widget) and i != 0:
 					check[2] = True
 					for listWidget, casePerWidget in\
 							zip(self._widget, self._casePerWidget):
-						listWidget.pop[-1]
-						casePerWidget.pop[-1]
+						listWidget.pop(-1)
+						casePerWidget.pop(-1)
 						
 				i = 0
 
-				for listWidget in self._widget:
-					if listWidget[0] == None:
+				for listWidget, casePerWidget in zip(self._widget, self._casePerWidget):
+					if listWidget[0] == None and casePerWidget[0] != sf.Vector2(0,0):
 						i += 1
 					else:
 						break
 
-				if i == len(self._widget):
+				if i == len(self._widget) and i != 0:
 					check[3] = True
 					for listWidget, casePerWidget in\
 							zip(self._widget, self._casePerWidget):
-						listWidgeti.pop[0]
-						casePerWidget.pop[0]
+						listWidgeti.pop(0)
+						casePerWidget.pop(0)
 
 				if True in check:
 					stop = False
@@ -92,43 +96,40 @@ class Layout(Widget):
 		x = -1
 		y = -1
 
-		for i in self._widget:
-			for j in i :
+		for i in range(len(self._widget)):
+			for j in range(len(self._widget[i])) :
 				if self._widget[i][j] is widget:
 					x = i
 					y = j
 
 		return sf.Vector2(x, y)
 
-	def addWidget(self, widget, pos, numberCases=(1,1), direction=Direction.Vertical, delete = False):
+	def addWidget(self, widget, pos, numberCases=sf.Vector2(1,1), direction=Direction.Vertical, delete = False):
 		add = 0
 		if direction == Direction.Horizontal:
 			add = numberCases.x
 
-			for x in range(self._getNumberCases().x,\
-					pos.x + numberCases.x + add):
-				self._widget.append(list())
-				self._casePerWidget.append(list())
+		for x in range(self._getNumberCases().x,\
+				pos.x + numberCases.x + add):
+			self._widget.append(list())
+			self._casePerWidget.append(list())
 
 		add = 0
 		if direction == Direction.Vertical:
 			add = numberCases.y
 
-		for widgetList, caseWidget in zip(self._widget, self._casePerWidget):
-			for x in range(self._getNumberCases.Y, pos.y + numberCases.y + add):
+		for widgetList, caseWidget, in zip(self._widget, self._casePerWidget):
+			for i in range(len(widgetList), pos.y + numberCases.y + add):
 				caseWidget.append(sf.Vector2(1,1))
 				widgetList.append(None)
 
-		for widgetList, casePerWidget, x in \
-				zip(self._widget, enumerate(self._casePerWidget)):
-			for theWidget, case, y in \
-					zip(widgetList, enumerate(casePerWidget)):
-				if sf.Vector2(x, y) == pos:
-					self._widget[x][y] = widget
-					self._casePerWidget[x][y] = numberCases
-				elif x > pos.x and x < pos.x + numberCases.x and \
-						y > pos.y and y < pos.y + numberCases.y :
+		for x in range(pos.x, pos.x+numberCases.x):
+			for y in range(pos.y, pos.y + numberCases.y):
 					self._casePerWidget[x][y] = sf.Vector2(0,0)
+
+		self._widget[pos.x][pos.y] = widget
+		self._casePerWidget[pos.x][pos.y] = numberCases
+		widget.parent = self
 
 		addX = 0
 		addY = 0
@@ -148,7 +149,7 @@ class Layout(Widget):
 		if self.autoDefineSize :
 			self.autoDefineSize = True
 		else:
-			self.rect = self.virtualRect
+			self.rect = self.rect
 
 	def _maxWidgetInRectangle(self, rect):
 		lenX = list()
@@ -170,52 +171,58 @@ class Layout(Widget):
 
 	def setPos(self, pos, withOrigin = True):
 		Widget.setPos(self, pos)
+		lastPosition = self.getPos(False)
 		if self.autoDefineSize :
-			maxSize = self._getMinimumWidgetSize()
+			maxSize = self._getMaximumWidgetSize()
 			for x in range(len(self._widget)):
 				for y in range(len(self._widget[0])):
 					if self._widget[x][y]:
-						self._widget[x][y].setPos(self.virtualPos +\
+						self._widget[x][y].setPos(self.pos +\
 								self._getNumberWidget(sf.Vector2(x, y),\
 								sf.Vector2(x, y)) * self._spacing +\
 								maxSize * sf.Vector2(x, y))
 						lastPosition = self._widget[x][y].getPos(False) + maxSize * self._casePerWidget[x][y]
-			Widget.setSize(lastPosition - self.getPos(False))
+			Widget.setSize(self, lastPosition - self.getPos(False), False)
 
 		else:
 			if len(self._widget) > 0:
-				for x in range(len(self._widget[0])):
-					for y in range(len(self._widget[0])):
+				caseWidget = self._getNumberCases()
+				for x in range(len(self._widget)):
+					for y in range(len(self._widget[x])):
 						if self._widget[x][y]:
-							self._widget[x][y].setPos(self.virtualPos +\
-									self.size - (self.virtualSize / self._getNumberCases() * sf.Vector2(x, y)) + \
-									self._spacing * self._getNumberWidget(sf.Vector2(x, y), sf.Vector2(x, y)), False)
-	def setSize(self, size, autoDefineSize=False):
-		if autoDefineSize:
+							self._widget[x][y].setPos(self.pos +\
+									(self.size / self._getNumberCases() * sf.Vector2(x, y)) +\
+									self._spacing * sf.Vector2(x, y) / caseWidget)
+
+	def setSize(self, size, autoDefineSize=None):
+		if autoDefineSize != None and self.autoDefineSize == True or autoDefineSize==True:
 			return self.autoDefineSize == True
-		Widget.setSize(self, size)
+		else:
+			Widget.setSize(self, size)
 
-		for x in range(len(self._widget)):
-			for y in range(len(self._widget[0])):
-				if self._widget:
-					self._widget[x][y].size = self._casePerWidget[x][y] * \
-							self.virtualSize / self._getNumberCases() -\
-							self.spacing / \
-							sf.Vector2(self._getNumberWidgetOnX(y), self._getNumberWidgetOnY(x)) 
+			self.alignment = None
+			numberCase = self._getNumberCases()
+			for x in range(len(self._widget)):
+				for y in range(len(self._widget[0])):
+					if self._widget[x][y]:
+						suppr = self.spacing * (numberCase - self._casePerWidget[x][y]) / \
+								numberCase
+						self._widget[x][y].size = self._casePerWidget[x][y] * \
+								self.size / numberCase - suppr
 
-		self.autoDefineSize = False
+			self.autoDefineSize = False
 
 	def _getNumberWidgetOnY(self, x, stop=None):
 		number = 0
 		if len(self._widget) > x:
 			y = 0
-			while y < len(self._widget[0]):
+			while y < len(self._widget[x]):
 				if stop != None and y >= stop:
 					break
 
-				elif self._casePerWidget[x][y] == 0:
-					for xBis in range(x, 0, -1):
-						if self._casePerWidget[xBis][y] > 0:
+				elif self._casePerWidget[x][y] == sf.Vector2(0, 0):
+					for xBis in range(x, -1, -1):
+						if self._casePerWidget[xBis][y] != sf.Vector2(0, 0):
 							y += self._casePerWidget[xBis][y].y
 							break
 				else:
@@ -231,10 +238,10 @@ class Layout(Widget):
 				if stop != None and y >= stop:
 					break
 
-				elif self._casePerWidget[x][y] == 0:
-					for yBis in range(y, 0, -1):
-						if self._casePerWidget[x][yBis] > 0:
-							x += self._casePerWidget[yBis][x].y
+				elif self._casePerWidget[x][y] == sf.Vector2(0, 0):
+					for yBis in range(y, -1, -1):
+						if self._casePerWidget[x][yBis] != sf.Vector2(0, 0):
+							x += self._casePerWidget[x][yBis].x
 							break
 				else:
 					x += self._casePerWidget[x][y].x
@@ -244,13 +251,13 @@ class Layout(Widget):
 
 	def _getNumberCasesOnX(self, y):
 		if len(self._widget) > 0 and len(self._widget[0]) > y:
-			return sum([liste[y] for liste in self._casePerWidget])
+			return sum([liste[y].x for liste in self._casePerWidget if y < len(liste)])
 		else:
 			return 0
 
 	def _getNumberCasesOnY(self, x):
-		if len(self._widget) > x:
-			return sum(self._casePerWidget[x])
+		if len(self._widget) > x and len(self._widget[0]) > 0:
+			return sum([y.x for y in self._casePerWidget[x]])
 		else:
 			return 0
 
@@ -262,16 +269,22 @@ class Layout(Widget):
 				self._getNumberWidgetOnY(pos.x, stop.y))
 
 	def _getMinimumCasePerWidget(self):
-		return sf.Vector2(min([min([y.x for y in x if y.x > 0]) for x in self._casePerWidget]),\
-				min([min([y.y for y in x if y.y > 0]) for x in self._casePerWidget]))
+		if len(self._widget) > 0:
+			return sf.Vector2(min([min([y.x for y in x if y.x > 0]) for x in self._casePerWidget]),\
+					min([min([y.y for y in x if y.y > 0]) for x in self._casePerWidget]))
+		else:
+			return sf.Vector2(0,0)
 
 	def _getMaxWidgetXY(self):
-		return sf.Vector2(max([self._getNumberWidgetOnX(y) for y in\
-				range(len(self._getNumberCasesOnX(0)))]), \
-				max([self._getNumberWidgetOnY(x) for x in\
-				range(len(self._getNumberCasesOnY(0)))]))
+		if len(self._widget) > 0:
+			return sf.Vector2(max([self._getNumberWidgetOnX(y) for y in\
+					range(len(self._casePerWidget[0]))]), \
+					max([self._getNumberWidgetOnY(x) for x in\
+					range(len(self._casePerWidget))]))
+		else:
+			return sf.Vector2(0,0)
 
-	def _getMinimumWidgetSize(self):
+	def _getMaximumWidgetSize(self):
 			vector = sf.Vector2(0,0)
 			minimumCasePerWidget = self._getMinimumCasePerWidget()
 			for x in range(len(self._widget)):
@@ -287,20 +300,23 @@ class Layout(Widget):
 	def _setAlignment(self, alignment):
 		self._alignment = alignment
 		if self._autoDefineSize:
-			minimumSize = self._getMinimumWidgetSize()
+			minimumSize = self._getMaximumWidgetSize()
 			for widgetList in self._widget:
 				for widget in widgetList:
 					if widget:
-						if alignement == Position.TopLeft:
-							widget.posOrigin = alignement
-						elif alignement == Position.TopRight:
-							widget.origin = sf.Vector2(minimumSize.x, 0)*self._casePerWidget[x][y]
-						elif alignement == Position.BottomLeft:
-							widget.origin = sf.Vector2(0, minimumSize.y)*self._casePerWidget[x][y]
-						elif alignement == Position.BottomRight:
-							widget.origin = minimumSize*self._casePerWidget[x][y]
+						x, y = self.getWidgetPosition(widget)
+						if alignment == Position.TopLeft:
+							widget.posOrigin = alignment
+						elif alignment == Position.TopRight:
+							widget.origin = sf.Vector2(minimumSize.x, 0)*self._casePerWidget[x][y] / 1
+						elif alignment == Position.BottomLeft:
+							widget.origin = sf.Vector2(0, minimumSize.y)*self._casePerWidget[x][y] / 1
+						elif alignment == Position.BottomRight:
+							widget.origin = minimumSize*self._casePerWidget[x][y] / 1
 						else:
 							widget.origin = minimumSize*self._casePerWidget[x][y] / 2
+
+			self._autoDefineSize = self.autoDefineSize
 		else:
 			for widgetList in self._widget:
 				for widget in widgetList:
@@ -312,7 +328,7 @@ class Layout(Widget):
 		if self._autoDefineSize:
 			self.autoDefineSize = True
 		else:
-			self.rect = self.virtualRect
+			self.rect = self.rect
 	
 	def _setAutoDefineSize(self, auto):
 		self._autoDefineSize = auto
@@ -323,7 +339,7 @@ class Layout(Widget):
 					if widget:
 						widget.globalScale = self.globalScale
 
-			self.pos = self.virtualPos
+			self.pos = self.pos
 
 	alignment = property(lambda self:self._alignment, _setAlignment)
 	spacing = property(lambda self:self._spacing, _setSpacing)
