@@ -2,12 +2,13 @@ import sfml as sf
 from Image import Image
 from Widget import Widget
 from copy import copy
+from functools import reduce
 import functions
 
 class Render(Widget):
 	"""Basic virtual class for all Render's class"""
 
-	def __init__(self, parent, rect, backgroundColor=sf.Color.BLACK,\
+	def __init__(self, parent=None, rect=sf.Rectangle, backgroundColor=sf.Color.BLACK,\
 			title=str(), backgroundImage=Image()):
 		Widget.__init__(self,parent, rect)
 		self.canFocus = False
@@ -42,13 +43,7 @@ class Render(Widget):
 		self.view = viewCopy
 
 	def setViewPosition(self, pos):
-		viewCopy = self.view
-		viewCopy.center = sf.Vector2(pos - self.view.size / 2)
-		viewCopy.viewport.width -= viewCopy.viewport.left
-		viewCopy.viewport.heigth -= viewCopy.viewport.top
-		viewCopy.viewport.left = 0
-		viewCopy.viewport.top = 0
-		self.view = viewCopy
+		moveView(pos - self.getViewPosition())
 
 	def setViewport(self, viewport):
 		viewCopy = self.view
@@ -56,57 +51,49 @@ class Render(Widget):
 		self.view = viewCopy
 
 	def getViewPositionWithViewport(self):
-		return sf.Vector2(self.view.center.x,self.view.center.y) - \
-				sf.Vector2(self.view.size.x,self.view.size.y) / 2 + \
-				self.viewport.position * self.view.size
+		return  self.view.center + self.viewport.position * self.size - \
+				self.view.size / 2
 
 	def getViewPosition(self):
-		return sf.Vector2(self.view.center.x,self.view.center.y) - \
-				sf.Vector2(self.view.size.x,self.view.size.y) / 2 
+		return self.view.center - self.view.size / 2
 	
-	def getViewPositionWithZoom(self):
-		render = self.getRender()
-		if render:
-			return self.getViewPosition(self) * \
-					(render.sizeOnScreen / \
-					render.getViewSizeWithViewport())
-
 	def getViewSizeWithViewport(self):
-		return self.view.size * (self.viewport.size-self.viewport.position)
+		return self.view.size * self.view.viewport.size
 
 	def getViewSizeWithZoom(self):
 		return self.getViewSizeWithViewport() * self.getViewScale()
 
-	def getSommeViewPosition(self):
+	def convertScreenCoordToTargetPoint(self, position):
 		render = self.getRender()
 		if isinstance(render,Render) and render is not self:
-			return render.getSommeViewPosition() + self.getViewPositionWithViewport()
+			return render.map_pixel_to_coords(position) - \
+					render.convertTargetPointToScreenCoord(self.pos)
 		else:
-			return self.getViewPosition()
+			return render.map_pixel_to_coords(position)
 
-	def getSommeViewPositionWithZoom(self):
-		return self.getSommeViewPosition() * self.getViewScale()
+	def convertTargetPointToScreenCoord(self, position):
+		render = self.getRender()
+		if isinstance(render,Render) and render is not self:
+			return render.convertTargetPointToScreenCoord(self.pos) + \
+					render.map_coords_to_pixel(position)
+		else:
+			return render.map_coords_to_pixel(position)
 
 	def getViewRect(self):
 		return sf.Rectangle(self.getViewPosition(),\
-				self.getViewSizeWithViewport())
-
-	def getViewRectWithZoom(self):
-		viewRect = self.getViewRect()
-		return sf.Rectangle(self.getSommeViewPositionWithZoom(),\
-				self.getViewSizeWithZoom())
+				self.view.size)
 
 	def getRender(self):
 		return self
 
 	def isInView(self,rect):
-		return functions.rectCollision(rect,self.getViewRectWithZoom())
+		return functions.rectCollision(rect,self.getViewRect())
 
 	def getViewScale(self):
 		render = self.getRender()
 		if render and\
 				(render.getViewSizeWithViewport().x != 0 or render.getViewSizeWithViewport().y != 0):
-			return render.sizeOnScreen / render.getViewSizeWithViewport()
+			return render.sizeOnView / self.view.size
 		return sf.Vector2(1,1)
 
 	def _setSize(self,size):
@@ -121,17 +108,11 @@ class Render(Widget):
 		self._backgroundImage.setParent(self.parent, 0)
 	
 	def _setView(self, view):
-		back = self.getViewRectWithZoom()
-		back = sf.Vector2(back.left, back.top)
 		super(Render,self.__class__).view.__set__(self,view)
 
 		for child in self._child:
 			if isinstance(child,Widget) and child.isStaticToView:
-				child.setPos(child.pos - back)
-				child.relativePositionOnView = child.relativePositionOnView
-				self.relativePositionOnView = self.relativePositionOnView
-
-		Widget._resizeWidget(self)
+				child.setPosOnView(child.pos)
 
 	def _setViewport(self, rect):
 		newView = self.view
@@ -153,3 +134,6 @@ class Render(Widget):
 	
 	view = property(lambda self:super().view,\
 			lambda self,view : self._setView(view))
+
+def addSizeBetweenPosAndCenter(result, difference, n):
+	return result + difference/2**n
