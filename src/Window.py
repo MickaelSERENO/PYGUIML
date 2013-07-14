@@ -36,7 +36,6 @@ class Window(Render, sf.RenderWindow):
 
 			if self._event.isResize:
 				Render._setSize(self,self.size)
-				Widget._resizeWidget(self)
 	
 			Widget.widgetFocus =  None
 			Updatable._focusIsChecked = False
@@ -72,7 +71,6 @@ class Window(Render, sf.RenderWindow):
 		return
 	
 	size = property(lambda self : sf.RenderWindow.size.__get__(self), _setSize)
-	virtualSize = size
 	event = property(lambda self:self._event)
 	framerate = property(lambda self:1/self._event.elapsedTime*0.001)
 	setPosOnScreen = setPos
