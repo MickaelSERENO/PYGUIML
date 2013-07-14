@@ -114,25 +114,25 @@ class EventManager:
 		return False
 
 	def getPressedKeys(self, key):
-		if key <= EventManager.nbrKey:
+		if type(key) == int and key <= EventManager.nbrKey:
 			return self._keys[key]
 		else:
 			return False
 
 	def getOnePressedKeys(self, key):
-		if key <= EventManager.nbrKey:
+		if type(key) == int and key <= EventManager.nbrKey:
 			return self._isInputKeys[key]
 		else:
 			return False
 
 	def getMouseClicked(self, key):
-		if key <= EventManager.nbrClick:
+		if type(key) == int and key <= EventManager.nbrClick:
 			return self._click[key]
 		else:
 			return False
 
 	def getOneMouseClicked(self, key):
-		if key <= EventManager.nbrClick:
+		if type(key) == int and key <= EventManager.nbrClick:
 			return self._isInputClick[key]
 		else:
 			return False
