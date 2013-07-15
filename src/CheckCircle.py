@@ -50,7 +50,6 @@ class CheckCircle(Widget, Active):
 		radius = min(size.x, size.y)
 		self.radius = radius/2
 		Widget.setSize(self, size)
-		print(size, "size")
 		if radius != 0:
 			self._bigCircle.ratio = (size/sf.Vector2(radius, radius))
 			self._smallCircle.ratio = (size/sf.Vector2(radius, radius))

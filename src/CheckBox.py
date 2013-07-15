@@ -58,7 +58,7 @@ class CheckBox(Widget, Active):
 		self._rectangle.size = size -\
 				sf.Vector2(2*self.outlineRectangleThickness,\
 				2*self.outlineRectangleThickness)
-		self.pos = self.pos
+		self.setPos(self.pos, False)
 
 	def howSelect(self):
 		return Widget.widgetFocus is self

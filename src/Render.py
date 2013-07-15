@@ -121,6 +121,18 @@ class Render(Widget):
 
 	def _setTitle(self, title):
 		self._title  = title
+		
+	def clipping(self, funcDraw, rect, funcUpdate=None):
+		currentView = self.view
+		clippingView = sf.View(rect)
+		clippingView.viewport = sf.Rectangle(rect.position / self.size, \
+				rect.size / self.size)
+		super(Render, self.__class__).view.__set__(self, clippingView)
+		
+		funcDraw(self)
+		if funcUpdate:
+			funcUpdate(self)
+		super(Render, self.__class__).view.__set__(self, currentView)
 
 	size = property(lambda self:sf.RenderWindow.size.__get__(self),\
 			lambda self,size:self._setSize(size))

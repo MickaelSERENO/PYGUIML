@@ -91,8 +91,16 @@ class Updatable:
 		if isinstance(self._parent, Updatable):
 			self._parent.addChild(self, pos)
 
+	def _getParentList(self):
+		parentList = []
+		if self._parent:
+			parentList.append(self._parent)
+			parentList.extend(self._parent._getParentList())
+		return parentList
+
 	parent = property(lambda self:self._parent,\
 			lambda self, parent: self.setParent(parent))
 	child = property(lambda self:self._child)
 	changeWindow = property(lambda self:self._changeWindow)
 	event = property(lambda self:self._event)
+	parentList = property(lambda self:self._getParentList())

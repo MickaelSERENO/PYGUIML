@@ -20,7 +20,6 @@ class Window(Render, sf.RenderWindow):
 		self.position = (0,0)
 		self.framerate_limit = framerateLimit
 		self._event = EventManager(self)
-		print(self.event.defaultWindowSize)
 		self.resetView()
 		self.clear(backgroundColor)
 

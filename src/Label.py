@@ -6,7 +6,8 @@ class Label(Widget):
 	"""This class inherit of Widget class. It managed the Text"""
 
 	def __init__(self, parent=None, source=sf.Text(),\
-			position = sf.Vector2(0, 0), characterSize = 12):
+			position = sf.Vector2(0, 0), characterSize = 12, font=None, \
+			style=sf.Text.REGULAR):
 		"""parent is a widget objet, source a str objet or a sf.Text objet,
 		position is a sf.Vector2 objet and characterSize is a int objet"""
 
@@ -26,6 +27,8 @@ class Label(Widget):
 
 		self.canFocus = False
 		self.characterSize = characterSize
+		if font:
+			self.font = font
 
 	@decorator.forDrawing
 	def draw(self, render=None):
@@ -57,6 +60,11 @@ class Label(Widget):
 
 	def _setFont(self, font):
 		self._text.font = font
+		self.size = self.size
+
+	def _setStyle(self, style):
+		self._text.style = style
+		self.size = self.size
 
 	def _setColor(self, color):
 		self._text.color = color
@@ -91,3 +99,4 @@ class Label(Widget):
 			_setCharacterSize)
 	color = property(lambda self:self._text.color, _setColor)
 	font = property(lambda self:self._text.font, _setFont)
+	style = property(lambda self:self._style, _setStyle)
