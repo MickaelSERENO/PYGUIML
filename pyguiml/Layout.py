@@ -14,7 +14,22 @@ class Layout(Widget):
 		self._autoDefineSize = autoDefineSize
 
 	def __getitem__(self, pos):
-		return self._widget[pos.x][pos.y]
+		if len(self._widget) > 0 and (pos.x > len(self._widget) or\
+				pos.y > len(self._widget[0])):
+			print(len(self._widget))
+			return None
+		elif self._widget[pos.x][pos.y]:
+			return self._widget[pos.x][pos.y]
+
+		else:
+			for x in range(pos.x, 0-1, -1):
+				for y in range(pos.y, 0-1, -1):
+					if self._widget[x][y]:
+						if y + self._casePerWidget[x][y].y - 1 < pos.y:
+							print("break")
+							break
+						else:
+							return self._widget[x][y]
 
 	def __setitem__(self, pos, widget):
 		self.addWidget(widget, pos)
@@ -140,14 +155,14 @@ class Layout(Widget):
 		else:
 			addX = numberCases.x
 
-			for x in range(self._getNumberCases().x-numberCases.x-1, pos.x, -1):
-				for y in range(self._getNumberCases().y-1, pos.y, -1):
-					numberCases = self
-					self._widget[addX][y+addY] = self._widget[x][y]
+#			for x in range(self._getNumberCases().x-numberCases.x-1, pos.x, -1):
+#				for y in range(self._getNumberCases().y-1, pos.y, -1):
+#					numberCases = self._widget
+#					self._widget[addX][y+addY] = self._widget[x][y]
 
 		self.alignment = self.alignment
 		self._delUselessWidget()
-		if self.autoDefineSize :
+		if self._autoDefineSize:
 			self.autoDefineSize = True
 		else:
 			self.rect = self.rect
@@ -172,16 +187,14 @@ class Layout(Widget):
 
 	def setPos(self, pos, withOrigin = True):
 		Widget.setPos(self, pos)
-		lastPosition = self.getPos(False)
 		if self.autoDefineSize :
-			self.alignment = self._alignment
+			lastPosition = self.getPos(False)
 			maxSize = self._getMaximumWidgetSize()
 			for x in range(len(self._widget)):
 				for y in range(len(self._widget[0])):
 					if self._widget[x][y]:
-						numberWidget = self._getNumberWidget(sf.Vector2(x, y), sf.Vector2(x, y))
 						self._widget[x][y].setPos(self.pos +\
-								sf.Vector2(x, y) * maxSize + numberWidget * self._spacing)
+								sf.Vector2(x, y) * maxSize + sf.Vector2(x, y) * self._spacing)
 
 						lastPosition = self._widget[x][y].getPos(False) + maxSize * self._casePerWidget[x][y]
 			Widget.setSize(self, lastPosition - self.getPos(False), False)
@@ -198,7 +211,8 @@ class Layout(Widget):
 
 	def setSize(self, size, autoDefineSize=None):
 		if autoDefineSize == None and self.autoDefineSize == True or autoDefineSize==True:
-			return self.autoDefineSize == True
+			self.autoDefineSize = True
+			return
 		else:
 			Widget.setSize(self, size)
 
@@ -238,7 +252,7 @@ class Layout(Widget):
 		if len(self._widget) > 0:
 			x = 0
 			while x < self._getNumberCasesOnX(y):
-				if stop != None and y >= stop:
+				if stop != None and x >= stop:
 					break
 
 				elif self._casePerWidget[x][y] == sf.Vector2(0, 0):
@@ -272,11 +286,19 @@ class Layout(Widget):
 				self._getNumberWidgetOnY(pos.x, stop.y))
 
 	def _getMinimumCasePerWidget(self):
-		if len(self._widget) > 0:
-			return sf.Vector2(min([min([y.x for y in x if y.x > 0]) for x in self._casePerWidget]),\
-					min([min([y.y for y in x if y.y > 0]) for x in self._casePerWidget]))
-		else:
-			return sf.Vector2(0,0)
+		minimumX = 0
+		minimumY = 0
+		if len(self._casePerWidget) > 0:
+			minimumX = 1
+			minimumY = 1
+
+		for case in self._casePerWidget:
+			for vector in case:
+				if vector.x != 0:
+					minimumX = min(vector.x, minimumX)
+				if vector.y != 0:
+					minimumX = min(vector.y, minimumY)
+		return sf.Vector2(minimumX, minimumY)
 
 	def _getMaxWidgetXY(self):
 		if len(self._widget) > 0:
@@ -289,26 +311,28 @@ class Layout(Widget):
 
 	def _getMaximumWidgetSize(self):
 			vector = sf.Vector2(0,0)
-			minimumCasePerWidget = self._getMinimumCasePerWidget()
 			for x in range(len(self._widget)):
 				for y in range(len(self._widget[x])):
 					if self._widget[x][y]:
 						vector = sf.Vector2(max(vector.x,\
 								self._widget[x][y].size.x / \
-								(self._casePerWidget[x][y].x / minimumCasePerWidget.x)),
+								(self._casePerWidget[x][y].x) - \
+								self._spacing.x*(self._casePerWidget[x][y].x-1)),
 								max(vector.y, self._widget[x][y].size.y / \
-								(self._casePerWidget[x][y].y / minimumCasePerWidget.y)))
-			return vector * self.globalScale
+								(self._casePerWidget[x][y].y)-\
+								self._spacing.y * (self._casePerWidget[x][y].y-1)))
+			return vector
 
 	def _setAlignment(self, alignment):
 		self._alignment = alignment
 		if self._autoDefineSize:
 			minimumSize = self._getMaximumWidgetSize()
+			print(minimumSize, "minimum")
 			for x, widgetList in enumerate(self._widget):
 				for y, widget in enumerate(widgetList):
 					if widget:
 						totalSize = minimumSize * self._casePerWidget[x][y] +\
-								self.spacing * (self._casePerWidget[x][y])
+								self.spacing * (self._casePerWidget[x][y]-sf.Vector2(1, 1))
 						if alignment == Position.TopLeft:
 							widget.origin = sf.Vector2(0,0)
 						elif alignment == Position.TopRight:
@@ -321,8 +345,13 @@ class Layout(Widget):
 							widget.origin = widget.size - totalSize
 						else:
 							widget.origin = (widget.size - totalSize)/2
+							print(totalSize,"total")
+							print(widget.size, "size")
+							print(widget.origin, "origin")
+							print(x, y, "coord")
 
 			self._autoDefineSize = self.autoDefineSize
+			self.pos = self.getPos(False)
 		else:
 			for widgetList in self._widget:
 				for widget in widgetList:
@@ -332,25 +361,19 @@ class Layout(Widget):
 	def _setSpacing(self, space):
 		self._spacing = space
 
-		if self._autoDefineSize:
-			self.autoDefineSize = True
-		else:
-			self.rect = self.rect
+		self.autoDefineSize = self.autoDefineSize
 	
 	def _setAutoDefineSize(self, auto):
 		self._autoDefineSize = auto
-		if self.alignment == auto and self.alignment == False:
-			self.rect = self.rect
-			self.alignment = False
-			return
-
-		self.alignment = self.alignment
 		if auto:
-			for widgetList in self._widget:
-				for widget in widgetList:
-					if widget:
-						widget.globalScale = self.globalScale
-
+			if auto:
+				for widgetList in self._widget:
+					for widget in widgetList:
+						if widget:
+							widget.globalScale = self.globalScale
+			self.alignment = self.alignment
+		else:
+			self.rect = self.rect
 
 	alignment = property(lambda self:self._alignment, _setAlignment)
 	spacing = property(lambda self:self._spacing, _setSpacing)

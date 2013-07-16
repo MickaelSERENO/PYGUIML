@@ -21,7 +21,10 @@ class Updatable:
 		for child in self._child[::-1]:
 			if self._focusIsChecked:
 				return
-			child.updateFocus()
+			if child._child != []:
+				Updatable.updateFocus(child)
+			else:
+				child.updateFocus()
 
 	def update(self, render=None):
 		"""THIS methode Update all child of this Widget. 

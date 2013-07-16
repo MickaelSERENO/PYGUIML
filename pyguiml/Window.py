@@ -23,15 +23,14 @@ class Window(Render, sf.RenderWindow):
 		self.resetView()
 		self.clear(backgroundColor)
 
-	def updateFocus(self):
-		return;
+#	def updateFocus(self):
+#		return Updatable.updateFocus(self)
 
 	def update(self):
 		"""Update the Window. It Update all event, and update framerate.
 		It Draw and display also all widgets child"""
 		if self.isDrawing:
 			self._event.update()
-			self._framerate = 1/(self.event.elapsedTime*10**-6)
 
 			if self._event.isResize:
 				Render._setSize(self,self.size)
@@ -71,7 +70,7 @@ class Window(Render, sf.RenderWindow):
 	
 	size = property(lambda self : sf.RenderWindow.size.__get__(self), _setSize)
 	event = property(lambda self:self._event)
-	framerate = property(lambda self:1/self._event.elapsedTime*0.001)
+	framerate = property(lambda self:1/(self._event.elapsedTime*10**-6))
 	setPosOnScreen = setPos
 	draw = sf.RenderWindow.draw
 	sizeOnScreen = property(lambda self:self.size)
