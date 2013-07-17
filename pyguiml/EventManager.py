@@ -26,6 +26,7 @@ class EventManager:
 			self._defaultWindowSize = sf.Window.size.__get__(window)
 			self._multiplicateMouse = sf.Vector2(1,1)
 			self.textCursor=None
+			self.watchText = True
 
 			i = 0
 			for i in range(EventManager.nbrKey):
@@ -70,7 +71,7 @@ class EventManager:
 				self._isInputKeys[event.code] = False
 
 
-			if type(event) is sf.TextEvent:
+			if self.watchText and type(event) is sf.TextEvent:
 				if event.unicode != 13 and event.unicode != 8:
 					self._text += chr(event.unicode)
 				elif event.unicode == 13:
@@ -107,7 +108,7 @@ class EventManager:
 			self._multiplicateMouse.y = self._newWindowSize.y / \
 					self._defaultWindowSize.y
 
-		if self.text:
+		if self.text and self.watchText:
 			textCursor = self.textCursor
 			if self.textCursor == None or self.textCursor > len(self.text):
 				textCursor = len(self.text)
@@ -156,7 +157,10 @@ class EventManager:
 	def resetText(self):
 		self._text = ""
 
-	text = property(lambda self:self._text)
+	def _setText(self, text):
+		self._text = text
+
+	text = property(lambda self:self._text, _setText)
 	enteredText = property(lambda self:self._enteredText)
 	mousePos = property(lambda self:self._mousePos)
 	oldMousePos = property(lambda self:self._oldMousePos)
