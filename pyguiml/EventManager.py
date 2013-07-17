@@ -21,10 +21,11 @@ class EventManager:
 			self._oldWindowSize = sf.Vector2(window.width, window.height)
 			self._newWindowSize = sf.Vector2(window.width, window.height)
 			self._enteredText = False
-			self._text = 0
+			self._text = str()
 			self._hasPressedKeyMouse = False
 			self._defaultWindowSize = sf.Window.size.__get__(window)
 			self._multiplicateMouse = sf.Vector2(1,1)
+			self.textCursor=None
 
 			i = 0
 			for i in range(EventManager.nbrKey):
@@ -68,8 +69,12 @@ class EventManager:
 				self._keys[event.code] = False
 				self._isInputKeys[event.code] = False
 
+
 			if type(event) is sf.TextEvent:
-				self._text = event.unicode
+				if event.unicode != 13 and event.unicode != 8:
+					self._text += chr(event.unicode)
+				elif event.unicode == 13:
+					self._text += '\n'
 				self._enteredText = True
 
 			if type(event) is sf.MouseButtonEvent and event.pressed:
@@ -95,15 +100,26 @@ class EventManager:
 						self._newWindowSize.y)
 				self._newWindowSize = event.size
 
-		if self._keys[sf.Keyboard.BACK_SPACE]:
-			self._enteredText = False
-
 		if self._isResize and self._defaultWindowSize.x != 0 and\
 				self._defaultWindowSize.y != 0:
 			self._multiplicateMouse.x = self._newWindowSize.x / \
 					self._defaultWindowSize.x
 			self._multiplicateMouse.y = self._newWindowSize.y / \
 					self._defaultWindowSize.y
+
+		if self.text:
+			textCursor = self.textCursor
+			if self.textCursor == None or self.textCursor > len(self.text):
+				textCursor = len(self.text)
+
+			if self.getOnePressedKeys(sf.Keyboard.BACK_SPACE) and \
+					(textCursor > 0):
+						self._text = self.text[0:textCursor-1] + \
+								self.text[textCursor:]
+
+			elif self.getOnePressedKeys(sf.Keyboard.DELETE):
+				self._text = self.text[0:textCursor] + \
+						self.text[textCursor:]
 
 	def isMouseInRect(self, rect):
 		if self._mousePos.x > rect.left and\
@@ -136,6 +152,9 @@ class EventManager:
 			return self._isInputClick[key]
 		else:
 			return False
+
+	def resetText(self):
+		self._text = ""
 
 	text = property(lambda self:self._text)
 	enteredText = property(lambda self:self._enteredText)
