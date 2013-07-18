@@ -102,7 +102,6 @@ class Render(Widget):
 		return sf.Vector2(1,1)
 
 	def _setSize(self,size):
-		self._backgroundImage.size = size
 		if not isinstance(self,sf.Window):
 			self.size = size
 
