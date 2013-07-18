@@ -64,9 +64,10 @@ class CheckBox(Widget, Active):
 		return Widget.widgetFocus is self
 
 	def howActive(self):
+		print(self.howActiveMouse[0])
 		return self.isSelect and self.event and \
-				(self.event.getOneMouseClicked(self.howActiveMouse) or\
-				self.event.getOnePressedKeys(self.howActiveKeyboard))
+				(self.event.getOneMouseClicked(self.howActiveMouse[0]) or\
+				self.event.getOnePressedKeys(self.howActiveKeyboard[0]))
 
 	def activeIt(self, force=False):
 		if force:

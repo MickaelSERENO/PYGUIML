@@ -15,8 +15,8 @@ class Active:
 		self.deselectOnce = False
 		self.disactiveOnce = False
 
-		self.howActiveKeyboard = None
-		self.howActiveMouse = sf.Mouse.LEFT
+		self._howActiveKeyboard = [None]
+		self._howActiveMouse = [sf.Mouse.LEFT]
 
 	def update(self):
 		if self.alwaysUpdateSelection:
@@ -64,5 +64,19 @@ class Active:
 	def disactiveIt(self):
 		self._active = False
 
+	def setActiveKeyboard(self, key, position=0):
+		if type(key) == list:
+			self._howActiveKeyboard = key
+		else:
+			self._howActiveKeyboard[position]=key
+
+	def setActiveMouse(self, key, position=0):
+		if type(key) == list:
+			self._howActiveMouse = key
+		else:
+			self._howActiveMouse[position]=key
+
 	isSelect = property(lambda self:self._select)
 	isActive = property(lambda self:self._active)
+	howActiveKeyboard = property(lambda self:self._howActiveKeyboard, setActiveKeyboard)
+	howActiveMouse = property(lambda self:self._howActiveMouse, setActiveMouse)

@@ -83,8 +83,8 @@ class Button(Widget, Active):
 
 	def howActive(self):
 		return self.isSelect and self.event and \
-				(self.event.getOneMouseClicked(self.howActiveMouse) or\
-				self.event.getOnePressedKeys(self.howActiveKeyboard))
+				(self.event.getOneMouseClicked(self.howActiveMouse[0]) or\
+				self.event.getOnePressedKeys(self.howActiveKeyboard[0]))
 
 	def lightUpDrawable(self, lighten = True):
 		"""Light Up the Button if lighten is True value"""

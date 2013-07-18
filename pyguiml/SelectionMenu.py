@@ -33,7 +33,6 @@ class SelectionMenu(Layout, Active):
 				for child in widgetList:
 					if isinstance(child, Active) and child.isSelect and child is not self._currentSelect:
 						self._currentSelect = child
-						print(child.pos)
 						break
 
 			if not self._currentSelect:
@@ -51,7 +50,7 @@ class SelectionMenu(Layout, Active):
 			if self.event and self._currentSelect:
 				currentHowActiveMouse = self._currentSelect.howActiveMouse
 				if not self._currentSelect.howSelect():
-					self._currentSelect.howActiveMouse=None
+					self._currentSelect.howActiveMouse=[None]
 				posCurrentSelect = self.getWidgetPosition(self._currentSelect)
 				caseCurrentSelect = self.getWidgetCase(self._currentSelect)
 

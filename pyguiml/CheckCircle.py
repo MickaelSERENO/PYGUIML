@@ -56,8 +56,8 @@ class CheckCircle(Widget, Active):
 
 	def howActive(self):
 		return self.isSelect and self.event and (\
-				self.event.getOneMouseClicked(self.howActiveMouse) or\
-				self.event.getOnePressedKeys(self.howActiveKeyboard))
+				self.event.getOneMouseClicked(self.howActiveMouse[0]) or\
+				self.event.getOnePressedKeys(self.howActiveKeyboard[0]))
 
 	def howSelect(self):
 		return Widget.widgetFocus is self
