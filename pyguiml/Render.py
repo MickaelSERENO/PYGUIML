@@ -109,8 +109,8 @@ class Render(Widget):
 		if self._backgroundImage and self._backgroundImage is not backgroundImage:
 			self.removeChild(self._backgroundImage)
 		if backgroundImage:
-			if backgroundImage is not self._backgroundImage:
-				backgroundImage.setParent(self, 0)
+			self.addChild(backgroundImage, 0)
+			print("child", self.child)
 			self._backgroundImage = backgroundImage
 			self._backgroundImage.size = self.view.size
 			self._backgroundImage.pos = self.getViewPosition()

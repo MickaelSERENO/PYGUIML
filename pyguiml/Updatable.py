@@ -182,6 +182,8 @@ class Updatable:
 		if event is not self._event:
 			self._changeWindow = True
 
+	def setCanUpdate(self, update):
+		self._canUpdate = update
 
 	parent = property(lambda self:self._parent,\
 			lambda self, parent: self.setParent(parent))
@@ -189,3 +191,4 @@ class Updatable:
 	changeWindow = property(lambda self:self._changeWindow)
 	event = property(lambda self:self._event)
 	parentList = property(lambda self:self._getParentList())
+	canUpdate = property(lambda self:self._canUpdate, setCanUpdate)

@@ -17,5 +17,6 @@ from Layout import *
 from Active import *
 from Frame import *
 from SelectionMenu import *
+from TextArray import *
 import decorator
 import functions

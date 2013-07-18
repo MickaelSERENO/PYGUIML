@@ -68,11 +68,15 @@ class CheckBox(Widget, Active):
 				(self.event.getOneMouseClicked(self.howActiveMouse) or\
 				self.event.getOnePressedKeys(self.howActiveKeyboard))
 
-	def activeIt(self):
-		self._active = not self._active
+	def activeIt(self, force=False):
+		if force:
+			self._active = True
+		else:
+			self._active = not self._active
 
-	def disactiveIt(self):
-		return
+	def disactiveIt(self, force=False):
+		if force:
+			self._active = True
 
 	def _setCrossColor(self, color):
 		for line in self._line:

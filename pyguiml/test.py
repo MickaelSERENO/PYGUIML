@@ -26,29 +26,42 @@ import io
 
 window = Window(sf.VideoMode(800,600,32), "teste", backgroundColor = sf.Color.GREEN, framerateLimit=5)
 
-textArray = TextArray(window, label=Label(None, "coucou je viens d'écrire mon premier text array, j'espère qu'il vous plaira mes jeunes amis !", font=sf.Font.from_file("DejaVuSans.ttf")))
+#textArray = TextArray(window, label=Label(None, "coucou je viens d'écrire \n mon premier text array, j'espère qu'il vous plaira mes jeunes amis !", font=sf.Font.from_file("DejaVuSans.ttf")), alignment=Position.Center)
+#textArray.setPos(sf.Vector2(150, 150))
+
+#background0 = Image(None, "Ressources/Images/image.jpg", delTextureCreated = False)
+#background1 = Image(None, "Ressources/Images/FirstMenu.jpg", delTextureCreated = False)
+#window.backgroundImage = background0
+
+
 
 #frame = Frame(window, sf.Rectangle(sf.Vector2(10, 10), sf.Vector2(400, 300)), title="frame")
-#layout = SelectionMenu(window, permanentActivation=True)
-#layout.spacing = sf.Vector2(10, 10)
-#box = CheckBox(None, sf.Rectangle(sf.Vector2(20, 20), sf.Vector2(50, 50)))
-#box2 = CheckBox(None, sf.Rectangle(sf.Vector2(20, 20), sf.Vector2(50, 50)))
-#box3 = CheckBox(None, sf.Rectangle(sf.Vector2(20, 20), sf.Vector2(50, 50)))
-#box4 = CheckBox(None, sf.Rectangle(sf.Vector2(20, 20), sf.Vector2(100, 100)))
-#box5 = CheckBox(None, sf.Rectangle(sf.Vector2(20, 20), sf.Vector2(100, 100)))
-#layout.addWidget(box, sf.Vector2(0, 0), sf.Vector2(1, 1))
-#layout.addWidget(box2, sf.Vector2(0, 1), sf.Vector2(1, 1))
-#layout.addWidget(box3, sf.Vector2(0, 2), sf.Vector2(1, 1))
-#layout.addWidget(box4, sf.Vector2(1, 1), sf.Vector2(1, 1))
-#layout.addWidget(box5, sf.Vector2(1, 2), sf.Vector2(1, 1))
-#layout.posOrigin = Position.Center
-#layout.pos = sf.Vector2(400, 300)
-#layout.setAllActiveMouseKeyboard(sf.Keyboard.RETURN, sf.Mouse.LEFT)
-#layout.canFocus = False
+layout = SelectionMenu(window, permanentActivation=True)
+layout.spacing = sf.Vector2(10, 10)
+box = CheckBox(None, sf.Rectangle(sf.Vector2(20, 20), sf.Vector2(50, 50)))
+box2 = CheckBox(None, sf.Rectangle(sf.Vector2(20, 20), sf.Vector2(50, 50)))
+box3 = CheckBox(None, sf.Rectangle(sf.Vector2(20, 20), sf.Vector2(50, 50)))
+box4 = CheckBox(None, sf.Rectangle(sf.Vector2(20, 20), sf.Vector2(100, 100)))
+box5 = CheckBox(None, sf.Rectangle(sf.Vector2(20, 20), sf.Vector2(100, 100)))
+layout.addWidget(box, sf.Vector2(0, 0), sf.Vector2(1, 1))
+layout.addWidget(box2, sf.Vector2(0, 1), sf.Vector2(1, 1))
+layout.addWidget(box3, sf.Vector2(0, 2), sf.Vector2(1, 1))
+layout.addWidget(box4, sf.Vector2(1, 1), sf.Vector2(1, 1))
+layout.addWidget(box5, sf.Vector2(1, 2), sf.Vector2(1, 1))
+layout.posOrigin = Position.Center
+layout.pos = sf.Vector2(400, 300)
+layout.setAllActiveMouseKeyboard(sf.Keyboard.RETURN, sf.Mouse.LEFT)
+layout.canFocus = False
 
 
 while window.is_open:
 	window.update()
+	#if window.event.getOnePressedKeys(sf.Keyboard.LEFT):
+	#	window.backgroundImage = None
+	#	window.backgroundImage = background1
+	#elif window.event.getOnePressedKeys(sf.Keyboard.RIGHT):
+	#	window.backgroundImage = None
+	#	window.backgroundImage = background0
 	
 
 #pro.disable()
