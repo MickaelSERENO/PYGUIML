@@ -1,4 +1,5 @@
 from Widget import Widget
+from Updatable import Updatable
 
 def forDrawing(function):
 	def returnForDrawing(self, render=None, *args, **kwargs):
@@ -6,7 +7,6 @@ def forDrawing(function):
 			if not render:
 				render = self.getRender()
 			return function(self, render, *args, **kwargs)
-
 		return Widget.draw(self, render, *args, **kwargs)
 	return returnForDrawing
 
@@ -16,5 +16,5 @@ def forUpdate(function):
 			if not render:
 				render = self.getRender()
 			return function(self, render, *args, **kwargs)
-		return Widget.update(self, render, *args, **kwargs)
+		return Updatable.update(self, render, *args, **kwargs)
 	return returnForUpdate

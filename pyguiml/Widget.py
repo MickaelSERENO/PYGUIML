@@ -44,41 +44,40 @@ class Widget(Updatable):
 		return copyWidget
 
 	def updateFocus(self):
-		if self.canFocus:
+		Updatable.updateFocus(self)
+		if self.canFocus and not Updatable._focusIsChecked:
 			if self.canUpdate and self.howFocus():
 				Widget.widgetFocus = self
 				Updatable._focusIsChecked = True
 				return
-			Updatable.updateFocus(self)
 
 	def howFocus(self):
 		return isinstance(self._event, EventManager) and self.getRender().isInView(self.rect) and \
 				self._event.isMouseInRect(self.getRectOnScreen(True))
 
 	def update(self, render=None):
-		if self.canUpdate:
-			if not render:
-				render = self.getRender()
+		if not render:
+			render = self.getRender()
 
-			if render:
-				if self._changeWindow:
-					self.relativeSizeOnView = self.relativeSizeOnView
-					self.relativeSizeOnView = self.relativeSizeOnView
-					if self._isStaticToView:
-						self.setPosOnView(self.getPos(False), False)
+		if render:
+			if self._changeWindow:
+				self.relativeSizeOnView = self.relativeSizeOnView
+				self.relativeSizeOnView = self.relativeSizeOnView
+				if self._isStaticToView:
+					self.setPosOnView(self.getPos(False), False)
 
-			if self.isDrawing and render is not self and render.isInView(self.rect):
-				if type(self.clipRect) is sf.Rectangle:
-					if self.clipChild:
-						render.clipping(self.draw, self.clipRect, super().update)
-					else:
-						render.clipping(self.draw, self.clipRect)
-						super().update(render)
+		if self.isDrawing and render is not self and render.isInView(self.rect):
+			if type(self.clipRect) is sf.Rectangle:
+				if self.clipChild:
+					render.clipping(self.draw, self.clipRect, super().update)
 				else:
-					self.draw(render)
+					render.clipping(self.draw, self.clipRect)
 					super().update(render)
 			else:
+				self.draw(render)
 				super().update(render)
+		else:
+			super().update(render)
 
 	def draw(self, render=None):
 		"""Draw the Widget on the render"""
@@ -130,7 +129,7 @@ class Widget(Updatable):
 
 		if self._relativePositionOnView == None:
 			if withOrigin:
-				self._pos = pos - self._origin
+				self._pos = pos + self._origin
 			else:
 				self._pos = pos
 
@@ -185,7 +184,7 @@ class Widget(Updatable):
 							break
 
 		if withOrigin:
-			return pos + self._origin
+			return pos - self._origin
 		else:
 			return pos
 
@@ -221,7 +220,7 @@ class Widget(Updatable):
 
 	def _setOrigin(self, newOrigin):
 		"""Change the origin of the widget"""
-		self.move(self._origin - newOrigin)
+		self.move(newOrigin-self.origin)
 		self._origin = newOrigin
 		self._posOrigin = None
 
@@ -231,13 +230,13 @@ class Widget(Updatable):
 		if position == Position.TopLeft:
 			self._origin = sf.Vector2(0,0)
 		elif position == Position.TopRight:
-			self._origin = sf.Vector2(self.size.x,0)
+			self._origin = sf.Vector2(-self.size.x,0)
 		elif position == Position.Center:
-			self._origin = self.size/2
+			self._origin = self.size/-2
 		elif position == Position.BottomLeft:
-			self._origin = sf.Vector2(0,self.size.y)
+			self._origin = sf.Vector2(0,-self.size.y)
 		elif position == Position.BottomRight:
-			self._origin = copy(self.size)
+			self._origin = self.size/-1
 
 		self.move(self._origin-back)
 		self._posOrigin = position
@@ -250,7 +249,6 @@ class Widget(Updatable):
 			return self.getSize(withClipping)
 
 	def getSizeOnScreen(self, withClipping=False):
-		self._scale = sf.Vector2(1,1)
 		scale = sf.Vector2(1,1)
 		render = self.getRender()
 

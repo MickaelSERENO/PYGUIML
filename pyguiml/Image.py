@@ -9,7 +9,7 @@ class Image(Widget):
 
 	textures = dict()
 
-	def __init__(self,parent=0, source=sf.Image.create(20,20,sf.Color.BLACK),\
+	def __init__(self,parent=0, source=None,\
 			delTextureCreated=True,\
 			rect= sf.Rectangle()):
 		"""source can be a sf.Texture, a bytes string or a sf.Sprite() type"""
@@ -24,20 +24,20 @@ class Image(Widget):
 
 		self.setSource(source)
 
-		if rect.width == 0 and rect.height == 0:
+		if rect.width == 0 and rect.height == 0 and self._sprite:
 			self.rect = self._sprite.local_bounds
 		else:
 			self.rect = rect
 
 	def __del__(self):
 		if self.delTextureCreated:
-			for keyi in self._textureCreated.keys():
+			for key in self._textureCreated.keys():
 				del Image.textures[key]
 
 	def draw(self,render=None):
 		if not render:
 			render = self.getRender()
-		if render:
+		if render and self._sprite:
 			render.draw(self._sprite)
 
 	def roundEdge(self,size):
@@ -107,9 +107,10 @@ class Image(Widget):
 		keyTexture = str()
 		keyTexture = "texture"+str(len(Image.textures))
 
-		if isinstance(source, bytes):
+		if isinstance(source, bytes) or isinstance(source, str):
 			if source in Widget.filesLoading:
-				texture = Widget.filesLoading(source)
+				texture = Widget.filesLoading[source]
+				print(texture.size)
 			else:
 				texture = sf.Texture.from_file(source)
 				Widget.filesLoading[source] = texture
@@ -126,7 +127,7 @@ class Image(Widget):
 			texture = source.texture
 			self._textureCreated[keyTexture]=texture
 
-		else:
+		elif source != None:
 			raise TypeError("source is not sf.Image type or\
 					sf.Texture type or sf.Sprite type or bytes type")
 
@@ -134,18 +135,22 @@ class Image(Widget):
 			self._texture = texture
 			Image.textures[keyTexture]=texture
 
-		self._sprite = sf.Sprite(self._texture)
-		self._sprite.texture_rectangle = sf.Rectangle(sf.Vector2(), self._texture.size)
+		if self._texture:
+			self._sprite = sf.Sprite(self._texture)
+			self._sprite.texture_rectangle = sf.Rectangle(sf.Vector2(), self._texture.size)
+		else:
+			self._sprite = None
 		self.rect = self.rect
 
 	def setPos(self, position, withOrigin=True):
 		Widget.setPos(self, position, withOrigin)
-		self._sprite.position = self.getPos(False)
+		if self._sprite:
+			self._sprite.position = self.getPos(False)
 
 	def setSize(self, size):
 		Widget.setSize(self, size)
-		if self._sprite.texture:
-				self._sprite.ratio = size / self._sprite.local_bounds.size
+		if self._sprite and self._sprite.texture:
+			self._sprite.ratio = size / self._sprite.local_bounds.size
 
 	def setTextureRect(self, rect):
 		self.sprite.texture_rect(rect)

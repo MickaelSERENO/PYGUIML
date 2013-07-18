@@ -12,8 +12,9 @@ class Render(Widget):
 			title=str(), backgroundImage=Image()):
 		Widget.__init__(self,parent, rect)
 		self.canFocus = False
+		self._backgroundImage=None
 		self.backgroundColor = backgroundColor
-		self._backgroundImage = backgroundImage
+		self.backgroundImage = backgroundImage
 		self._title = title
 
 	def moveView(self, move):
@@ -76,13 +77,12 @@ class Render(Widget):
 		render=None
 		if self.parent:
 			render = self.parent.getRender()
+
 		if isinstance(render,Render) and render is not self:
 			return render.convertTargetPointToScreenCoord(self.pos) + \
 					render.map_coords_to_pixel(position)
-		elif render:
-			return render.map_coords_to_pixel(position)
 		else:
-			return position
+			return self.map_coords_to_pixel(position)
 
 	def getViewRect(self):
 		return sf.Rectangle(self.getViewPosition(),\
@@ -107,10 +107,16 @@ class Render(Widget):
 			self.size = size
 
 	def _setBackgroundImage(self, backgroundImage):
-		self._backgroundImage = backgroundImage
-		self._backgroundImage.setPos(sf.Vector2(0,0),False)
-		self._backgroundImage.size = self.size
-		self._backgroundImage.setParent(self.parent, 0)
+		if self._backgroundImage and self._backgroundImage is not backgroundImage:
+			self.removeChild(self._backgroundImage)
+		if backgroundImage:
+			if backgroundImage is not self._backgroundImage:
+				backgroundImage.setParent(self, 0)
+			self._backgroundImage = backgroundImage
+			self._backgroundImage.size = self.view.size
+			self._backgroundImage.pos = self.getViewPosition()
+			self._backgroundImage.canUpdate = True
+			self._backgroundImage.isDrawing = True
 	
 	def _setView(self, view):
 		super(Render,self.__class__).view.__set__(self,view)
@@ -118,6 +124,8 @@ class Render(Widget):
 		for child in self._child:
 			if isinstance(child,Widget) and child.isStaticToView:
 				child.setPosOnView(child.pos)
+
+		self.backgroundImage = self.backgroundImage
 
 	def _setViewport(self, rect):
 		newView = self.view
@@ -151,6 +159,3 @@ class Render(Widget):
 	
 	view = property(lambda self:super().view,\
 			lambda self,view : self._setView(view))
-
-def addSizeBetweenPosAndCenter(result, difference, n):
-	return result + difference/2**n

@@ -6,15 +6,15 @@ from Active import Active
 import sfml as sf
 
 
-class ButtonMenu(Layout, Active):
-	def __init__(self, parent=None, rect=sf.Rectangle,\
+class SelectionMenu(Layout, Active):
+	def __init__(self, parent=None, rect=sf.Rectangle(),\
 			alignment = Position.Center, spacing=sf.Vector2(0, 0), \
 			autoDefineSize = True, select=False, active=False, \
 			alwaysUpdateSelection=True, alwaysUpdateActivation=True, \
 			permanentSelection=False, permanentActivation=False, \
 			changeRight = sf.Keyboard.RIGHT, changeLeft = sf.Keyboard.LEFT,\
 			changeTop = sf.Keyboard.UP, changeBottom = sf.Keyboard.DOWN):
-		Layout.__init__(parent, rect, alignment, spacing, autoDefineSize)
+		Layout.__init__(self, parent, rect, alignment, spacing, autoDefineSize)
 		Active.__init__(self, select, active, alwaysUpdateSelection,\
 				alwaysUpdateActivation, permanentSelection, permanentActivation)
 		self.canFocus=False
@@ -25,100 +25,162 @@ class ButtonMenu(Layout, Active):
 		self._currentSelect = None
 
 	def update(self, render=None):
-		Active.__init__(self)
-		if self.isActive:
-			for child in self._child:
-				if child.isSelect and child is not self._currentSelect:
-					self._currentSelect = child
-					break
+		Active.update(self)
+		currentHowActiveMouse = None
+		if self.isActive and self.isSelect:
 
+			for widgetList in self._widget:
+				for child in widgetList:
+					if isinstance(child, Active) and child.isSelect and child is not self._currentSelect:
+						self._currentSelect = child
+						print(child.pos)
+						break
+
+			if not self._currentSelect:
+				done = False
+				for widgetList in self._widget:
+					for child in widgetList:
+						if isinstance(child, Active):
+							self._currentSelect = child
+							done = True
+							break
+					if done:
+						break
 			self._deselectOtherWidget()
 
-
-			if not self._currentSelect and self.child:
-				self._currentSelect = self.child[0]
-
-			if self.event and self._child:
+			if self.event and self._currentSelect:
+				currentHowActiveMouse = self._currentSelect.howActiveMouse
+				if not self._currentSelect.howSelect():
+					self._currentSelect.howActiveMouse=None
 				posCurrentSelect = self.getWidgetPosition(self._currentSelect)
 				caseCurrentSelect = self.getWidgetCase(self._currentSelect)
 
-				if self.event.getOnePressedKeys(changeLeft):
+				if self.changeLeft != self._currentSelect.howActiveKeyboard and\
+						self.event.getOnePressedKeys(self.changeLeft):
 					done = False
-					y = posCurrentSelect.y
 					for x in range(posCurrentSelect.x, -1, -1):
-						child = self.__getitem__(sf.Vector2(x, y))
-						if child:
-							done = True
-							self._currentSelect = child
-
-					if not done:
-						for x in range(len(self._widget), posCurrentSelect.x, -1):
+						for y in range(posCurrentSelect.y, posCurrentSelect.y + caseCurrentSelect.y):
 							child = self.__getitem__(sf.Vector2(x, y))
-							if child:
+							if isinstance(child, Active) and child is not self._currentSelect:
 								done = True
 								self._currentSelect = child
+								break
+						if done:
+							break
 
-				elif self.event.getOnePressedKeys(changeRight):
+					if not done:
+						for x in range(len(self._widget)-1, posCurrentSelect.x, -1):
+							for y in range(posCurrentSelect.y, posCurrentSelect.y + caseCurrentSelect.y):
+								child = self.__getitem__(sf.Vector2(x, y))
+								if isinstance(child, Active) and child is not self._currentSelect:
+									done = True
+									self._currentSelect = child
+									break
+							if done:
+								break
+
+				elif self.changeRight != self._currentSelect.howActiveKeyboard and\
+						self.event.getOnePressedKeys(self.changeRight):
 					done = False
 					y = posCurrentSelect.y
 					for x in range(posCurrentSelect.x + caseCurrentSelect.x, \
 							len(self._widget)):
-						child = self.__getitem__(sf.Vector2(x, y))
-						if child:
-							done = True
-							self._currentSelect = child
+						for y in range(posCurrentSelect.y, posCurrentSelect.y + caseCurrentSelect.y):
+							child = self.__getitem__(sf.Vector2(x, y))
+							if isinstance(child, Active) and child is not self._currentSelect:
+								done = True
+								self._currentSelect = child
+								break
+						if done:
+							break
 
 					if not done:
 						for x in range(0, posCurrentSelect.x):
+							for y in range(posCurrentSelect.y, posCurrentSelect.y + caseCurrentSelect.y):
+								child = self.__getitem__(sf.Vector2(x, y))
+								if isinstance(child, Active) and child is not self._currentSelect:
+									done = True
+									self._currentSelect = child
+									break
+							if done:
+								break
+
+				elif self.changeTop != self._currentSelect.howActiveKeyboard and \
+						self.event.getOnePressedKeys(self.changeTop):
+					done = False
+					for y in range(posCurrentSelect.y, -1, -1):
+						for x in range(posCurrentSelect.x, posCurrentSelect.x + caseCurrentSelect.x):
 							child = self.__getitem__(sf.Vector2(x, y))
-							if child:
+							if isinstance(child, Active) and child is not self._currentSelect:
 								done = True
 								self._currentSelect = child
-
-				elif self.event.getOnePressedKeys(changeTop):
-					done = False
-					x = posCurrentSelect.x
-					for y in range(posCurrentSelect.y, -1, -1):
-						child = self.__getitem__(sf.Vector2(x, y))
-						if child:
-							done = True
-							self._currentSelect = child
+								break
+						if done:
+							break
 
 					if not done:
-						for y in range(len(self._widget), posCurrentSelect.y, -1):
-							child = self.__getitem__(sf.Vector2(x, y))
-							if child:
-								done = True
-								self._currentSelect = child
-				elif self.event.getOnePressedKeys(changeBottom):
+						for y in range(len(self._widget[0])-1, posCurrentSelect.y, -1):
+							for x in range(posCurrentSelect.x, posCurrentSelect.x + caseCurrentSelect.x):
+								child = self.__getitem__(sf.Vector2(x, y))
+								if isinstance(child, Active) and child is not self._currentSelect:
+									done = True
+									self._currentSelect = child
+									break
+							if done:
+								break
+				elif self.changeBottom != self._currentSelect.howActiveKeyboard and\
+						self.event.getOnePressedKeys(self.changeBottom):
 					done = False
 					x = posCurrentSelect.x
 					for y in range(posCurrentSelect.y + caseCurrentSelect.y, \
-							len(self._widget)):
-						child = self.__getitem__(sf.Vector2(x, y))
-						if child:
-							done = True
-							self._currentSelect = child
+							len(self._widget[0])):
+						for x in range(posCurrentSelect.x, posCurrentSelect.x + caseCurrentSelect.x):
+							child = self.__getitem__(sf.Vector2(x, y))
+							if isinstance(child, Active) and child is not self._currentSelect:
+								done = True
+								self._currentSelect = child
+								break
+						if done:
+							break
 
 					if not done:
 						for y in range(0, posCurrentSelect.y):
-							child = self.__getitem__(sf.Vector2(x, y))
-							if child:
-								done = True
-								self._currentSelect = child
+							for x in range(posCurrentSelect.x, posCurrentSelect.x + caseCurrentSelect.x):
+								child = self.__getitem__(sf.Vector2(x, y))
+								if isinstance(child, Active) and child is not self._currentSelect:
+									done = True
+									self._currentSelect = child
+									break
+							if done:
+								break
+			self._deselectOtherWidget()
+		else:
+			self._deselectOtherWidget()
+			if self._currentSelect:
+				self._currentSelect.permanentSelection=False
+				self._currentSelect.deselectIt()
 
 		Layout.update(self, render)
+		if self._currentSelect:
+			self._currentSelect.howActiveMouse = currentHowActiveMouse
 
 	def setAllActiveMouseKeyboard(self, keyboard=None, mouse=None):
-		for child in self.child:
-			child.howActiveKeyboard = keyboard
-			child.howActiveMouse = mouse
+		for widgetList in self._widget:
+			for child in widgetList:
+				if isinstance(child, Active):
+					child.howActiveKeyboard = keyboard
+					child.howActiveMouse = mouse
 
 	def _deselectOtherWidget(self):
-		for child in self._child:
-			if child is not self._currentSelect:
-				child.permanentSelection = False
+		for widgetList in self._widget:
+			for child in widgetList:
+				if child is not self._currentSelect:
+					if isinstance(child, Active):
+						child.permanentSelection = False
+						child.deselectIt()
+		if self._currentSelect:
 			self._currentSelect.permanentSelection = True
+			self._currentSelect.selectIt()
 
 	def _setCurrentSelection(self, value):
 		widget = value
@@ -127,7 +189,6 @@ class ButtonMenu(Layout, Active):
 		if widget:
 			self._currentSelect = widget
 			self._deselectOtherWidget()
-
 
 	currentSelect = property(lambda self:self._currentSelect, \
 			_setCurrentSelection)

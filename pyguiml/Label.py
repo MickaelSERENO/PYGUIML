@@ -7,18 +7,16 @@ class Label(Widget):
 
 	def __init__(self, parent=None, source=sf.Text(),\
 			position = sf.Vector2(0, 0), characterSize = 12, font=None, \
-			style=sf.Text.REGULAR):
+			style=sf.Text.REGULAR, color=sf.Color.WHITE):
 		"""parent is a widget objet, source a str objet or a sf.Text objet,
 		position is a sf.Vector2 objet and characterSize is a int objet"""
 
 		if isinstance(source, str):
-			Widget.__init__(self, parent, sf.Rectangle(position, sf.Vector2(\
-					characterSize * len(source), characterSize)))
+			Widget.__init__(self, parent, sf.Rectangle(position))
 			self._text = sf.Text(source, character_size = characterSize)
 
 		elif isinstance(source, sf.Text):
-			Widget.__init__(self, parent, sf.Rectangle(position, sf.Vector2(\
-					characterSize * len(source.string), characterSize)))
+			Widget.__init__(self, parent, sf.Rectangle(position))
 			self._text = source
 			self.characterSize = characterSize
 
@@ -27,9 +25,10 @@ class Label(Widget):
 
 		self.canFocus = False
 		self.characterSize = characterSize
+		self.color = color
 		if font:
 			self.font = font
-		self.rect = self.rect
+		self.size = self._text.global_bounds.size
 
 	@decorator.forDrawing
 	def draw(self, render=None):
@@ -98,4 +97,4 @@ class Label(Widget):
 			_setCharacterSize)
 	color = property(lambda self:self._text.color, _setColor)
 	font = property(lambda self:self._text.font, _setFont)
-	style = property(lambda self:self._style, _setStyle)
+	style = property(lambda self:self._text.style, _setStyle)

@@ -33,12 +33,12 @@ class Button(Widget, Active):
 			self._hasImage = True
 		if text:
 			self._textLighten.lighten()
-			self._image.canFocus = self._imageLighten.canFocus = False
+			self._text.canFocus = self._textLighten.canFocus = False
 			self._text.isStaticToView =\
 					self._textLighten.isStaticToView = False
 			self._hasLabel = True
 
-		if rect == sf.Rectangle() and not(self._image or self._text):
+		if rect != sf.Rectangle():
 			self.rect = rect
 
 		elif self._hasImage:
@@ -66,17 +66,19 @@ class Button(Widget, Active):
 		"""Set The text at the button's middle"""
 		if self._text:
 			self._text.posOrigin = Position.Center
-			self._textLighten = Position.Center
+			self._textLighten.posOrigin = Position.Center
 
 	def howSelect(self):
 		return Widget.widgetFocus is self
 
 	def selectIt(self):
-		self.lightUpDrawable(True)
+		if not self.isSelect:
+			self.lightUpDrawable(True)
 		Active.selectIt(self)
 
 	def deselectIt(self):
-		self.lightUpDrawable(False)
+		if self.isSelect:
+			self.lightUpDrawable(False)
 		Active.deselectIt(self)
 
 	def howActive(self):
@@ -111,22 +113,22 @@ class Button(Widget, Active):
 
 	def drawWidget(self, draw=True):
 		if self._text:
-			self._text.isDrawing = True
-			self._textLighten.isDrawing = True
+			self._text.isDrawing = draw
+			self._textLighten.isDrawing = draw
 		if self._image:
-			self._image.isDrawing = True
-			self._imageLighten.isDrawing = True
+			self._image.isDrawing = draw
+			self._imageLighten.isDrawing = draw
 		Widget.drawWidget(self, draw)
 
 	def setPos(self, pos, withOrigin=True):
 		Widget.setPos(self, pos, withOrigin)
 
 		if self.hasImage:
-			self._image.pos = self.pos
-			self._imageLighten.pos = self.pos
+			self._image.setPos(self.getPos(False), False)
+			self._imageLighten.setPos(self.getPos(False), False)
 		if self.hasLabel:
-			self._text.pos = self.pos + self.size/2
-			self._textLighten.pos = self.pos + self.size/2
+			self._text.setPos(self.getPos(False) + self.size/2)
+			self._textLighten.setPos(self.getPos(False) + self.size/2)
 
 	def setSize(self, size):
 		Widget.setSize(self, size)
@@ -142,13 +144,7 @@ class Button(Widget, Active):
 					self._text.size.y > self.size.y :
 				self._text.setTextHeightSize(self.size.y)
 				self._textLighten.setTextHeightSize(self.virtyalSize.y)
-
-	def _drawWidget(drawing):
-		self._text._isDrawing = drawing
-		self._textLighten._isDrawing = drawing
-		self._image._isDrawing = drawing
-		self._imageLighten._isDrawing = drawing
-		self.isDrawing = drawing
+		self.centerLabel()
 
 	def _setImage(self, image):
 		"""image is a Image type"""
