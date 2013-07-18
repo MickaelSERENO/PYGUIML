@@ -58,8 +58,18 @@ class SelectionMenu(Layout, Active):
 				if self.changeLeft != self._currentSelect.howActiveKeyboard and\
 						self.event.getOnePressedKeys(self.changeLeft):
 					done = False
-					for x in range(posCurrentSelect.x, -1, -1):
-						for y in range(posCurrentSelect.y, posCurrentSelect.y + caseCurrentSelect.y):
+					for x in range(posCurrentSelect.x-1, -1, -1):
+						for y in range(posCurrentSelect.y, len(self._widget[x])):
+							child = self.__getitem__(sf.Vector2(x, y))
+							if isinstance(child, Active) and child is not self._currentSelect:
+								done = True
+								self._currentSelect = child
+								break
+
+						if done:
+							break
+
+						for y in range(0, posCurrentSelect.y):
 							child = self.__getitem__(sf.Vector2(x, y))
 							if isinstance(child, Active) and child is not self._currentSelect:
 								done = True
@@ -70,7 +80,17 @@ class SelectionMenu(Layout, Active):
 
 					if not done:
 						for x in range(len(self._widget)-1, posCurrentSelect.x, -1):
-							for y in range(posCurrentSelect.y, posCurrentSelect.y + caseCurrentSelect.y):
+							for y in range(posCurrentSelect.y, len(self._widget[x])):
+								child = self.__getitem__(sf.Vector2(x, y))
+								if isinstance(child, Active) and child is not self._currentSelect:
+									done = True
+									self._currentSelect = child
+									break
+
+							if done:
+								break
+
+							for y in range(0, posCurrentSelect.y):
 								child = self.__getitem__(sf.Vector2(x, y))
 								if isinstance(child, Active) and child is not self._currentSelect:
 									done = True
@@ -85,18 +105,38 @@ class SelectionMenu(Layout, Active):
 					y = posCurrentSelect.y
 					for x in range(posCurrentSelect.x + caseCurrentSelect.x, \
 							len(self._widget)):
-						for y in range(posCurrentSelect.y, posCurrentSelect.y + caseCurrentSelect.y):
+						for y in range(posCurrentSelect.y, len(self._widget[x])):
 							child = self.__getitem__(sf.Vector2(x, y))
 							if isinstance(child, Active) and child is not self._currentSelect:
 								done = True
 								self._currentSelect = child
 								break
+
+						if done:
+							break
+
+						for y in range(0, posCurrentSelect.y):
+							child = self.__getitem__(sf.Vector2(x, y))
+							if isinstance(child, Active) and child is not self._currentSelect:
+								done = True
+								self._currentSelect = child
+								break
+
 						if done:
 							break
 
 					if not done:
 						for x in range(0, posCurrentSelect.x):
-							for y in range(posCurrentSelect.y, posCurrentSelect.y + caseCurrentSelect.y):
+							for y in range(posCurrentSelect.y, len(self._widget[x])):
+								child = self.__getitem__(sf.Vector2(x, y))
+								if isinstance(child, Active) and child is not self._currentSelect:
+									done = True
+									self._currentSelect = child
+									break
+							if done:
+								break
+
+							for y in range(0, posCurrentSelect.y):
 								child = self.__getitem__(sf.Vector2(x, y))
 								if isinstance(child, Active) and child is not self._currentSelect:
 									done = True
@@ -108,8 +148,8 @@ class SelectionMenu(Layout, Active):
 				elif self.changeTop != self._currentSelect.howActiveKeyboard and \
 						self.event.getOnePressedKeys(self.changeTop):
 					done = False
-					for y in range(posCurrentSelect.y, -1, -1):
-						for x in range(posCurrentSelect.x, posCurrentSelect.x + caseCurrentSelect.x):
+					for y in range(posCurrentSelect.y-1, -1, -1):
+						for x in range(posCurrentSelect.x, len(self._widget)):
 							child = self.__getitem__(sf.Vector2(x, y))
 							if isinstance(child, Active) and child is not self._currentSelect:
 								done = True
@@ -118,9 +158,27 @@ class SelectionMenu(Layout, Active):
 						if done:
 							break
 
+						for x in range(0, posCurrentSelect.x):
+							child = self.__getitem__(sf.Vector2(x, y))
+							if isinstance(child, Active) and child is not self._currentSelect:
+								done = True
+								self._currentSelect = child
+								break
+						if done:
+							break
+
+
 					if not done:
 						for y in range(len(self._widget[0])-1, posCurrentSelect.y, -1):
-							for x in range(posCurrentSelect.x, posCurrentSelect.x + caseCurrentSelect.x):
+							for x in range(posCurrentSelect.x, len(self._widget)):
+								child = self.__getitem__(sf.Vector2(x, y))
+								if isinstance(child, Active) and child is not self._currentSelect:
+									done = True
+									self._currentSelect = child
+									break
+							if done:
+								break
+							for x in range(0, posCurrentSelect.x):
 								child = self.__getitem__(sf.Vector2(x, y))
 								if isinstance(child, Active) and child is not self._currentSelect:
 									done = True
@@ -134,7 +192,16 @@ class SelectionMenu(Layout, Active):
 					x = posCurrentSelect.x
 					for y in range(posCurrentSelect.y + caseCurrentSelect.y, \
 							len(self._widget[0])):
-						for x in range(posCurrentSelect.x, posCurrentSelect.x + caseCurrentSelect.x):
+						for x in range(posCurrentSelect.x, len(self._widget)):
+							child = self.__getitem__(sf.Vector2(x, y))
+							if isinstance(child, Active) and child is not self._currentSelect:
+								done = True
+								self._currentSelect = child
+								break
+						if done:
+							break
+
+						for x in range(0, posCurrentSelect.x):
 							child = self.__getitem__(sf.Vector2(x, y))
 							if isinstance(child, Active) and child is not self._currentSelect:
 								done = True
@@ -145,7 +212,7 @@ class SelectionMenu(Layout, Active):
 
 					if not done:
 						for y in range(0, posCurrentSelect.y):
-							for x in range(posCurrentSelect.x, posCurrentSelect.x + caseCurrentSelect.x):
+							for x in range(posCurrentSelect.x, len(self._widget)):
 								child = self.__getitem__(sf.Vector2(x, y))
 								if isinstance(child, Active) and child is not self._currentSelect:
 									done = True
@@ -153,6 +220,15 @@ class SelectionMenu(Layout, Active):
 									break
 							if done:
 								break
+							for x in range(0, posCurrentSelect.x):
+								child = self.__getitem__(sf.Vector2(x, y))
+								if isinstance(child, Active) and child is not self._currentSelect:
+									done = True
+									self._currentSelect = child
+									break
+							if done:
+								break
+			self._deselectOtherWidget()
 			self._deselectOtherWidget()
 		else:
 			self._deselectOtherWidget()
