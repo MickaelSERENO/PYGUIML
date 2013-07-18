@@ -80,11 +80,11 @@ class Label(Widget):
 		self.size = sf.Vector2(self._text.global_bounds.width,\
 				self._text.global_bounds.height)
 
-	def _setSize(self, size):
+	def _setSize(self, size, resetOrigin=True):
 		self._text.scale = sf.Vector2(size.x/self._text.local_bounds.width,\
 				size.y/self._text.local_bounds.height)
 		Widget._setSize(self, sf.Vector2(self._text.local_bounds.width,\
-				self._text.local_bounds.height))
+				self._text.local_bounds.height), resetOrigin)
 
 	def _setSource(self, source):
 		if isinstance(source, str):

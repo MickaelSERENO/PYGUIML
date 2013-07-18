@@ -52,7 +52,7 @@ class Frame(Render, sf.RenderTexture):
 		self._buttonMoveFrame.setParent(self, pos=1)
 		Render._setTitle(self, button.text.text.string)
 
-	def _setSize(self, size):
+	def setSize(self, size, resetOrigin=True):
 		sf.RenderTexture.size.__set__(self, size)
 		Widget.setSize(self, size)
 		self._buttonMoveFrame.size(size.x, self._buttonMoveFrame.size.y)
@@ -85,4 +85,4 @@ class Frame(Render, sf.RenderTexture):
 	isMoving = property(lambda self:self._getIsMoving())
 	updateButtonMoveFrame = property(lambda self:self._buttonMoveFrame.canUpdate, \
 			_setUpdateButtonMoveFrame)
-	size = property(lambda self : self.getSize(), _setSize)
+	size = property(lambda self : self.getSize(), setSize)

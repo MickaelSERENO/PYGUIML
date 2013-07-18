@@ -147,8 +147,8 @@ class Image(Widget):
 		if self._sprite:
 			self._sprite.position = self.getPos(False)
 
-	def setSize(self, size):
-		Widget.setSize(self, size)
+	def setSize(self, size, resetOrigin=True):
+		Widget.setSize(self, size, resetOrigin)
 		if self._sprite and self._sprite.texture:
 			self._sprite.ratio = size / self._sprite.local_bounds.size
 

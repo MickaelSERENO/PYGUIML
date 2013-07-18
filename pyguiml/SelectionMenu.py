@@ -29,11 +29,15 @@ class SelectionMenu(Layout, Active):
 		currentHowActiveMouse = None
 		if self.isActive and self.isSelect:
 
+			done = False
 			for widgetList in self._widget:
 				for child in widgetList:
 					if isinstance(child, Active) and child.isSelect and child is not self._currentSelect:
 						self._currentSelect = child
+						done = True
 						break
+				if done:
+					break
 
 			if not self._currentSelect:
 				done = False
@@ -54,7 +58,7 @@ class SelectionMenu(Layout, Active):
 				posCurrentSelect = self.getWidgetPosition(self._currentSelect)
 				caseCurrentSelect = self.getWidgetCase(self._currentSelect)
 
-				if self.changeLeft != self._currentSelect.howActiveKeyboard and\
+				if not self.changeLeft in self._currentSelect.howActiveKeyboard and\
 						self.event.getOnePressedKeys(self.changeLeft):
 					done = False
 					for x in range(posCurrentSelect.x-1, -1, -1):
@@ -98,7 +102,7 @@ class SelectionMenu(Layout, Active):
 							if done:
 								break
 
-				elif self.changeRight != self._currentSelect.howActiveKeyboard and\
+				elif not self.changeRight in self._currentSelect.howActiveKeyboard and\
 						self.event.getOnePressedKeys(self.changeRight):
 					done = False
 					y = posCurrentSelect.y
@@ -144,7 +148,7 @@ class SelectionMenu(Layout, Active):
 							if done:
 								break
 
-				elif self.changeTop != self._currentSelect.howActiveKeyboard and \
+				elif not self.changeTop in self._currentSelect.howActiveKeyboard and \
 						self.event.getOnePressedKeys(self.changeTop):
 					done = False
 					for y in range(posCurrentSelect.y-1, -1, -1):
@@ -185,7 +189,7 @@ class SelectionMenu(Layout, Active):
 									break
 							if done:
 								break
-				elif self.changeBottom != self._currentSelect.howActiveKeyboard and\
+				elif not self.changeBottom in self._currentSelect.howActiveKeyboard and\
 						self.event.getOnePressedKeys(self.changeBottom):
 					done = False
 					x = posCurrentSelect.x

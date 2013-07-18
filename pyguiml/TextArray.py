@@ -33,8 +33,8 @@ class TextArray(Widget):
 			label.drawWidget(draw)
 		Widget.drawWidget(self, draw)
 
-	def setSize(self, size):
-		Widget.setSize(self, size)
+	def setSize(self, size, resetOrigin=True):
+		Widget.setSize(self, size, resetOrigin)
 		if size != self.size:
 			for label in self._labelList:
 				label.scale = size / self.size

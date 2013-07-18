@@ -43,11 +43,11 @@ box2 = CheckBox(None, sf.Rectangle(sf.Vector2(20, 20), sf.Vector2(50, 50)))
 box3 = CheckBox(None, sf.Rectangle(sf.Vector2(20, 20), sf.Vector2(50, 50)))
 box4 = CheckBox(None, sf.Rectangle(sf.Vector2(20, 20), sf.Vector2(100, 100)))
 box5 = CheckBox(None, sf.Rectangle(sf.Vector2(20, 20), sf.Vector2(100, 100)))
-layout.addWidget(box, sf.Vector2(0, 0), sf.Vector2(1, 1))
-layout.addWidget(box2, sf.Vector2(0, 1), sf.Vector2(1, 1))
+layout.addWidget(box, sf.Vector2(1, 0), sf.Vector2(1, 1))
+layout.addWidget(box2, sf.Vector2(1, 1), sf.Vector2(1, 1))
 layout.addWidget(box3, sf.Vector2(0, 2), sf.Vector2(1, 1))
-layout.addWidget(box4, sf.Vector2(1, 1), sf.Vector2(1, 1))
-layout.addWidget(box5, sf.Vector2(1, 2), sf.Vector2(1, 1))
+layout.addWidget(box4, sf.Vector2(2, 1), sf.Vector2(1, 1))
+layout.addWidget(box5, sf.Vector2(2, 2), sf.Vector2(1, 1))
 layout.posOrigin = Position.Center
 layout.pos = sf.Vector2(400, 300)
 layout.setAllActiveMouseKeyboard(sf.Keyboard.RETURN, sf.Mouse.LEFT)
@@ -62,6 +62,7 @@ while window.is_open:
 	#elif window.event.getOnePressedKeys(sf.Keyboard.RIGHT):
 	#	window.backgroundImage = None
 	#	window.backgroundImage = background0
+	print(layout.getWidgetPosition(layout.currentSelect))
 	
 
 #pro.disable()

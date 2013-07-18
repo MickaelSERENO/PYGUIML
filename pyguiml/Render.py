@@ -106,11 +106,10 @@ class Render(Widget):
 			self.size = size
 
 	def _setBackgroundImage(self, backgroundImage):
-		if self._backgroundImage and self._backgroundImage is not backgroundImage:
+		if self._backgroundImage:
 			self.removeChild(self._backgroundImage)
 		if backgroundImage:
 			self.addChild(backgroundImage, 0)
-			print("child", self.child)
 			self._backgroundImage = backgroundImage
 			self._backgroundImage.size = self.view.size
 			self._backgroundImage.pos = self.getViewPosition()

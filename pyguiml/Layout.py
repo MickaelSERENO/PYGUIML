@@ -221,12 +221,12 @@ class Layout(Widget):
 									(self.size / caseWidget * sf.Vector2(x, y)) +\
 									self._spacing * sf.Vector2(x, y) / caseWidget)
 
-	def setSize(self, size, autoDefineSize=None):
+	def setSize(self, size, resetOrigin=True, autoDefineSize=None):
 		if autoDefineSize == None and self.autoDefineSize == True or autoDefineSize==True:
 			self.autoDefineSize = True
 			return
 		else:
-			Widget.setSize(self, size)
+			Widget.setSize(self, size, resetOrigin)
 
 			self.alignment = None
 			numberCase = self._getNumberCases()

@@ -154,8 +154,8 @@ class Button(Widget, Active):
 			self._text.setPos(self.getPos(False) + self.size/2)
 			self._textSelect.setPos(self.getPos(False) + self.size/2)
 
-	def setSize(self, size):
-		Widget.setSize(self, size)
+	def setSize(self, size, resetOrigin=True):
+		Widget.setSize(self, size, resetOrigin)
 		if self.hasImage:
 			self._image.size = self.size
 			self._imageSelect.size = self.size

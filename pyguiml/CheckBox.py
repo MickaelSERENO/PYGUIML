@@ -54,8 +54,8 @@ class CheckBox(Widget, Active):
 				sf.Vector2(-self.outlineRectangleThickness,\
 				self.outlineRectangleThickness)
 				
-	def setSize(self, size):
-		Widget.setSize(self, size)
+	def setSize(self, size, resetOrigin=True):
+		Widget.setSize(self, size, resetOrigin)
 		self._rectangle.size = size -\
 				sf.Vector2(2*self.outlineRectangleThickness,\
 				2*self.outlineRectangleThickness)
@@ -65,7 +65,6 @@ class CheckBox(Widget, Active):
 		return Widget.widgetFocus is self
 
 	def howActive(self):
-		print(self.howActiveMouse[0])
 		return self.isSelect and self.event and \
 				(self.event.getOneMouseClicked(self.howActiveMouse[0]) or\
 				self.event.getOnePressedKeys(self.howActiveKeyboard[0]))
