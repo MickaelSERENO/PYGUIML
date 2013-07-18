@@ -10,6 +10,7 @@ class CheckBox(Widget, Active):
 		self._rectangle = sf.RectangleShape(rect.size)
 		self._line = [sf.VertexArray(sf.PrimitiveType.LINES, 2),\
 				sf.VertexArray(sf.PrimitiveType.LINES, 2)]
+		self.keepActivation = True
 
 		self.outlineRectangleColor = sf.Color.WHITE
 		self.outlineRectangleThickness = 2
@@ -68,16 +69,6 @@ class CheckBox(Widget, Active):
 		return self.isSelect and self.event and \
 				(self.event.getOneMouseClicked(self.howActiveMouse[0]) or\
 				self.event.getOnePressedKeys(self.howActiveKeyboard[0]))
-
-	def activeIt(self, force=False):
-		if force:
-			self._active = True
-		else:
-			self._active = not self._active
-
-	def disactiveIt(self, force=False):
-		if force:
-			self._active = True
 
 	def _setCrossColor(self, color):
 		for line in self._line:

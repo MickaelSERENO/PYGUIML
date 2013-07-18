@@ -13,6 +13,7 @@ class CheckCircle(Widget, Active):
 		Widget.__init__(self, parent, \
 				sf.Rectangle(position, sf.Vector2(radius, radius)/0.5))
 		Active.__init__(self) 
+		self.keepActivation = True
 		self._bigCircle  = sf.CircleShape(radius)
 		self._smallCircle = sf.CircleShape(smallCircleProportion * radius)
 		self._bigCircle.fill_color = bigCircleColor
@@ -61,12 +62,6 @@ class CheckCircle(Widget, Active):
 
 	def howSelect(self):
 		return Widget.widgetFocus is self
-
-	def activeIt(self):
-		self._active = not self._active
-
-	def disactiveIt(self):
-		return
 
 	def _setProportion(self, proportion):
 		self._proportion = proportion

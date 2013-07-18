@@ -15,6 +15,8 @@ class Active:
 		self.deselectOnce = False
 		self.disactiveOnce = False
 
+		self.keepActivation = False
+
 		self._howActiveKeyboard = [None]
 		self._howActiveMouse = [sf.Mouse.LEFT]
 
@@ -46,9 +48,9 @@ class Active:
 
 	def updateActivation(self):
 		if (self.howActive() and not self.howDisactive()) or self.permanentActivation or self.activeOnce:
-			self.activeIt()
+			self.activeIt(False)
 		elif self.howDisactive():
-			self.disactiveIt()
+			self.disactiveIt(False)
 
 		return self._active
 
@@ -58,11 +60,15 @@ class Active:
 	def deselectIt(self):
 		self._select = False
 
-	def activeIt(self):
-		self._active = True
+	def activeIt(self, force=False):
+		if force or not self.keepActivation or self.permanentActivation:
+			self._active = True
+		else:
+			self._active = not self._active
 
-	def disactiveIt(self):
-		self._active = False
+	def disactiveIt(self, force=True):
+		if force or not self.keepActivation:
+			self._active = False
 
 	def setActiveKeyboard(self, key, position=0):
 		if type(key) == list:
