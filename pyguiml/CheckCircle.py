@@ -26,8 +26,8 @@ class CheckCircle(Widget, Active):
 
 	@decorator.forUpdate
 	def update(self, render=None):
-		Widget.update(self, render)
 		Active.update(self)
+		Widget.update(self, render)
 
 	@decorator.forDrawing
 	def draw(self, render=None):
