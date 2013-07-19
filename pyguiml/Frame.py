@@ -16,9 +16,17 @@ class Frame(Render, sf.RenderTexture):
 		Render.__init__(self, parent, rect, backgroundColor, title, backgroundImage)
 		self._buttonMoveFrame = None
 
-		self.title = Button(self, Label(None, self.title), \
+		if type(title) == str:
+			self._title = title
+			self._buttonMoveFrame = Button(self, Label(None, self.title, font = sf.Font.from_file("DejaVuSans.ttf")), \
 				buttonTitleImage, sf.Rectangle(sf.Vector2(0,0),\
 				sf.Vector2(self.size.x, characterSizeTitle)))
+
+		else:
+			self._title = title.text.string
+			self._buttonMoveFrame = Button(self, title, buttonTitleImage, \
+					sf.Rectangle(sf.Vector2(), sf.Vector2(self.size.x, \
+					title.size.y)))
 
 		self._buttonMoveFrame.isStaticToView = True
 		self.resetView()
@@ -45,7 +53,6 @@ class Frame(Render, sf.RenderTexture):
 			if render:
 				render.draw(self._frameSprite)
 
-
 	def _setTitle(self, button):
 		self._buttonMoveFrame = button
 		self._buttonMoveFrame.setSize(sf.Vector2(self.size.x, button.size.y))
@@ -53,9 +60,9 @@ class Frame(Render, sf.RenderTexture):
 		Render._setTitle(self, button.text.text.string)
 
 	def setSize(self, size, resetOrigin=True):
-		sf.RenderTexture.size.__set__(self, size)
+		self.create(size.x, size.y)
 		Widget.setSize(self, size)
-		self._buttonMoveFrame.size(size.x, self._buttonMoveFrame.size.y)
+		self._buttonMoveFrame.size = sf.Vector2(size.x, self._buttonMoveFrame.size.y)
 
 	def setPos(self, pos, withOrigin=True):
 		Widget.setPos(self, pos, withOrigin)
@@ -74,8 +81,8 @@ class Frame(Render, sf.RenderTexture):
 			self._isMoving = self._buttonMoveFrame.isActive
 			self._mousePosMoving = self._event.mousePos
 
-		elif not (self._event and (self._event.getPressedKeys(self._buttonMoveFrame.howActiveKeyboard) or \
-				self._event.getMouseClicked(self._buttonMoveFrame.howActiveMouse))):
+		elif not (self._event and (self._event.getPressedKeys(self._buttonMoveFrame.howActiveKeyboard[0]) or \
+				self._event.getMouseClicked(self._buttonMoveFrame.howActiveMouse[0]))):
 			self._isMoving = False
 
 		return self._isMoving
