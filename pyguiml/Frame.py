@@ -73,6 +73,9 @@ class Frame(Render, sf.RenderTexture):
 			return sf.RenderTexture.draw(self, drawable, states)
 
 	
+	def setImageBackgroundButton(self, image):
+		self._buttonMoveFrame.image = image
+
 	def _setUpdateButtonMoveFrame(self, canUpdate):
 		self._buttonMoveFrame.canUpdate = canUpdate
 

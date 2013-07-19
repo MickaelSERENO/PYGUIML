@@ -188,6 +188,10 @@ class Button(Widget, Active):
 	def setImage(self, image, index="Basic", resetSelectImage=True):
 		"""image is a Image type"""
 
+		self._image.parent=0
+		self._imageSelect.parent=0
+		self._imageActive.parent=0
+
 		if index=="Basic":
 			self._image = image
 			if resetSelectImage:
@@ -204,8 +208,13 @@ class Button(Widget, Active):
 					self._imageSelect.isStaticToView = False
 
 		self.rect = self.virtualRect
+		self.updateSelection()
 	def setText(self, text, index="Basic", resetSelectText=True):
 		"""text is Label type"""
+
+		self._text.parent=0
+		self._textSelect.parent=0
+		self._textActive.parent=0
 
 		if index=="Basic":
 			self._text = text
@@ -225,6 +234,7 @@ class Button(Widget, Active):
 		self.rect = self.virtualRect
 		self.updateSelection()
 		self.centerLabel()
+		self.updateSelection()
 
 	def _setUseCharacterSize(self, use=True):
 		self._useCharacterSize = use
