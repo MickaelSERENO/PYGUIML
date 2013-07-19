@@ -13,15 +13,27 @@ class Button(Widget, Active):
 		Widget.__init__(self, parent, rect)
 		Active.__init__(self)
 		
-		self._text = text
-		self._textSelect = text.getCopyWidget()
-		self._textActive = self._textSelect
-		self._currentText = self._text
+		if text:
+			self._text = text
+			self._textSelect = text.getCopyWidget()
+			self._textActive = self._textSelect
+			self._currentText = self._text
+		else:
+			self._text = None
+			self._textSelect = None
+			self._textActive = None
+			self._currentText = None
 
-		self._image = image
-		self._imageSelect = image.getCopyWidget()
-		self._imageActive = self._imageSelect
-		self._currentImage = self._image
+		if image:
+			self._image = image
+			self._imageSelect = image.getCopyWidget()
+			self._imageActive = self._imageSelect
+			self._currentImage = self._image
+		else:
+			self._image = None
+			self._imageSelect = None
+			self._imageActive = None
+			self._currentImage = None
 
 		self._useCharacterSize = None
 
@@ -213,9 +225,6 @@ class Button(Widget, Active):
 		self.rect = self.virtualRect
 		self.updateSelection()
 		self.centerLabel()
-
-	def _setTextSelect(self, textSelect):
-
 
 	def _setUseCharacterSize(self, use=True):
 		self._useCharacterSize = use
