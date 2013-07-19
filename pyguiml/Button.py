@@ -14,12 +14,12 @@ class Button(Widget, Active):
 		Active.__init__(self)
 		
 		self._text = text
-		self._textSelect = text
+		self._textSelect = text.getCopyWidget()
 		self._textActive = self._textSelect
 		self._currentText = self._text
 
 		self._image = image
-		self._imageSelect = image
+		self._imageSelect = image.getCopyWidget()
 		self._imageActive = self._imageSelect
 		self._currentImage = self._image
 
@@ -159,23 +159,32 @@ class Button(Widget, Active):
 		if self.hasImage:
 			self._image.size = self.size
 			self._imageSelect.size = self.size
+			self._imageActive.size = self.size
 
 		if self.hasLabel and not self.useCharacterSize:
 			self._text.setTextWidthSize(self.size.x)
 			self._textSelect.setTextWidthSize(self.size.x)
+			self._textActive.setTextWidthSize(self.size.x)
 
 			if self.size.y > 0 and \
 					self._text.size.y > self.size.y :
 				self._text.setTextHeightSize(self.size.y)
-				self._textSelect.setTextHeightSize(self.virtyalSize.y)
+				self._textSelect.setTextHeightSize(self.size.y)
+				self._textActive.setTextHeightSize(self.size.y)
 		self.centerLabel()
 
-	def _setImage(self, image):
+	def setImage(self, image, index="Basic", resetSelectImage=True):
 		"""image is a Image type"""
 
-		self._image = image
-		self._imageSelect = image
-		self._imageSelect.lighten()
+		if index=="Basic":
+			self._image = image
+			if resetSelectImage:
+				self._imageSelect.lighten()
+				self._imageSelect = image.getCopyWidget()
+		elif index=="Select":
+			self._imageSelect = image
+		elif index=="Active":
+			self._imageActive = image
 
 		if image:
 			self._image.canFocus = self._imageSelect.canFocus = False
@@ -183,12 +192,19 @@ class Button(Widget, Active):
 					self._imageSelect.isStaticToView = False
 
 		self.rect = self.virtualRect
-	def _setText(self, text):
+	def setText(self, text, index="Basic", resetSelectText=True):
 		"""text is Label type"""
 
-		self._text = text.getCopyWidget()
-		self._textSelect = text.getCopyWidget()
-		self._textSelect.lighten()
+		if index=="Basic":
+			self._text = text
+			if resetSelectText:
+				self._textSelect = text.getCopyWidget()
+				self._textSelect.lighten()
+		elif index=="Select":
+			self._textSelect = text
+		elif index=="Active":
+			self._textActive = text
+
 		if text:
 			self._text.canFocus = self._textSelect.canFocus = False
 			self._text.isStaticToView = \
@@ -197,6 +213,9 @@ class Button(Widget, Active):
 		self.rect = self.virtualRect
 		self.updateSelection()
 		self.centerLabel()
+
+	def _setTextSelect(self, textSelect):
+
 
 	def _setUseCharacterSize(self, use=True):
 		self._useCharacterSize = use
@@ -207,8 +226,8 @@ class Button(Widget, Active):
 			self._textSelect.characterSize = size
 		self.useCharacterSize = True
 
-	image = property(lambda self:self._currentImage, _setImage)
-	text = property(lambda self:self._currentText, _setText)
+	image = property(lambda self:self._currentImage, setImage)
+	text = property(lambda self:self._currentText, setText)
 	basicText = property(lambda self:self._text)
 	basicImage = property(lambda self:self._image)
 	textSelect = property(lambda self:self._textSelect)
@@ -219,4 +238,3 @@ class Button(Widget, Active):
 			_setCharacterSize)
 	useCharacterSize = property(lambda self:self._useCharacterSize,\
 			_setUseCharacterSize)
-
