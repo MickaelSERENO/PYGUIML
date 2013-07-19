@@ -10,7 +10,7 @@ class Slide(Widget, Active):
 	def __init__(self, parent=None, rect=sf.Rectangle(), select=False, active=False, \
 			alwaysUpdateSelection=True, alwaysUpdateActivation=True, \
 			permanentSelection=False, permanentActivation=False, step=1, \
-			values=sf.Vector2(0, 100), startValue=0, orientation=Direction.Horizontal):
+			values=sf.Vector2(0, 100), startValue=0, orientation=Direction.Horizontal, inStep=1):
 		Widget.__init__(self, parent, rect)
 		Active.__init__(self, select, active, alwaysUpdateSelection, alwaysUpdateActivation, \
 				permanentSelection, permanentActivation)
@@ -22,6 +22,7 @@ class Slide(Widget, Active):
 		self._currentValue = None
 		self._limitValue=values
 		self._step = step
+		self._inStep = inStep
 
 		self._background = None
 		self._forground = None
@@ -29,12 +30,12 @@ class Slide(Widget, Active):
 			self._background = Button(self, image=Image(None, \
 					sf.Image.create(rect.width, rect.height, sf.Color.WHITE)))
 			self._forground = Button(self, image=Image(None, \
-					sf.Image.create(rect.width*step/(values.y - values.x), rect.height, sf.Color.CYAN)))
+					sf.Image.create(rect.width*inStep*step/(values.y - values.x), rect.height, sf.Color.CYAN)))
 		else:
 			self._background = Button(self, image=Image(None, \
 					sf.Image.create(rect.width, rect.height, sf.Color.WHITE)))
 			self._forground = Button(self, image=Image(None, \
-					sf.Image.create(rect.width, rect.height*step/(values.y - values.x), sf.Color.CYAN)))
+					sf.Image.create(rect.width, rect.height*inStep*step/(values.y - values.x), sf.Color.CYAN)))
 
 		self._isMoving=False
 		self._mousePosMoving = sf.Vector2(0, 0)
@@ -58,12 +59,13 @@ class Slide(Widget, Active):
 	def setSize(self, pos, resetOrigin=True):
 		if self._orientation == Direction.Horizontal:
 			self._background.size = self.size
-			self._forground.size = sf.Vector2(self.size.x*self.step/\
+			self._forground.size = sf.Vector2(self.size.x*self._inStep*self.step/\
 					(self._limitValue.y - self._limitValue.x), self.size.y)
 		else:
 			self._background.size = self.size
-			self._forground.size = sf.Vector2(self.size.x, self.step/\
+			self._forground.size = sf.Vector2(self.size.x, self.step * self._inStep/\
 					(self._limitValue.y - self._limitValue.x)*self.size.y)
+		self._updateSlidePosition()
 
 	def howFocus(self):
 		return False
@@ -79,26 +81,28 @@ class Slide(Widget, Active):
 	
 		if self._getIsMoving():
 			if self.orientation == Direction.Horizontal:
-				self._currentValue = self._oldCurrentValue + self._limitValue.y*\
+				self._currentValue = self._oldCurrentValue +\
+						self._limitValue.y*\
 						(self.event.mousePos.x - self.getPosOnScreen(False).x - \
-						self._mousePosMoving.x)/self.size.x
+						self._mousePosMoving.x)/(self.sizeOnScreen.x-self._forground.size.x)
 			else:
 				self._currentValue = self._oldCurrentValue + self._limitValue.y*\
 						(self.event.mousePos.y - self.getPosOnScreen(False).y - \
-						self._mousePosMoving.y)/self.size.y
+						self._mousePosMoving.y)/(self.sizeOnScreen.y-self._forground.size.y)
 			done = True
 
 		elif self._background.isActive:
 			done = True
+			print("ok")
 			if self._orientation == Direction.Horizontal:
 				self._currentValue = self._limitValue.y *\
-						(self.event.mousePos.x - self.getPosOnScreen(False).x)/\
-						self.size.x
+						(self.event.mousePos.x - self._forground.size.x/2 - self.getPosOnScreen(False).x)/\
+						(self.sizeOnScreen.x-self._forground.size.x)
 
 			else:
 				self._currentValue = self._limitValue.y *\
-						(self.event.mousePos.y - self.getPosOnScreen(False).y)/\
-						self.size.y
+						(self.event.mousePos.y - self.getPosOnScreen(False).y-self._forground.size.y/2)/\
+						(self.sizeOnScreen.y-self._forground.size.y)
 
 		elif self.isSelect and self.event:
 			if self.event.getOnePressedKeys(self.howActiveKeyboard[0]):
@@ -114,6 +118,7 @@ class Slide(Widget, Active):
 
 	def _setOrientation(self, orientation):
 		self._orientation = orientation
+		self.size = self.size
 		self._updateSlidePosition()
 
 	def _setCurrentValue(self, value):
@@ -122,6 +127,23 @@ class Slide(Widget, Active):
 
 	def _setStep(self, step):
 		self._step = step
+		self.size = self.size
+
+	def _setInStep(self, inStep):
+		self._inStep = inStep
+		self.size = self.size
+		self._updateSlidePosition()
+
+	def _setBackgroundButton(self, button):
+		self._background.parent =0
+		self._background=button
+		self._background.setParent(self, 0)
+		self.size = self.size
+
+	def _setForgroundButton(self, button):
+		self._background.parent =0
+		self._background=button
+		self._background.setParent(self, 0)
 		self.size = self.size
 
 	def _updateSlidePosition(self):
@@ -135,13 +157,13 @@ class Slide(Widget, Active):
 		if self._orientation == Direction.Horizontal:
 			self._forground.pos = sf.Vector2(self.getPos(False).x + self._forground.size.x/2 +\
 					(self.size.x-self._forground.size.x)/\
-					(self._limitValue.y - self._limitValue.x) * \
+					(self._limitValue.y - self._limitValue.x)*\
 					(self._currentValue - self._limitValue.x), self.getPos(False).y + self.size.y/2)
 		else:
 			self._forground.pos = sf.Vector2(self.getPos(False).x + self.size.x/2,\
 					self.getPos(False).y + self._forground.size.y/2 +\
 					(self.size.y-self._forground.size.y)/\
-					(self._limitValue.y - self._limitValue.x) * \
+					(self._limitValue.y - self._limitValue.x)*\
 					(self._currentValue - self._limitValue.x))
 		if not self._isMoving:
 			self._oldCurrentValue = self.currentValue
@@ -163,3 +185,6 @@ class Slide(Widget, Active):
 	step = property(lambda self:self._step, _setStep)
 	orientation = property(lambda self:self._orientation, _setOrientation)
 	slideMoving = property(lambda self:self._isMoving)
+	inStep = property(lambda self:self._inStep, _setInStep)
+	forgroundButton = property(lambda self:self._forground, _setForgroundButton)
+	backgroundButton = property(lambda self:self._forground, _setBackgroundButton)
