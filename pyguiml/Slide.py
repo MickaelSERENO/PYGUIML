@@ -77,6 +77,7 @@ class Slide(Widget, Active):
 		return self.isSelect or self._forground.isActive
 
 	def activeIt(self, force=False):
+		print("ok")
 		done = False
 	
 		if self._getIsMoving():
@@ -93,7 +94,6 @@ class Slide(Widget, Active):
 
 		elif self._background.isActive:
 			done = True
-			print("ok")
 			if self._orientation == Direction.Horizontal:
 				self._currentValue = self._limitValue.y *\
 						(self.event.mousePos.x - self._forground.size.x/2 - self.getPosOnScreen(False).x)/\

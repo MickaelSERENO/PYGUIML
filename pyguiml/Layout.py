@@ -1,5 +1,6 @@
 from Widget import *
 from itertools import *
+import sfml as sf
 import decorator
 import traceback
 import sys
@@ -106,6 +107,26 @@ class Layout(Widget):
 				if True in check:
 					stop = False
 
+	def moveChild(self, widget, case, direction, hadCall=True):
+		return
+#		print(widget.size)
+#		positionWidget = self.getWidgetPosition(widget)
+#		caseWidget = self.getWidgetCase(widget)
+#
+#		if direction = Direction.Horizontal:
+#			if case + self.getWidgetPosition(widget) >= len(self._widget):
+#				self._widget.append(list())
+#				for y in range(self._widget[0]):
+#					self._widget[-1].append(None)
+#				self._widget[-1][self.getWidgetPosition(widget).y] = widget
+#				return
+
+#			widgetList = list()
+#			for x in case:
+#				for y in range(
+				
+#		return
+
 	def delWidget(self, widget):
 		position = self.getWidgetPosition(widget)
 		if position != sf.Vector2(-1, -1):
@@ -130,7 +151,7 @@ class Layout(Widget):
 
 		return sf.Vector2(x, y)
 
-	def addWidget(self, widget, pos, numberCases=sf.Vector2(1,1), direction=Direction.Vertical, delete = False, name=None):
+	def addWidget(self, widget, pos, numberCases=sf.Vector2(1,1), direction=Direction.Vertical, name=None):
 		add = 0
 		if direction == Direction.Horizontal:
 			add = numberCases.x
@@ -153,21 +174,27 @@ class Layout(Widget):
 			for y in range(pos.y, pos.y + numberCases.y):
 				self._casePerWidget[x][y] = sf.Vector2(0,0)
 
+
+		widgetToMove = list(list())
+		for x in range(pos.x, pos.x+numberCases.x):
+			widgetToMove.append(list())
+			for y in range(pos.y, pos.y + numberCases.y):
+				posibleWidget = self[sf.Vector2(x, y)]
+				if posibleWidget and not posibleWidget in widgetToMove and not posibleWidget is widget:
+					widgetToMove[-1].append(posibleWidget)
+
+		if direction==Direction.Vertical:
+			for widgetMove in widgetToMove:
+				if len(widgetMove) > 0 and len(widgetToMove[0]):
+					self.moveChild(widgetMove[0], pos.y + numberCases.y - self.getWidgetPosition(widgetMove[0]).y, direction)
+		elif direction==Direction.Horizontal:
+			if len(widgetToMove) > 0:
+				for widgetMove in widgetToMove[0]:
+					self.moveChild(widgetMove, pos.x + numberCases.x - self.getWidgetPosition(widgetMove).x, direction)
+
 		self._widget[pos.x][pos.y] = widget
 		self._casePerWidget[pos.x][pos.y] = numberCases
 		widget.setParent(self, name=name)
-
-		addX = 0
-		addY = 0
-		if direction == Direction.Vertical:
-			addY = numberCases.y
-		else:
-			addX = numberCases.x
-
-#			for x in range(self._getNumberCases().x-numberCases.x-1, pos.x, -1):
-#				for y in range(self._getNumberCases().y-1, pos.y, -1):
-#					self._casePerWidget[addX][y+addY] = 
-#					self._widget[addX][y+addY] = self._widget[x][y]
 
 		self.alignment = self.alignment
 		self._delUselessWidget()

@@ -66,12 +66,13 @@ class Widget(Updatable):
 				if self._isStaticToView:
 					self.setPosOnView(self.getPos(False), False)
 
-		if self.isDrawing and render is not self and render.isInView(self.rect):
+		#if self.isDrawing and render and render.isInView(self.rect):
+		if render is not self:
 			if type(self.clipRect) is sf.Rectangle:
 				if self.clipChild:
-					render.clipping(self.draw, self.clipRect, super().update)
+					render.clipping(self.draw, self.clipRect, self.getPos(False), super().update)
 				else:
-					render.clipping(self.draw, self.clipRect)
+					render.clipping(self.draw, self.clipRect, self.getPos(False))
 					super().update(render)
 			else:
 				self.draw(render)
@@ -167,54 +168,63 @@ class Widget(Updatable):
 			return self.getPos(withOrigin, withClipping)
 
 	def getPos(self, withOrigin=True, withClipping=False):
-		pos = self._pos
-
-		if withClipping and self.clipRect:
-			if self.clipRect:
-				pos = self._pos + self.clipRect.position
-			if withOrigin == False:
-				for parent in self.parentList:
-					if isinstance(parent, Widget):
-						if parent.clipChild:
-							posParent = parent.getPos(False, True)
-							if posParent.x > pos.x:
-								pos.x = posParent.x
-							if posParent.y > pos.y:
-								pos.y = posParent.y
-							break
-
+		pos = copy(self._pos)
 		if withOrigin:
-			return pos - self._origin
-		else:
-			return pos
+			pos = pos - self._origin
+
+		if withClipping:
+			parentList = self.parentList[::-1]
+			clipRect = None
+			root = None
+			clipRect = None
+			for parent in parentList:
+				if parent.clipRect and parent.clipChild:
+					root = parent
+					clipRect = copy(parent.clipRect)
+					clipRect.position = clipRect.position + parent.getPos(False)
+
+			if root:
+				pos.x = max(pos.x, clipRect.position.x)
+				pos.y = max(pos.y, clipRect.position.y)
+			elif self.clipRect:
+				pos = pos + self.clipRect.position
+
+		return pos
 
 	def getSize(self, withClipping=False):
-		size = self._size
+		size = copy(self._size)
+		pos = self.getPos(False, True)
 		if withClipping:
-			if self.clipRect:
+			parentList = self.parentList[::-1]
+			root = None
+			clipRect = None
+			for parent in parentList:
+				if parent.clipRect and parent.clipChild:
+					root = parent
+					clipRect = copy(parent.clipRect)
+					clipRect.position = clipRect.position + parent.getPos(False)
+
+			if root:
+				size.x = min(size.x, clipRect.size.x)
+				if clipRect.left > pos.x + self._size.x or \
+						clipRect.left + clipRect.width < pos.x:
+					size.x = 0
+				elif clipRect.left < pos.x and clipRect.left + clipRect.width > pos.x + size.x:
+					size.x = size.x
+				else:
+					size.x = size.x - (clipRect.position.x - pos.x)
+
+				size.y = min(size.y, clipRect.size.y)
+				if clipRect.top > pos.y + self._size.y or \
+						clipRect.top + clipRect.height < pos.y:
+					size.y = 0
+				elif clipRect.top < pos.y and clipRect.top + clipRect.height > pos.y + size.y:
+					size.x = size.x
+				else:
+					size.y = size.y - (clipRect.position.y - pos.y)
+
+			elif self.clipRect:
 				size = self.clipRect.size
-			pos = self.pos
-
-			for parent in self.parentList:
-				if isinstance(parent, Widget):
-					if parent.clipChild and parent.clipRect:
-						posParent = parent.clipRect.position
-						sizeParent = parent.getSize(True)
-						if posParent.x > pos.x + size.x or posParent.x + sizeParent.x < pos.x:
-							size.x = 0
-						elif posParent.y > pos.y + size.y or posParent.y + sizeParent.y < pos.y:
-							size.y = 0
-						elif posParent.x > pos.x:
-							size.x -= posParent.x - pos.x
-
-						elif posParent.x + sizeParent.x < pos.x + size.x:
-							size.x -= pos.x + size.x - (posParent.x+sizeParent.x)
-
-						elif posParent.y > pos.y:
-							size.y -= posParent.y - pos.y
-						elif posParent.y + sizeParent.y < pos.y + size.y:
-							size.y -= -(posParent.x+sizeParent.y) + (pos.y + size.y)
-						break
 
 		return size
 
