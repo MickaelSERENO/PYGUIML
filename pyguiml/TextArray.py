@@ -60,8 +60,6 @@ class TextArray(Widget):
 
 					characterPos = label.text.find_character_pos(characterIndex).x
 
-					#if label.text.string[oldCharacterIndex:characterIndex] != '\n':
-
 					self._labelList.append(Label(self, \
 						label.text.string[oldCharacterIndex:characterIndex].replace('\n', ''),\
 						reduce(lambda x, y : x + sf.Vector2(0, y.size.y),\
@@ -69,9 +67,7 @@ class TextArray(Widget):
 						sf.Vector2(0, self._space * len(self._labelList)),\
 						label.characterSize, label.font,\
 						label.style))
-
-#						self._labelList[-1].size = sf.Vector2(characterPos - oldCharacterPos, \
-#								self._labelList[-1].size.y)
+					self._labelList[-1].scale = label.scale
 					oldCharacterPos = characterPos
 					oldCharacterIndex = characterIndex
 					break;
@@ -96,6 +92,29 @@ class TextArray(Widget):
 					label.origin = sf.Vector2(self.size.x - label.size.x, 0)/2
 
 		self.setPos(self.getPos(False), False)
+
+	def removeLine(self, index):
+		del self._labelList[index]
+		self.pos = self.getPos(False)
+
+	def removeCharacter(self, index):
+		label = Label(None, self._label.text.string[0:index] + \
+				self._label.text.string[index+1:len(self._label.text.string)], \
+				characterSize = self._label.characterSize, font=\
+				self._label.font, style = self._label.style, color=\
+				self._label.color)
+		label.size = self._label.size
+		self.setLabel(label)
+
+	def removePlageCharacters(self, plage):
+		label = Label(None, self._label.text.string[0:plage.x] + \
+				self._label.text.string[plage.y:len(self._label.text.string)], \
+				characterSize = self._label.characterSize, font=\
+				self._label.font, style = self._label.style, color=\
+				self._label.color)
+		label.size = self._label.size
+		self.setLabel(label)
+
 
 	def setCanUpdate(self, update):
 		for label in self._labelList:
