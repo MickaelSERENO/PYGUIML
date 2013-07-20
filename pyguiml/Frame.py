@@ -10,7 +10,7 @@ import sfml as sf
 class Frame(Render, sf.RenderTexture):
 	def __init__(self, parent=None, rect=sf.Rectangle(), backgroundColor=sf.Color.BLACK,\
 			title=str(), backgroundImage=Image(), drawTitleButton = True,\
-			buttonTitleImage=Image(None, source=sf.Image.create(20,20, sf.Color.RED)), \
+			buttonTitleImage=None, \
 			characterSizeTitle=12):
 		sf.RenderTexture.__init__(self, rect.size.x, rect.size.y)
 		Render.__init__(self, parent, rect, backgroundColor, title, backgroundImage)

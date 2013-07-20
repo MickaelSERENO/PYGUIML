@@ -19,6 +19,7 @@ class TextArray(Widget):
 
 	@decorator.forUpdate
 	def update(self, render=None):
+		print(len(self._labelList))
 		Widget.update(self, render)
 
 	def setPos(self, pos, withOrigin=True):

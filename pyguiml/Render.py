@@ -17,6 +17,7 @@ class Render(Widget):
 		self.backgroundImage = backgroundImage
 		self._clipRect = None
 		self._title = title
+		self._currentViewSizeClip = None
 
 	def moveView(self, move):
 		newView = self.view
@@ -137,6 +138,8 @@ class Render(Widget):
 		
 	def clipping(self, funcDraw, rect, posWidget, funcUpdate=None):
 		if not 0 in self.size:
+			if not self._currentViewSizeClip:
+				self._currentViewSizeClip = copy(self.view.size)
 			rect = copy(rect)
 			oldClip = copy(self._clipRect)
 			currentView = self.view
@@ -161,7 +164,9 @@ class Render(Widget):
 			clippingView = sf.View(rect)
 			clippingView.move(posWidget.x, posWidget.y)
 			clippingView.viewport = sf.Rectangle((posWidget+rect.position) /\
-					self.size, rect.size / self.size)
+					self._currentViewSizeClip, rect.size /\
+					self._currentViewSizeClip)
+			print(clippingView.viewport, "viewport")
 
 			self.view = clippingView
 			self._isClipping = True
@@ -172,6 +177,7 @@ class Render(Widget):
 				funcUpdate(self)
 			super(Render, self.__class__).view.__set__(self, currentView)
 			self._clipRect = oldClip
+			self._currentViewSizeClip = None
 
 	def getClipRect(self):
 		render = self.getRender()

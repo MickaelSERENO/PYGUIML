@@ -11,6 +11,8 @@ class ProgressBar(Widget):
 		self._widgetBackground = widgetBackground
 		if self._widgetBackground:
 			self._widgetBackground.setParent(self)
+		else:
+			self._widgetBackground = Image(self, sf.Image.create(20, 20, sf.Color.BLACK))
 		self._widgetForground = widgetForground
 		if self._widgetForground:
 			self._widgetForground.setParent(self)

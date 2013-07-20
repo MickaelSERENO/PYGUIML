@@ -3,6 +3,7 @@ from Active import *
 from Button import Button
 from Label import Label
 from Image import Image
+from copy import copy
 
 import sfml as sf
 
@@ -77,19 +78,18 @@ class Slide(Widget, Active):
 		return self.isSelect or self._forground.isActive
 
 	def activeIt(self, force=False):
-		print("ok")
 		done = False
 	
 		if self._getIsMoving():
 			if self.orientation == Direction.Horizontal:
 				self._currentValue = self._oldCurrentValue +\
 						self._limitValue.y*\
-						(self.event.mousePos.x - self.getPosOnScreen(False).x - \
-						self._mousePosMoving.x)/(self.sizeOnScreen.x-self._forground.size.x)
+						(self.event.mousePos.x - self._mousePosMoving.x)/\
+						(self.sizeOnScreen.x-self._forground.size.x)
 			else:
 				self._currentValue = self._oldCurrentValue + self._limitValue.y*\
-						(self.event.mousePos.y - self.getPosOnScreen(False).y - \
-						self._mousePosMoving.y)/(self.sizeOnScreen.y-self._forground.size.y)
+						(self.event.mousePos.y - self._mousePosMoving.y)/\
+						(self.sizeOnScreen.y-self._forground.size.y)
 			done = True
 
 		elif self._background.isActive:
@@ -172,7 +172,7 @@ class Slide(Widget, Active):
 		if not self._isMoving and self._event:
 			self._isMoving = self._forground.isActive
 			if self._isMoving:
-				self._mousePosMoving = self._event.mousePos
+				self._mousePosMoving = copy(self._event.mousePos)
 				self._oldCurrentValue = self._currentValue
 
 		elif not (self._event and (self._event.getPressedKeys(self._forground.howActiveKeyboard[0]) or \

@@ -66,16 +66,18 @@ class Widget(Updatable):
 				if self._isStaticToView:
 					self.setPosOnView(self.getPos(False), False)
 
-		#if self.isDrawing and render and render.isInView(self.rect):
-		if render is not self:
-			if type(self.clipRect) is sf.Rectangle:
-				if self.clipChild:
-					render.clipping(self.draw, self.clipRect, self.getPos(False), super().update)
+		if self.isDrawing and render and render.isInView(self.getRect(True)):
+			if render is not self:
+				if type(self.clipRect) is sf.Rectangle:
+					if self.clipChild:
+						render.clipping(self.draw, self.clipRect, self.getPos(False), super().update)
+					else:
+						render.clipping(self.draw, self.clipRect, self.getPos(False))
+						super().update(render)
 				else:
-					render.clipping(self.draw, self.clipRect, self.getPos(False))
+					self.draw(render)
 					super().update(render)
 			else:
-				self.draw(render)
 				super().update(render)
 		else:
 			super().update(render)
@@ -174,20 +176,48 @@ class Widget(Updatable):
 
 		if withClipping:
 			parentList = self.parentList[::-1]
+			parentList.append(self)
 			clipRect = None
 			root = None
 			clipRect = None
 			for parent in parentList:
-				if parent.clipRect and parent.clipChild:
+				if isinstance(parent, Widget) and parent.clipRect and parent.clipChild:
 					root = parent
-					clipRect = copy(parent.clipRect)
-					clipRect.position = clipRect.position + parent.getPos(False)
+					if clipRect:
+						if clipRect.position.x < parent.clipRect.position.x +\
+								parent.getPos(False).x:
+
+							#clipRect.width = min(\
+							#		parent.clipRect.width, clipRect.position.x + clipRect.width -\
+							#		parent.clipRect.position.x - parent.getPos(False).x)
+
+							clipRect.position.x = parent.clipRect.position.x + parent.getPos(False).x
+
+						#else:
+							#clipRect.width = min(parent.clipRect.position.x + \
+							#		parent.getPos(False).x + parent.clipRect.width-clipRect.position.x, \
+							#		parent.clipRect.width)
+
+						if clipRect.position.y < parent.clipRect.position.y +\
+								parent.getPos(False).y:
+							#clipRect.height= min(\
+							#		parent.clipRect.height, clipRect.position.y + clipRect.height -\
+							#		parent.clipRect.position.y - parent.getPos(False).y)
+							clipRect.position.y = parent.clipRect.position.y + parent.getPos(False).y
+						#else:
+						#	clipRect.height = min(parent.clipRect.position.y + \
+						#			parent.getPos(False).y + parent.clipRect.height-clipRect.position.y, \
+						#			parent.clipRect.height)
+					else:
+						clipRect = copy(parent.clipRect)
+						clipRect = copy(parent.clipRect)
+						clipRect.position += parent.getPos(False)
 
 			if root:
+				#clipRect.width = max(0, clipRect.width)
+				#clipRect.height = max(0, clipRect.height)
 				pos.x = max(pos.x, clipRect.position.x)
 				pos.y = max(pos.y, clipRect.position.y)
-			elif self.clipRect:
-				pos = pos + self.clipRect.position
 
 		return pos
 
@@ -196,15 +226,47 @@ class Widget(Updatable):
 		pos = self.getPos(False, True)
 		if withClipping:
 			parentList = self.parentList[::-1]
+			parentList.append(self)
 			root = None
 			clipRect = None
 			for parent in parentList:
-				if parent.clipRect and parent.clipChild:
+				if isinstance(parent, Widget) and parent.clipRect and parent.clipChild:
 					root = parent
-					clipRect = copy(parent.clipRect)
-					clipRect.position = clipRect.position + parent.getPos(False)
+
+					if clipRect:
+						if clipRect.position.x < parent.clipRect.position.x +\
+								parent.getPos(False).x:
+
+							clipRect.width = min(\
+									parent.clipRect.width, clipRect.position.x + clipRect.width -\
+									parent.clipRect.position.x - parent.getPos(False).x)
+
+							clipRect.position.x = parent.clipRect.position.x + parent.getPos(False).x
+
+						else:
+							clipRect.width = min(parent.clipRect.position.x + \
+									parent.getPos(False).x + parent.clipRect.width-clipRect.position.x, \
+									parent.clipRect.width)
+
+						if clipRect.position.y < parent.clipRect.position.y +\
+								parent.getPos(False).y:
+							clipRect.height= min(\
+									parent.clipRect.height, clipRect.position.y + clipRect.height -\
+									parent.clipRect.position.y - parent.getPos(False).y)
+							clipRect.position.y = parent.clipRect.position.y + parent.getPos(False).y
+						else:
+							clipRect.height = min(parent.clipRect.position.y + \
+									parent.getPos(False).y + parent.clipRect.height-clipRect.position.y, \
+									parent.clipRect.height)
+						clipRect.width = max(0, clipRect.width)
+						clipRect.height = max(0, clipRect.height)
+					else:
+						clipRect = copy(parent.clipRect)
+						clipRect.position += parent.getPos(False)
 
 			if root:
+				clipRect.width = max(0, clipRect.width)
+				clipRect.height = max(0, clipRect.height)
 				size.x = min(size.x, clipRect.size.x)
 				if clipRect.left > pos.x + self._size.x or \
 						clipRect.left + clipRect.width < pos.x:
@@ -217,14 +279,15 @@ class Widget(Updatable):
 				size.y = min(size.y, clipRect.size.y)
 				if clipRect.top > pos.y + self._size.y or \
 						clipRect.top + clipRect.height < pos.y:
+					print(clipRect)
 					size.y = 0
 				elif clipRect.top < pos.y and clipRect.top + clipRect.height > pos.y + size.y:
 					size.x = size.x
 				else:
 					size.y = size.y - (clipRect.position.y - pos.y)
 
-			elif self.clipRect:
-				size = self.clipRect.size
+			size.x = max(size.x, 0)
+			size.y = max(size.y, 0)
 
 		return size
 
