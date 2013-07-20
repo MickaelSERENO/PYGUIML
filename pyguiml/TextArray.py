@@ -4,22 +4,24 @@ import sfml as sf
 from functools import reduce
 import decorator
 
+Cut = enum('Character', 'Word')
+
 class TextArray(Widget):
 	def __init__(self, parent = None, pos=sf.Vector2(0, 0), sizeX=200,\
-			space=5, label=Label(), alignment = Position.TopLeft):
+			space=5, label=Label(), alignment = Position.TopLeft, cutStyle=Cut.Character):
 		Widget.__init__(self, parent,sf.Rectangle(pos, sf.Vector2(sizeX, 0)))
 
 		self._labelList = list()
 		self._space = space
 		self._label = None
 		self._alignment = None
+		self._cutStyle = cutStyle
 
 		self.setLabel(label, False)
 		self.alignment = alignment
 
 	@decorator.forUpdate
 	def update(self, render=None):
-		print(len(self._labelList))
 		Widget.update(self, render)
 
 	def setPos(self, pos, withOrigin=True):
@@ -50,19 +52,44 @@ class TextArray(Widget):
 
 		oldCharacterIndex = characterIndex
 		oldCharacterPos = characterPos
-		while oldCharacterIndex < len(label.text.string):
-			for i in range(oldCharacterIndex, len(label.text.string)):
-				characterIndex += 1
-				if label.text.find_character_pos(i).x - oldCharacterPos > self.size.x\
-						or label.text.string[i] == '\n' or characterIndex > len(label.text.string):
 
-					if i != 0 and label.text.string[i] != '\n':
+		if self._cutStyle == Cut.Character:
+			while oldCharacterIndex < len(label.text.string):
+				for i in range(oldCharacterIndex, len(label.text.string)):
+					characterIndex += 1
+					if label.text.find_character_pos(i).x - oldCharacterPos > self.size.x\
+							or label.text.string[i] == '\n' or characterIndex > len(label.text.string):
+
+						if i != 0 and label.text.string[i] != '\n':
+							characterIndex -= 1
+
+						characterPos = label.text.find_character_pos(characterIndex).x
+
+						self._labelList.append(Label(self, \
+							label.text.string[oldCharacterIndex:characterIndex].replace('\n', ''),\
+							reduce(lambda x, y : x + sf.Vector2(0, y.size.y),\
+							self._labelList, self._pos) + \
+							sf.Vector2(0, self._space * len(self._labelList)),\
+							label.characterSize, label.font,\
+							label.style))
+						self._labelList[-1].scale = label.scale
+						oldCharacterPos = characterPos
+						oldCharacterIndex = characterIndex
+						break;
+
+		elif self._cutStyle == Cut.Word:
+			listeString = label.text.string.split(" ")
+			for i, string in enumerate(listeString):
+				characterIndex = i + sum([len(littleStr) for littleStr in listeString[0:i+1]])
+				if label.text.find_character_pos(characterIndex-1).x - oldCharacterPos > self.size.x\
+						or label.text.string[characterIndex-1] == '\n' or i == len(listeString)-1:
+					if characterIndex-1 != 0 and label.text.string[characterIndex-1] != '\n':
 						characterIndex -= 1
 
 					characterPos = label.text.find_character_pos(characterIndex).x
 
 					self._labelList.append(Label(self, \
-						label.text.string[oldCharacterIndex:characterIndex].replace('\n', ''),\
+						label.text.string[oldCharacterIndex:characterIndex+1].replace('\n', ''),\
 						reduce(lambda x, y : x + sf.Vector2(0, y.size.y),\
 						self._labelList, self._pos) + \
 						sf.Vector2(0, self._space * len(self._labelList)),\
@@ -70,8 +97,8 @@ class TextArray(Widget):
 						label.style))
 					self._labelList[-1].scale = label.scale
 					oldCharacterPos = characterPos
-					oldCharacterIndex = characterIndex
-					break;
+					oldCharacterIndex = characterIndex+1
+
 		if resetSize:
 			self.size = self.size
 		else:
