@@ -15,7 +15,6 @@ class Render(Widget):
 		self._backgroundImage=None
 		self.backgroundColor = backgroundColor
 		self.backgroundImage = backgroundImage
-		self._isClipping = False
 		self._clipRect = None
 		self._title = title
 
@@ -121,11 +120,12 @@ class Render(Widget):
 	def _setView(self, view):
 		super(Render,self.__class__).view.__set__(self,view)
 
-		for child in self._child:
-			if isinstance(child,Widget) and child.isStaticToView:
-				child.setPosOnView(child.pos)
+		if not self._clipRect:
+			for child in self._child:
+				if isinstance(child,Widget) and child.isStaticToView:
+					child.setPosOnView(child.pos)
 
-		self.backgroundImage = self.backgroundImage
+			self.backgroundImage = self.backgroundImage
 
 	def _setViewport(self, rect):
 		newView = self.view
@@ -137,19 +137,41 @@ class Render(Widget):
 		
 	def clipping(self, funcDraw, rect, posWidget, funcUpdate=None):
 		if not 0 in self.size:
-			self._isClipping = True
+			rect = copy(rect)
+			oldClip = copy(self._clipRect)
 			currentView = self.view
+			if self._clipRect:
+				if rect.left + posWidget.x < self._clipRect.left:
+					rect.width = max(0,rect.left + rect.width + posWidget.x\
+							-self._clipRect.left)
+				else:
+					rect.width = min(self._clipRect.left + \
+							self._clipRect.width - rect.left-posWidget.x, \
+							rect.width)
+
+				if rect.top+posWidget.y < self._clipRect.top:
+					rect.height = max(\
+							0, rect.top + rect.height + posWidget.y\
+							-self._clipRect.top)
+				else:
+					rect.height= min(self._clipRect.top + \
+							self._clipRect.height - rect.left-posWidget.y, \
+							rect.height)
+
 			clippingView = sf.View(rect)
 			clippingView.move(posWidget.x, posWidget.y)
-			clippingView.viewport = sf.Rectangle((rect.position+posWidget) / self.size, \
-					rect.size / self.size)
+			clippingView.viewport = sf.Rectangle((posWidget+rect.position) /\
+					self.size, rect.size / self.size)
+
 			self.view = clippingView
+			self._isClipping = True
 			self._clipRect = sf.Rectangle(posWidget+rect.position, rect.size)
 			
 			funcDraw(self)
 			if funcUpdate:
 				funcUpdate(self)
 			super(Render, self.__class__).view.__set__(self, currentView)
+			self._clipRect = oldClip
 
 	def getClipRect(self):
 		render = self.getRender()
