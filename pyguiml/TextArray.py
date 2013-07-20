@@ -80,7 +80,6 @@ class TextArray(Widget):
 
 			elif self._cutStyle == Cut.Word:
 				listeString = label.text.string.split(" ")
-				print(listeString)
 				i=0
 				breakLine = 0
 				while i < len(listeString):
@@ -91,7 +90,6 @@ class TextArray(Widget):
 						if '\n' in string and breakLine < len(string.split("\n")):
 							string2 = string.split('\n')
 							characterIndex = characterIndex + len(string2[breakLine]) - len(string)
-							print("break")
 							breakLine += 1
 							if breakLine < len(string2):
 								i-=1

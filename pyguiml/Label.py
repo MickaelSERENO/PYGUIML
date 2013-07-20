@@ -88,7 +88,7 @@ class Label(Widget):
 
 	def _setSource(self, source):
 		if isinstance(source, str):
-			self._text = sf.Text(source, character_size = self._text.character_size)
+			self._text.string = source
 		elif isinstance(source, sf.Text):
 			self._text = source
 
