@@ -11,7 +11,7 @@ from Widget import *
 from Layout import Layout
 from Frame import Frame
 from SelectionMenu import SelectionMenu
-from TextArray import TextArray
+from TextArray import *
 from Label import Label
 from Slide import Slide
 from ProgressBar import ProgressBar
@@ -27,13 +27,13 @@ import io
 #pro.enable()
 
 window = Window(sf.VideoMode(800,600,32), "teste", backgroundColor = sf.Color.RED, framerateLimit=3)
-progress = ProgressBar(window, sf.Rectangle(sf.Vector2(), sf.Vector2(100, 20)))
+#progress = ProgressBar(window, sf.Rectangle(sf.Vector2(), sf.Vector2(100, 20)))
 
-progress2 = ProgressBar(window, sf.Rectangle(sf.Vector2(0, 200), sf.Vector2(100, 20)))
-progress3 = ProgressBar(window, sf.Rectangle(sf.Vector2(0, 300), sf.Vector2(100, 20)))
-progress4 = ProgressBar(window, sf.Rectangle(sf.Vector2(0, 400), sf.Vector2(100, 20)))
-progress5 = ProgressBar(window, sf.Rectangle(sf.Vector2(0, 430), sf.Vector2(100, 20)))
-#textArray = TextArray(window, label=Label(None, "coucou je viens d'écrire \n mon premier text array, j'espère qu'il vous plaira mes jeunes amis !", font=sf.Font.from_file("DejaVuSans.ttf")), alignment=Position.Center)
+#progress2 = ProgressBar(window, sf.Rectangle(sf.Vector2(0, 200), sf.Vector2(100, 20)))
+#progress3 = ProgressBar(window, sf.Rectangle(sf.Vector2(0, 300), sf.Vector2(100, 20)))
+#progress4 = ProgressBar(window, sf.Rectangle(sf.Vector2(0, 400), sf.Vector2(100, 20)))
+#progress5 = ProgressBar(window, sf.Rectangle(sf.Vector2(0, 430), sf.Vector2(100, 20)))
+textArray = TextArray(window, label=Label(None, "coucou je viens d'écrire mon premier text array, j'espère que tu a bien rigolé avec tes amis, parce que maintenant c'est terminé !", characterSize = 20, font=sf.Font.from_file("DejaVuSans.ttf")), alignment=Position.Center, cutStyle =Cut.Character, sizeX = 600)
 #textArray.setPos(sf.Vector2(150, 150))
 
 #background0 = Image(None, "Ressources/Images/image.jpg", delTextureCreated = False)
@@ -41,12 +41,13 @@ progress5 = ProgressBar(window, sf.Rectangle(sf.Vector2(0, 430), sf.Vector2(100,
 #window.backgroundImage = background0
 
 slide = Slide(window, rect=sf.Rectangle(sf.Vector2(300, 30), sf.Vector2(500, 20)), step=1, inStep=5, values=sf.Vector2(0, 50))
-slide.clipRect=sf.Rectangle(sf.Vector2(), sf.Vector2(500, 10))
-slide._forground.clipRect = sf.Rectangle(sf.Vector2(7, 7), sf.Vector2(20, 15))
-slide2 = Slide(window, rect=sf.Rectangle(sf.Vector2(100, 230), sf.Vector2(500, 20)), step=1, inStep=5, values=sf.Vector2(0, 50))
-slide3 = Slide(window, rect=sf.Rectangle(sf.Vector2(100, 330), sf.Vector2(500, 20)), step=1, inStep=5, values=sf.Vector2(0, 50))
-slide4 = Slide(window, rect=sf.Rectangle(sf.Vector2(100, 430), sf.Vector2(500, 20)), step=1, inStep=5, values=sf.Vector2(0, 50))
-slide5 = Slide(window, rect=sf.Rectangle(sf.Vector2(100, 470), sf.Vector2(500, 20)), step=1, inStep=5, values=sf.Vector2(0, 50))
+print(slide.howActiveKeyboard)
+#slide.clipRect=sf.Rectangle(sf.Vector2(), sf.Vector2(500, 10))
+#slide._forground.clipRect = sf.Rectangle(sf.Vector2(7, 7), sf.Vector2(20, 15))
+#slide2 = Slide(window, rect=sf.Rectangle(sf.Vector2(100, 230), sf.Vector2(500, 20)), step=1, inStep=5, values=sf.Vector2(0, 50))
+#slide3 = Slide(window, rect=sf.Rectangle(sf.Vector2(100, 330), sf.Vector2(500, 20)), step=1, inStep=5, values=sf.Vector2(0, 50))
+#slide4 = Slide(window, rect=sf.Rectangle(sf.Vector2(100, 430), sf.Vector2(500, 20)), step=1, inStep=5, values=sf.Vector2(0, 50))
+#slide5 = Slide(window, rect=sf.Rectangle(sf.Vector2(100, 470), sf.Vector2(500, 20)), step=1, inStep=5, values=sf.Vector2(0, 50))
 
 
 #slide.clipRect = sf.Rectangle(sf.Vector2(10,10), sf.Vector2(300, 20))
@@ -74,14 +75,15 @@ slide5 = Slide(window, rect=sf.Rectangle(sf.Vector2(100, 470), sf.Vector2(500, 2
 
 while window.is_open:
 	window.update()
-	progress.currentValue = slide.currentValue/50
-	progress2.currentValue = slide2.currentValue/50
-	progress3.currentValue = slide3.currentValue/50
-	progress4.currentValue = slide4.currentValue/50
-	progress5.currentValue = slide5.currentValue/50
+	print(window.event.mousePos)
+#	progress.currentValue = slide.currentValue/50
+#	progress2.currentValue = slide2.currentValue/50
+#	progress3.currentValue = slide3.currentValue/50
+#	progress4.currentValue = slide4.currentValue/50
+#	progress5.currentValue = slide5.currentValue/50
 #	print(progress.forgroundWidget is progress2.forgroundWidget)
 #	print(slide._forground.getPos(False, True))
-	print(slide._forground.getRectOnScreen(True))
+#	print(slide._forground.getRectOnScreen(True))
 #	print(Widget.widgetFocus)
 #	print(slide._background.isSelect)
 	#if window.event.getOnePressedKeys(sf.Keyboard.LEFT):
