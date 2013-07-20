@@ -1,6 +1,7 @@
 from SelectionMenu import SelectionMenu
 from Active import Active
-from Widget import Widget
+from Widget import *
+import sfml as sf
 
 class RadioButton(SelectionMenu):
 	def __init__(self, parent=None, rect=sf.Rectangle(),\
@@ -16,26 +17,40 @@ class RadioButton(SelectionMenu):
 				changeRight, changeLeft, changeTop, changeBottom)
 		self._currentActive = None
 
-	def update(self, render):
+	def update(self, render=None):
+		SelectionMenu.update(self, render)
 		if self.isActive and self.isSelect:
 			done = False
 			for widgetList in self._widget:
 				for child in widgetList:
 					if isinstance(child, Active) and \
-							child is not self._currentActive:
+							child.isActive and child is not self._currentActive:
+						print("ok")
 						self._currentActive = child
 						done = True
 						break
 				if done:
 					break
-			if not self._currentSelect:
+			if not self._currentActive:
 				done = False
 				for widgetList in self._widget:
 					for child in widgetList:
 						if isinstance(child, Active):
-							self._currentSelect = child
+							self._currentActive = child
 							done = True
 							break
 					if done:
 						break
 
+			self.disactiveOtherWidget()
+
+	def disactiveOtherWidget(self):
+		for widgetList in self._widget:
+			for child in widgetList:
+				if child is not self._currentActive:
+					if isinstance(child, Active):
+						child.permanentActivation = False
+						child.disactiveIt()
+		if self._currentActive:
+			self._currentActive.permanentActivation = True
+			self._currentActive.activeIt(True)
