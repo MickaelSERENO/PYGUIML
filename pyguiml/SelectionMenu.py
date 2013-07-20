@@ -234,7 +234,6 @@ class SelectionMenu(Layout, Active):
 									break
 							if done:
 								break
-				self._currentSelect.howActiveMouse = currentHowActiveMouse
 			self._deselectOtherWidget()
 		else:
 			if self._currentSelect:
@@ -242,6 +241,8 @@ class SelectionMenu(Layout, Active):
 				self._currentSelect.deselectIt()
 
 		Layout.update(self, render)
+		if self._currentSelect:
+			self._currentSelect.howActiveMouse = currentHowActiveMouse
 
 	def setAllActiveMouseKeyboard(self, keyboard=None, mouse=None):
 		for widgetList in self._widget:
