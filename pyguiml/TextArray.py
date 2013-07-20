@@ -78,18 +78,24 @@ class TextArray(Widget):
 						break;
 
 		elif self._cutStyle == Cut.Word:
-			listeString = label.text.string.replae('\n', ' \n ').split(" ")
+			listeString = label.text.string.split(" ")
+			print(listeString)
 			for i, string in enumerate(listeString):
-				characterIndex = i + sum([len(littleStr) for littleStr in listeString[0:i+1]])
-				if i == len(listeString)-1 or label.text.find_character_pos(len(listeString[i+1]) + characterIndex-1).x - oldCharacterPos > self.size.x\
-						or label.text.string[characterIndex-1] == '\n' :
-					if characterIndex-1 != 0 and label.text.string[characterIndex-1] != '\n':
-						characterIndex -= 1
+				characterIndex += len(string) + 1
+				print(characterIndex, oldCharacterIndex)
+				if i == len(listeString)-1 or label.text.find_character_pos(len(listeString[i+1]) + characterIndex).x - oldCharacterPos >= self.size.x\
+						or '\n' in string:
+					if '\n' in string:
+						string2 = string.split('\n')
+						characterIndex += len(string2[0]) - len(string)
+						print("ok")
+					if i == len(listeString)-1: 
+						characterIndex += 1
 
 					characterPos = label.text.find_character_pos(characterIndex).x
 
 					self._labelList.append(Label(self, \
-						label.text.string[oldCharacterIndex:characterIndex+1].replace('\n', ''),\
+						label.text.string[oldCharacterIndex:characterIndex].replace('\n', ''),\
 						reduce(lambda x, y : x + sf.Vector2(0, y.size.y),\
 						self._labelList, self._pos) + \
 						sf.Vector2(0, self._space * len(self._labelList)),\
@@ -97,7 +103,7 @@ class TextArray(Widget):
 						label.style))
 					self._labelList[-1].globalScale = label.globalScale
 					oldCharacterPos = characterPos
-					oldCharacterIndex = characterIndex+1
+					oldCharacterIndex = characterIndex
 
 		if resetSize:
 			self.size = self.size
