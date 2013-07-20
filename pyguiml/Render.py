@@ -16,6 +16,7 @@ class Render(Widget):
 		self.backgroundColor = backgroundColor
 		self.backgroundImage = backgroundImage
 		self._clipRect = None
+		self._clipPosParent = None
 		self._title = title
 		self._currentViewSizeClip = None
 
@@ -142,41 +143,49 @@ class Render(Widget):
 				self._currentViewSizeClip = copy(self.view.size)
 			rect = copy(rect)
 			oldClip = copy(self._clipRect)
+			oldPosParent = self._clipPosParent
 			currentView = self.view
 			if self._clipRect:
 				if rect.left + posWidget.x < self._clipRect.left:
-					rect.width = max(0,rect.left + rect.width + posWidget.x\
+					rect.width = max(0, rect.left + rect.width + posWidget.x\
 							-self._clipRect.left)
+					rect.left = self._clipRect.left - self._clipPosParent.x
 				else:
 					rect.width = min(self._clipRect.left + \
 							self._clipRect.width - rect.left-posWidget.x, \
 							rect.width)
 
 				if rect.top+posWidget.y < self._clipRect.top:
+					rect.top = self._clipRect.top
 					rect.height = max(\
 							0, rect.top + rect.height + posWidget.y\
 							-self._clipRect.top)
+					rect.top = self._clipRect.top - self._clipPosParent.y
 				else:
 					rect.height= min(self._clipRect.top + \
 							self._clipRect.height - rect.left-posWidget.y, \
 							rect.height)
+
+			rect.width = max(0, rect.width)
+			rect.height = max(0, rect.height)
+
 
 			clippingView = sf.View(rect)
 			clippingView.move(posWidget.x, posWidget.y)
 			clippingView.viewport = sf.Rectangle((posWidget+rect.position) /\
 					self._currentViewSizeClip, rect.size /\
 					self._currentViewSizeClip)
-			print(clippingView.viewport, "viewport")
-
 			self.view = clippingView
 			self._isClipping = True
 			self._clipRect = sf.Rectangle(posWidget+rect.position, rect.size)
+			self._clipPosParent = posWidget
 			
 			funcDraw(self)
 			if funcUpdate:
 				funcUpdate(self)
 			super(Render, self.__class__).view.__set__(self, currentView)
 			self._clipRect = oldClip
+			self._clipPosParent = oldPosParent
 			self._currentViewSizeClip = None
 
 	def getClipRect(self):
