@@ -18,5 +18,9 @@ from Active import *
 from Frame import *
 from SelectionMenu import *
 from TextArray import *
+from Slide import *
+from ProgressBar import *
+from RadioButton import *
+
 import decorator
 import functions
