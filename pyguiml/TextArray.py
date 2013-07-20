@@ -78,11 +78,11 @@ class TextArray(Widget):
 						break;
 
 		elif self._cutStyle == Cut.Word:
-			listeString = label.text.string.split(" ")
+			listeString = label.text.string.replae('\n', ' \n ').split(" ")
 			for i, string in enumerate(listeString):
 				characterIndex = i + sum([len(littleStr) for littleStr in listeString[0:i+1]])
-				if label.text.find_character_pos(characterIndex-1).x - oldCharacterPos > self.size.x\
-						or label.text.string[characterIndex-1] == '\n' or i == len(listeString)-1:
+				if i == len(listeString)-1 or label.text.find_character_pos(len(listeString[i+1]) + characterIndex-1).x - oldCharacterPos > self.size.x\
+						or label.text.string[characterIndex-1] == '\n' :
 					if characterIndex-1 != 0 and label.text.string[characterIndex-1] != '\n':
 						characterIndex -= 1
 
@@ -95,7 +95,7 @@ class TextArray(Widget):
 						sf.Vector2(0, self._space * len(self._labelList)),\
 						label.characterSize, label.font,\
 						label.style))
-					self._labelList[-1].scale = label.scale
+					self._labelList[-1].globalScale = label.globalScale
 					oldCharacterPos = characterPos
 					oldCharacterIndex = characterIndex+1
 
