@@ -1,3 +1,4 @@
+
 from Button import Button
 from Widget import *
 from Layout import Layout
@@ -60,6 +61,8 @@ class SelectionMenu(Layout, Active):
 
 				if not self.changeLeft in self._currentSelect.howActiveKeyboard and\
 						self.event.getOnePressedKeys(self.changeLeft):
+					if self._currentSelect.__class__.__name__ == 'Slide':
+						print('change', self.changeLeft, self._currentSelect.howActiveKeyboard)
 					done = False
 					for x in range(posCurrentSelect.x-1, -1, -1):
 						for y in range(posCurrentSelect.y, len(self._widget[x])):
@@ -231,17 +234,14 @@ class SelectionMenu(Layout, Active):
 									break
 							if done:
 								break
-			self._deselectOtherWidget()
+				self._currentSelect.howActiveMouse = currentHowActiveMouse
 			self._deselectOtherWidget()
 		else:
-			self._deselectOtherWidget()
 			if self._currentSelect:
 				self._currentSelect.permanentSelection=False
 				self._currentSelect.deselectIt()
 
 		Layout.update(self, render)
-		if self._currentSelect:
-			self._currentSelect.howActiveMouse = currentHowActiveMouse
 
 	def setAllActiveMouseKeyboard(self, keyboard=None, mouse=None):
 		for widgetList in self._widget:
