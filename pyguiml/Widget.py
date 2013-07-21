@@ -52,12 +52,12 @@ class Widget(Updatable):
 				return
 
 	def howFocus(self):
-		return isinstance(self._event, EventManager) and self.getRender().isInView(self.rect) and \
+		return isinstance(self._event, EventManager) and Updatable.getRender(self).isInView(self.rect) and \
 				self._event.isMouseInRect(self.getRectOnScreen(True))
 
 	def update(self, render=None):
 		if not render:
-			render = self.getRender()
+			render = Updatable.getRender(self)
 
 		if render:
 			if self._changeWindow:
@@ -102,7 +102,7 @@ class Widget(Updatable):
 		self.setPos(self._pos + moving, False)
 
 	def setPosOnScreen(self, position, withOrigin=True):
-		render = self.getRender()
+		render = Updatable.getRender(self)
 		if not self._isStaticToView and render:
 			self.setPos(render.convertScreenCoordToTargetPoint(position), withOrigin)
 		elif not render and not self._isStaticToView:
@@ -155,7 +155,7 @@ class Widget(Updatable):
 			if self._isStaticToView:
 				self.pos = self._pos
 			else:
-				render = self.getRender()
+				render = Updatable.getRender(self)
 				if render:
 					viewPosition = render.getViewRectWithZoom()
 					viewPosition = sf.Vector2(viewPosition.left,\
@@ -163,7 +163,7 @@ class Widget(Updatable):
 					self.pos = self._pos - viewPosition
 
 	def getPosOnScreen(self, withOrigin=True, withClipping=False):
-		render = self.getRender()
+		render = Updatable.getRender(self)
 		if render is not None:
 			return render.convertTargetPointToScreenCoord(self.getPos(withOrigin, withClipping))
 		else:
@@ -315,7 +315,7 @@ class Widget(Updatable):
 		self._posOrigin = position
 
 	def getSizeOnView(self, withClipping=False):
-		render = self.getRender()
+		render = Updatable.getRender(self)
 		if render:
 			return self.getSize(withClipping) * render.size / render.view.size * render.viewport.size
 		else:
@@ -323,7 +323,7 @@ class Widget(Updatable):
 
 	def getSizeOnScreen(self, withClipping=False):
 		scale = sf.Vector2(1,1)
-		render = self.getRender()
+		render = Updatable.getRender(self)
 
 		if render is not self:
 			if render.view.size.x != 0 and render.view.size.y != 0:
@@ -336,7 +336,7 @@ class Widget(Updatable):
 				self.getSizeOnScreen(withClipping))
 
 	def setPosOnView(self, pos, withOrigin=True):
-		render = self.getRender()
+		render = Updatable.getRender(self)
 		origin = sf.Vector2(0, 0)
 		if withOrigin:
 			origin = self._origin
@@ -353,14 +353,14 @@ class Widget(Updatable):
 		self.setPos(rect.position, False)
 
 	def _setRelativePositionOnView(self, scale):
-		render = self.getRender()
+		render = Updatable.getRender(self)
 		if render and scale:
 			self._relativePositionOnView = None
 			self.pos = render.getViewSizeWithViewportWithZoom() * scale
 		self._relativePositionOnView = scale
 
 	def _setRelativeSizeOnView(self, scale, resetOrigin = True):
-		render = self.getRender()
+		render = Updatable.getRender(self)
 		if render and scale:
 			self._relativePositionOnView = None
 			self.setSize(render.getViewSizeWithViewportWithZoom() * scale, resetOrigin)
