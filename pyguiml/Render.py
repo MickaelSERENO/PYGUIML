@@ -68,12 +68,16 @@ class Render(Widget):
 		return self.getViewSizeWithViewport() * self.getViewScale()
 
 	def convertScreenCoordToTargetPoint(self, position):
-		render = self.getRender()
+		render=None
+		if self.parent:
+			render = self.parent.getRender()
 		if isinstance(render,Render) and render is not self:
+			print("here")
+			print(self.getPosOnScreen(False))
 			return render.map_pixel_to_coords(position) - \
-					render.convertTargetPointToScreenCoord(self.pos)
+					render.convertScreenCoordToTargetPoint(self.getPosOnScreen(False))
 		else:
-			return render.map_pixel_to_coords(position)
+			return self.map_pixel_to_coords(position)
 
 	def convertTargetPointToScreenCoord(self, position):
 		render=None
