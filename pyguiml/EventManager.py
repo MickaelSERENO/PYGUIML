@@ -25,7 +25,7 @@ class EventManager:
 			self._hasPressedKeyMouse = False
 			self._defaultWindowSize = sf.Window.size.__get__(window)
 			self._multiplicateMouse = sf.Vector2(1,1)
-			self.textCursor=None
+			self.textCursor=0
 			self.watchText = True
 
 			i = 0
@@ -60,6 +60,9 @@ class EventManager:
 		self._hasPressedKeyMouse= False
 
 		for event in self._w.events:
+			if self.textCursor >= len(self.text):
+				self.textCursor = len(self.text)-1
+
 			if type(event) is sf.KeyEvent and event.pressed:
 				if event.code <= EventManager.nbrKey:
 					self._keys[event.code] = True
@@ -73,9 +76,11 @@ class EventManager:
 
 			if self.watchText and type(event) is sf.TextEvent:
 				if event.unicode != 13 and event.unicode != 8:
-					self._text += chr(event.unicode)
+					self._text = self._text[0:self.textCursor] + chr(event.unicode) + self._text[self.textCursor:]
 				elif event.unicode == 13:
-					self._text += '\n'
+					self._text = self._text[0:self.textCursor] + '\n' + self._text[self.textCursor:]
+				if event.unicode !=8:
+					self.textCursor += 1
 				self._enteredText = True
 
 			if type(event) is sf.MouseButtonEvent and event.pressed:
@@ -109,18 +114,15 @@ class EventManager:
 					self._defaultWindowSize.y
 
 		if self.text and self.watchText:
-			textCursor = self.textCursor
-			if self.textCursor == None or self.textCursor > len(self.text):
-				textCursor = len(self.text)
-
 			if self.getOnePressedKeys(sf.Keyboard.BACK_SPACE) and \
-					(textCursor > 0):
-						self._text = self.text[0:textCursor-1] + \
-								self.text[textCursor:]
+					(self.textCursor > 0):
+						self._text = self.text[0:self.textCursor-1] + \
+								self.text[self.textCursor:]
+						self.textCursor -= 1
 
-			elif self.getOnePressedKeys(sf.Keyboard.DELETE):
-				self._text = self.text[0:textCursor] + \
-						self.text[textCursor:]
+			elif self.getOnePressedKeys(sf.Keyboard.DELETE) and self.textCursor < len(self.text):
+				self._text = self.text[0:self.textCursor] + \
+						self.text[self.textCursor+1:]
 
 	def isMouseInRect(self, rect):
 		if self._mousePos.x > rect.left and\
