@@ -23,6 +23,7 @@ class SelectionMenu(Layout, Active):
 		self.changeRight = changeRight
 		self.changeTop = changeTop
 		self.changeBottom = changeBottom
+		self._howActiveKeyboard = [self.changeLeft, self.changeRight, self.changeTop, self.changeBottom]
 		self._currentSelect = None
 
 	def update(self, render=None):

@@ -166,7 +166,7 @@ class Layout(Widget):
 			add = numberCases.y
 
 		for widgetList, caseWidget, in zip(self._widget, self._casePerWidget):
-			for i in range(len(widgetList), pos.y + numberCases.y + add):
+			for i in range(len(widgetList), pos.y + numberCases.y + add+1):
 				caseWidget.append(sf.Vector2(1,1))
 				widgetList.append(None)
 
