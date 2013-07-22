@@ -1,4 +1,5 @@
 import sfml as sf
+from math import sqrt
 
 def rectCollision(rect1,rect2):
 	return not (rect1.left + rect1.width < rect2.left or \

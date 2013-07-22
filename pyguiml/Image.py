@@ -42,7 +42,7 @@ class Image(Widget):
 
 	def roundEdge(self,size):
 		if self._sprite.texture:
-			image = sprite.texture.copy_to_image()
+			image = self._sprite.texture.copy_to_image()
 			for i in range(int(size)):
 				topLeft = circle(i,size,size,size)
 				bottomLeft = circle(i, size,\
@@ -93,11 +93,11 @@ class Image(Widget):
 
 		else:
 			render = sf.RenderTexture
-			render.size = sf.Vector2(m_size.x, m_size.y)
-			render.draw(m_sprite)
+			render.size = self.size 
+			render.draw(self._sprite)
 			render.display()
 			self.setSource(render.texture)
-			roundEdge(size)
+			self.roundEdge(size)
 
 	def setSource(self, source):
 		"""This Methode set the object's sprite with a texture,
@@ -166,7 +166,7 @@ class Image(Widget):
 		Pos is a Vector2 type"""
 
 		image = self._texture.copy_to_image()
-		image.set_pixel(x, y, color)
+		image.set_pixel(pos.x, pos.y, color)
 		self.sprite = image
 
 	def setPlageColor(self, rect, color):
@@ -184,7 +184,7 @@ class Image(Widget):
 			for i in range(rect.left, rect.left + rect.width):
 				for j in range(rect.top, rect.top + rect.height):
 					image.set_pixel(i, j, color)
-			sel.setSource(image)
+			self.setSource(image)
 
 	def lighten(self, rect = sf.Rectangle()):
 		"""This methode lighten the image"""
