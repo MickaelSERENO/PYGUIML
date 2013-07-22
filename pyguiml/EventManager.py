@@ -59,9 +59,12 @@ class EventManager:
 		self._hasPressedKeyKey = False
 		self._hasPressedKeyMouse= False
 
+		if self.textCursor >= len(self.text):
+			self.textCursor = len(self.text)-1
+		elif self.textCursor < 0:
+			self.textCursor = 0
+
 		for event in self._w.events:
-			if self.textCursor >= len(self.text):
-				self.textCursor = len(self.text)-1
 
 			if type(event) is sf.KeyEvent and event.pressed:
 				if event.code <= EventManager.nbrKey:
