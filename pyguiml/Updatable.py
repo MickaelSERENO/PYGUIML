@@ -38,7 +38,7 @@ class Updatable:
 				return None
 
 		elif isinstance(value, Updatable):
-			if self.isChild(child):
+			if self.isChild(value):
 				index = -1
 				name = None
 				for child, i in enumerate(self._child):

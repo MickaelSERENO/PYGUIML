@@ -47,7 +47,7 @@ class Render(Widget):
 		self.view = viewCopy
 
 	def setViewPosition(self, pos):
-		moveView(pos - self.getViewPosition())
+		self.moveView(pos - self.getViewPosition())
 
 	def setViewport(self, viewport):
 		viewCopy = self.view
