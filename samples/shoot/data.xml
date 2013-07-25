@@ -1,0 +1,14 @@
+<root>
+	<options>
+		<difficult difficult="Medium" />
+		<sound volume="100" />
+		<live number='3' continue='1'/>
+	</options>
+
+	<classement>
+		<user name='Gaulois94' score='10000'/>
+		<user name='Gaulois944' score='10020'/>
+		<user name='Gaulois945' score='10020'/>
+		<user name='Gaulois946' score='10026'/>
+	</classement>
+</root>
