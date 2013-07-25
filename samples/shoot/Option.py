@@ -48,7 +48,7 @@ class Option(Context):
 	def update(self, render=None):
 		pyguiml.Updatable.update(self, render)
 		if self["Layout Menu"].getChild("Finish").isActive:
-			self.changeContext("First Menu")
+			self.changeContext("FirstMenu")
 
 	def closeContext(self):
 		self["Layout Menu"].permanentSelection= False

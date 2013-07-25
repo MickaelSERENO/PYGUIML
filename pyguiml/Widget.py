@@ -328,12 +328,12 @@ class Widget(Updatable):
 		return sf.Rectangle(self.getPosOnScreen(False, withClipping),\
 				self.getSizeOnScreen(withClipping))
 
-	def setPosOnView(self, pos, withOrigin=True):
+	def setAbsolutePosOnView(self, pos, withOrigin=True):
 		render = Updatable.getRender(self)
 		origin = sf.Vector2(0, 0)
 		render = self.getRender()
 		if render:
-			self.setPos(render.map_pixel_to_coords(pos), withOrigin)
+			self.setPos(pos + render.getViewPosition(), withOrigin)
 		else:
 			self.setPos(pos, withOrigin)
 

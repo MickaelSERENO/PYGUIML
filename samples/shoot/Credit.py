@@ -16,7 +16,7 @@ class Credit(Context):
 		render.moveView(sf.Vector2(0, 1))
 		if render.getViewPosition().y > self["Text"].getPos(False).y + self["Text"].size.y + \
 				10:
-			self.changeContext("First Menu")
+			self.changeContext("FirstMenu")
 		pyguiml.Updatable.update(self, render)
 
 	def closeContext(self):

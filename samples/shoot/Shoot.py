@@ -6,6 +6,7 @@ class Shoot(pyguiml.Widget):
 			sf.Texture.from_file("Ressources/Images/playerLaser.png")
 	pyguiml.Widget.filesLoading["ennemieLaser"]=\
 			sf.Texture.from_file("Ressources/Images/ennemieLaser.png")
+
 	def __init__(self, parent, load, pos, direction):
 		self._sprite=None
 		if load=="Player":
@@ -16,6 +17,7 @@ class Shoot(pyguiml.Widget):
 		self._direction = direction
 		pyguiml.Widget.__init__(self, parent, \
 				sf.Rectangle(pos, self._sprite.global_bounds.size))
+		self.canFocus=False
 
 	@pyguiml.decorator.forUpdate
 	def update(self, render=None):
@@ -26,6 +28,12 @@ class Shoot(pyguiml.Widget):
 		if self.load == "Ennemie" and pyguiml.functions.rectCollision(self.rect, self.parent.player.rect):
 			self.parent.touchPlayer()
 			self.parent.removeChild(self)
+		elif self.load=="Player":
+			for ennemie in self.parent.parent[1].ennemieList:
+				if pyguiml.functions.rectCollision(self.rect, ennemie.rect):
+					ennemie.isTouch()
+					self.parent.removeChild(self)
+					return
 		self.move(self._direction)
 		pyguiml.Widget.update(self, render)
 

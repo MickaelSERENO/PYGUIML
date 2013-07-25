@@ -119,6 +119,11 @@ class Updatable:
 
 		child._parent = 0
 
+	def removeAllChild(self):
+		oldChild = self._child.copy()
+		for child in oldChild:
+			self.removeChild(child)
+
 	def addChild(self, child, pos="End", name=None):
 		"""child become a widget's child"""
 		if child._parent is not self:

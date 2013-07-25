@@ -11,8 +11,10 @@ class Ennemie(pyguiml.Widget):
 			sf.Texture.from_file("Ressources/Images/bigEnnemie.png")
 	def __init__(self, parent, typeEnnemie, player):
 		self._sprite = None
+		self.live = 1
 		if typeEnnemie == "big":
 			self._sprite = sf.Sprite(pyguiml.Widget.filesLoading["bigEnnemie"])
+			self.live = 3
 		else:
 			self._sprite = sf.Sprite(pyguiml.Widget.filesLoading["smallEnnemie"])
 
@@ -21,10 +23,11 @@ class Ennemie(pyguiml.Widget):
 		self.vitesseShoot = 5
 
 		pyguiml.Widget.__init__(self, parent, self._sprite.global_bounds)
+		self.canFocus=False
 
 	@pyguiml.decorator.forUpdate
 	def update(self, render=None):
-		if self.timer.elapsed_time.seconds > 0.40:
+		if self.timer.elapsed_time.seconds > 0.40 and self.isDrawing:
 			self.timer.restart()
 			chance = sf.Vector2(random.uniform(-100, 100), random.uniform(-0.3, 0.3))
 			pos = self.pos
@@ -34,6 +37,9 @@ class Ennemie(pyguiml.Widget):
 					self.getPos(False), sf.Vector2(\
 					abs(self.vitesseShoot * cos(atan(vector.y / vector.x))) * copysign(1, vector.x), \
 					copysign(1, vector.y) * abs(self.vitesseShoot * sin(atan(vector.y / vector.x))))))
+		elif not self.isDrawing and len(self.child)==0:
+			self.parent = None
+			return
 
 		pyguiml.Widget.update(self, render)
 
@@ -47,3 +53,9 @@ class Ennemie(pyguiml.Widget):
 
 	def touchPlayer(self):
 		self.parent.touchPlayer()
+
+	def isTouch(self):
+		self.live -= 1
+		if self.live == 0:
+			self.parent.ennemieList.remove(self)
+			self.isDrawing = False

@@ -11,7 +11,6 @@ class Context(pyguiml.Updatable):
 		pyguiml.Updatable.update(self, render)
 
 	def changeContext(self, contextName):
-		print("ok")
 		self.closeContext()
 		self.canUpdate = False
 		self.updateAllChild = False

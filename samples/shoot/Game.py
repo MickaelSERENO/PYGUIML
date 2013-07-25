@@ -14,7 +14,7 @@ class Game(pyguiml.Window):
 				backgroundColor, backgroundImage)
 		self.dataManager = DataManager()
 		firstMenu = FirstMenu(self, self, permanentActivation=True)
-		self.addChild(firstMenu, name="First Menu")
+		self.addChild(firstMenu, name="FirstMenu")
 		self.addChild(Option(self, self), name='Option')
 		self.addChild(Credit(self, self), name="Credit")
 		self.addChild(StartGame(self, self), name="StartGame")
@@ -25,7 +25,7 @@ class Game(pyguiml.Window):
 			context.canUpdate = False
 			context.updateAllChild = False
 
-		self._changeContext("First Menu")
+		self._changeContext("FirstMenu")
 
 	def _changeContext(self, contextName):
 		self._currentContext = self[contextName]
