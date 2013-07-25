@@ -168,7 +168,6 @@ class Button(Widget, Active):
 
 	def setSize(self, size, resetOrigin=True):
 		Widget.setSize(self, size, resetOrigin)
-		print("ok")
 		if self.hasImage:
 			self._image.size = self.size
 			self._imageSelect.size = self.size

@@ -23,6 +23,7 @@ class Widget(Updatable):
 		self._isStaticToView = False
 		self.canFocus = True
 		self.movingAllChild = False
+		self._posStatic = False
 
 		self._origin = sf.Vector2(0,0)
 		self._posOrigin = Position.TopLeft
@@ -34,6 +35,9 @@ class Widget(Updatable):
 		self._relativePositionOnView = None
 		self.clipRect = None
 		self.clipChild = True
+
+	def __del__(self):
+		self.parent = None
 
 	def getCopyWidget(self):
 		"""This methode return a copy of this Widget.
@@ -59,15 +63,14 @@ class Widget(Updatable):
 		if not render:
 			render = Updatable.getRender(self)
 
-		if render:
+		if render and render is not self:
 			if self._changeWindow:
 				self.relativeSizeOnView = self.relativeSizeOnView
 				self.relativeSizeOnView = self.relativeSizeOnView
 				if self._isStaticToView:
-					self.setPosOnView(self.getPos(False), False)
+					self.setPosStatic(self._posStatic, False)
 
-		if self.isDrawing and render and render.isInView(self.getRect(True)):
-			if render is not self:
+			if self.isDrawing and render.isInView(self.getRect(True)):
 				if type(self.clipRect) is sf.Rectangle:
 					if self.clipChild:
 						render.clipping(self.draw, self.clipRect, self.getPos(False), super().update)
@@ -79,6 +82,7 @@ class Widget(Updatable):
 					super().update(render)
 			else:
 				super().update(render)
+			
 		else:
 			super().update(render)
 
@@ -148,19 +152,13 @@ class Widget(Updatable):
 		else:
 			self.relativePositionOnView = self._relativePositionOnView
 
-	def setIsStaticToView(self, new, change=True):
+	def setIsStaticToView(self, new, resetPos=True):
 		"""Methode for set your widget static on the view or not"""
 		self._isStaticToView = copy(new)
-		if change:
-			if self._isStaticToView:
-				self.pos = self._pos
-			else:
-				render = Updatable.getRender(self)
-				if render:
-					viewPosition = render.getViewRectWithZoom()
-					viewPosition = sf.Vector2(viewPosition.left,\
-							viewPosition.top)
-					self.pos = self._pos - viewPosition
+		if not self._posStatic:
+			self._posStatic = self._pos
+		if resetPos and self._isStaticToView:
+			self.setPosStatic(self._posStatic, False)
 
 	def getPosOnScreen(self, withOrigin=True, withClipping=False):
 		render = Updatable.getRender(self)
@@ -169,14 +167,18 @@ class Widget(Updatable):
 		else:
 			return self.getPos(withOrigin, withClipping)
 
+	def getPosStatic(self, withOrigin=True):
+		if withOrigin:
+			return self._posStatic-self._origin
+		return self._posStatic
+
 	def getPos(self, withOrigin=True, withClipping=False):
 		pos = copy(self._pos)
 		if withOrigin:
 			pos = pos - self._origin
 
 		if withClipping:
-			parentList = self.parentList[::-1]
-			parentList.append(self)
+			parentList = reversed([self]+self.parentList)
 			clipRect = None
 			root = None
 			clipRect = None
@@ -186,36 +188,17 @@ class Widget(Updatable):
 					if clipRect:
 						if clipRect.position.x < parent.clipRect.position.x +\
 								parent.getPos(False).x:
-
-							#clipRect.width = min(\
-							#		parent.clipRect.width, clipRect.position.x + clipRect.width -\
-							#		parent.clipRect.position.x - parent.getPos(False).x)
-
 							clipRect.position.x = parent.clipRect.position.x + parent.getPos(False).x
-
-						#else:
-							#clipRect.width = min(parent.clipRect.position.x + \
-							#		parent.getPos(False).x + parent.clipRect.width-clipRect.position.x, \
-							#		parent.clipRect.width)
 
 						if clipRect.position.y < parent.clipRect.position.y +\
 								parent.getPos(False).y:
-							#clipRect.height= min(\
-							#		parent.clipRect.height, clipRect.position.y + clipRect.height -\
-							#		parent.clipRect.position.y - parent.getPos(False).y)
 							clipRect.position.y = parent.clipRect.position.y + parent.getPos(False).y
-						#else:
-						#	clipRect.height = min(parent.clipRect.position.y + \
-						#			parent.getPos(False).y + parent.clipRect.height-clipRect.position.y, \
-						#			parent.clipRect.height)
 					else:
 						clipRect = copy(parent.clipRect)
 						clipRect = copy(parent.clipRect)
 						clipRect.position += parent.getPos(False)
 
 			if root:
-				#clipRect.width = max(0, clipRect.width)
-				#clipRect.height = max(0, clipRect.height)
 				pos.x = max(pos.x, clipRect.position.x)
 				pos.y = max(pos.y, clipRect.position.y)
 
@@ -225,8 +208,7 @@ class Widget(Updatable):
 		size = copy(self._size)
 		pos = self.getPos(False, True)
 		if withClipping:
-			parentList = self.parentList[::-1]
-			parentList.append(self)
+			parentList = reversed([self]+self.parentList)
 			root = None
 			clipRect = None
 			for parent in parentList:
@@ -279,7 +261,6 @@ class Widget(Updatable):
 				size.y = min(size.y, clipRect.size.y)
 				if clipRect.top > pos.y + self._size.y or \
 						clipRect.top + clipRect.height < pos.y:
-					print(clipRect)
 					size.y = 0
 				elif clipRect.top < pos.y and clipRect.top + clipRect.height > pos.y + size.y:
 					size.x = size.x
@@ -296,6 +277,18 @@ class Widget(Updatable):
 		self.move(newOrigin-self.origin)
 		self._origin = newOrigin
 		self._posOrigin = None
+
+	def setPosStatic(self, pos, withOrigin=True, setIsStaticToView=True):
+		if withOrigin:
+			self._posStatic=pos + self._origin
+		else:
+			self._posStatic=pos
+
+		if setIsStaticToView:
+			self._isStaticToView=True
+		render = self.getRender()
+		if render and self._isStaticToView:
+			self.setPos(self._posStatic+render.getViewPosition(), False)
 
 	def _setOriginPos(self, position):
 		back = copy(self._origin)
@@ -338,10 +331,11 @@ class Widget(Updatable):
 	def setPosOnView(self, pos, withOrigin=True):
 		render = Updatable.getRender(self)
 		origin = sf.Vector2(0, 0)
-		if withOrigin:
-			origin = self._origin
+		render = self.getRender()
 		if render:
-			self.pos = render.map_pixel_to_coords(pos+self.origin)
+			self.setPos(render.map_pixel_to_coords(pos), withOrigin)
+		else:
+			self.setPos(pos, withOrigin)
 
 	def getRect(self, withClipping=False):
 		return sf.Rectangle(self.getPos(False, withClipping), self.getSize(withClipping))
@@ -396,3 +390,5 @@ class Widget(Updatable):
 	relativeSizeOnView=property(lambda self:self._relativeSizeOnView,\
 			lambda self,scale:self._setRelativeSizeOnView(scale))
 	sizeOnView = property(lambda self : self.getSizeOnView())
+	posStatic = property(lambda self:self._posStatic, \
+			setPosStatic)

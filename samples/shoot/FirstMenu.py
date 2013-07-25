@@ -17,7 +17,7 @@ class FirstMenu(pyguiml.SelectionMenu, Context):
 
 		self.addWidget(pyguiml.Button(self, pyguiml.Label(None, "Start Game",\
 				characterSize=24, font=sf.Font.from_file("DejaVuSans.ttf"))), sf.Vector2(0, 0))
-		self.addNameOnWidget(self.child[-1], "Start Game")
+		self.addNameOnWidget(self.child[-1], "StartGame")
 		self.addWidget(pyguiml.Button(self, pyguiml.Label(None, "Option",\
 				characterSize=24, font=sf.Font.from_file("DejaVuSans.ttf"))), sf.Vector2(0, 1))
 		self.addNameOnWidget(self.child[-1], "Option")
@@ -33,7 +33,7 @@ class FirstMenu(pyguiml.SelectionMenu, Context):
 		self.setAllActiveMouseKeyboard(sf.Keyboard.RETURN, sf.Mouse.LEFT)
 
 		self._background = pyguiml.Image(None, "Ressources/Images/FirstMenu.jpg", delTextureCreated = False)
-#		gameObject.backgroundImage = self._background
+		gameObject.backgroundImage = self._background
 
 	@pyguiml.decorator.forUpdate
 	def update(self, render=None):
@@ -49,12 +49,11 @@ class FirstMenu(pyguiml.SelectionMenu, Context):
 		self.permanentActivation = False
 		self.deselectIt()
 		self.disactiveIt()
-		print("ok")
-		self._gameObject.backgroundImage = None
+		#self._gameObject.backgroundImage = None
 
 	def openContext(self):
 		self.permanentSelection = True
 		self.permanentActivation = True
 		self.selectIt()
 		self.activeIt()
-		self._gameObject.backgroundImage = self._background
+		#self._gameObject.backgroundImage = self._background

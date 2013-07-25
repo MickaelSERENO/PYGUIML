@@ -17,6 +17,7 @@ class EventManager:
 			self._isInputKeys = list()
 			self._isInputClick = list()
 			self._hasPressedKeyKey = False
+			self._mouseMoved = False
 			self._isResize = False
 			self._oldWindowSize = sf.Vector2(window.width, window.height)
 			self._newWindowSize = sf.Vector2(window.width, window.height)
@@ -46,18 +47,17 @@ class EventManager:
 		self._clock.restart()
 
 		if self._hasPressedKeyMouse:
-			for i in range(EventManager.nbrClick):
-				self._isInputClick[i] = False
+			self._isInputClick = [False] * EventManager.nbrClick
 
 		if self._hasPressedKeyKey:
-			for i in range(EventManager.nbrKey):
-				self._isInputKeys[i] = False
+			self._isInputKeys = [False] * EventManager.nbrKey
 				
 		self._enteredText = False
 		self._isResize = False
 
 		self._hasPressedKeyKey = False
 		self._hasPressedKeyMouse= False
+		self._mouseMoved = False
 
 		if self.textCursor >= len(self.text):
 			self.textCursor = len(self.text)-1
@@ -98,6 +98,7 @@ class EventManager:
 
 			if type(event) is sf.MouseMoveEvent:
 				self._oldMousePos = copy(self._mousePos)
+				self._mouseMoved = True
 				self._mousePos = event.position
 
 			if type(event) is sf.CloseEvent:

@@ -2,20 +2,24 @@ import pyguiml
 from FirstMenu import FirstMenu
 from Option import Option
 from Credit import Credit
+from StartGame import StartGame
+from DataManager import *
 import sfml as sf
 
 class Game(pyguiml.Window):
 	def __init__(self, videoMode=sf.VideoMode(800, 600, 32), title="game",\
-			parent=None, framerateLimit=120, backgroundColor = sf.Color.BLACK,\
+			parent=None, framerateLimit=60, backgroundColor = sf.Color.BLACK,\
 			backgroundImage = pyguiml.Image()):
 		pyguiml.Window.__init__(self, videoMode, title, parent, framerateLimit,\
 				backgroundColor, backgroundImage)
-		firstMenu = FirstMenu(self, None, permanentActivation=True)
+		self.dataManager = DataManager()
+		firstMenu = FirstMenu(self, self, permanentActivation=True)
 		self.addChild(firstMenu, name="First Menu")
-		self.addChild(Option(self, None), name='Option')
-		self.addChild(Credit(self, None), name="Credit")
+		self.addChild(Option(self, self), name='Option')
+		self.addChild(Credit(self, self), name="Credit")
+		self.addChild(StartGame(self, self), name="StartGame")
 		self._currentContext = None
-		self._context = [firstMenu, self["Option"], self["Credit"]]
+		self._context = [firstMenu, self["Option"], self["Credit"], self["StartGame"]]
 
 		for context in self._context:
 			context.canUpdate = False

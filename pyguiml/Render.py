@@ -72,8 +72,6 @@ class Render(Widget):
 		if self.parent:
 			render = self.parent.getRender()
 		if isinstance(render,Render) and render is not self:
-			print("here")
-			print(self.getPosOnScreen(False))
 			return render.map_pixel_to_coords(position) - \
 					render.convertScreenCoordToTargetPoint(self.getPosOnScreen(False))
 		else:
@@ -124,13 +122,8 @@ class Render(Widget):
 	
 	def _setView(self, view):
 		super(Render,self.__class__).view.__set__(self,view)
-
-		if not self._clipRect:
-			for child in self._child:
-				if isinstance(child,Widget) and child.isStaticToView:
-					child.setPosOnView(child.pos)
-
-			self.backgroundImage = self.backgroundImage
+		self.changeWindow=True
+		self.backgroundImage = self.backgroundImage
 
 	def _setViewport(self, rect):
 		newView = self.view
@@ -166,11 +159,6 @@ class Render(Widget):
 					rect.height = min(self._clipRect.top + \
 							self._clipRect.height - rect.top-posWidget.y, \
 							rect.height)
-					print(rect.height)
-
-#			rect.width = max(0, rect.width)
-	#		rect.height = max(0, rect.height)
-
 
 			clippingView = sf.View(rect)
 			clippingView.move(posWidget.x, posWidget.y)

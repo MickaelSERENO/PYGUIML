@@ -18,6 +18,8 @@ class ProgressBar(Widget):
 			self._widgetForground.setParent(self)
 		else:
 			self._widgetForground = Image(self, sf.Image.create(20, 20, sf.Color.GREEN))
+		self._widgetBackground.canFocus=False
+		self._widgetForground.canFocus=False
 
 		self._orientation = orientation
 		self.rect = self.rect

@@ -86,13 +86,18 @@ class Label(Widget):
 		Widget._setSize(self, sf.Vector2(self._text.local_bounds.width,\
 				self._text.local_bounds.height), resetOrigin)
 
-	def _setSource(self, source):
+	def setSource(self, source, getSourceSize=False):
 		if isinstance(source, str):
 			self._text.string = source
 		elif isinstance(source, sf.Text):
 			self._text = source
+		if getSourceSize:
+			self.size = self._text.local_bounds.size
+		else:
+			self.size = self.size
 
-	text = property(lambda self:self._text, _setSource)
+
+	text = property(lambda self:self._text, setSource)
 	characterSize = property(lambda self:self._text.character_size,\
 			_setCharacterSize)
 	color = property(lambda self:self._text.color, _setColor)

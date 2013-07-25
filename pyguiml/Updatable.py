@@ -61,13 +61,14 @@ class Updatable:
 
 
 	def updateFocus(self):
-		for child in self._child[::-1]:
-			if self._focusIsChecked:
-				return
-			if child.canFocus:
-				child.updateFocus()
-			else:
-				Updatable.updateFocus(child)
+		if self.updateAllChild:
+			for child in reversed(self._child):
+				if Updatable._focusIsChecked:
+					return
+				if child.canFocus and child.canUpdate:
+					child.updateFocus()
+				else:
+					Updatable.updateFocus(child)
 
 	def update(self, render=None):
 		"""THIS methode Update all child of this Widget. 
@@ -75,7 +76,10 @@ class Updatable:
 
 		if self.updateAllChild:
 			for child in self._child:
-				child.update(render)
+				if child.canUpdate:
+					child.update(render)
+				else:
+					Updatable.update(child)
 			self._changeWindow=False
 	
 	def removeChild(self, child):
@@ -163,6 +167,11 @@ class Updatable:
 			parentList.extend(self._parent._getParentList())
 		return parentList
 
+	def _setChangeWindow(self, change):
+		self._changeWindow=change
+		for child in self._child:
+			child._setChangeWindow(change)
+
 	def addNameOnWidget(self, widget, name):
 		self._childDictName[name] = widget
 
@@ -188,7 +197,8 @@ class Updatable:
 	parent = property(lambda self:self._parent,\
 			lambda self, parent: self.setParent(parent))
 	child = property(lambda self:self._child)
-	changeWindow = property(lambda self:self._changeWindow)
+	changeWindow = property(lambda self:self._changeWindow, \
+			_setChangeWindow)
 	event = property(lambda self:self._event)
 	parentList = property(lambda self:self._getParentList())
 	canUpdate = property(lambda self:self._canUpdate, setCanUpdate)

@@ -128,9 +128,11 @@ class Layout(Widget):
 #		return
 
 	def delWidget(self, widget):
-		position = self.getWidgetPosition(widget)
+		position = widget
+		if isinstance(widget, Widget):
+			position = self.getWidgetPosition(widget)
 		if position != sf.Vector2(-1, -1):
-			self.__delitem__(sf.Vector2(x, y))
+			self.__delitem__(sf.Vector2(position.x, position.y))
 
 	def getWidgetCase(self, widget):
 		position = self.getWidgetPosition(widget)

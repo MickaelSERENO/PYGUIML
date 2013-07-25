@@ -20,29 +20,27 @@ class Window(Render, sf.RenderWindow):
 		self._isStaticToView = False
 		self.position = (0,0)
 		self.framerate_limit = framerateLimit
+		self._framerate = framerateLimit
 		self._event = EventManager(self)
 		self.resetView()
 		self.clear(backgroundColor)
 
-#	def updateFocus(self):
-#		return Updatable.updateFocus(self)
-
 	def update(self):
 		"""Update the Window. It Update all event, and update framerate.
 		It Draw and display also all widgets child"""
-		if self.isDrawing:
+		if self.canUpdate:
 			self._event.update()
+			self._framerate = 1/(self._event.elapsedTime*10**-6)
 
 			if self._event.isResize:
 				Render._setSize(self,self.size)
-	
-			Widget.widgetFocus =  None
 
-			if self.event.isMouseInRect(self.rectOnScreen):
+			if self.event._mouseMoved:
+				Widget.widgetFocus = None
+	
+			if self.event._mouseMoved and self.event.isMouseInRect(self.rect):
 				Updatable._focusIsChecked= False
 				Updatable.updateFocus(self)
-			else:
-				Widget.widgetFocus = None
 			Widget.update(self, self)
 			self.display()
 			self.clear(self.backgroundColor)
@@ -69,9 +67,9 @@ class Window(Render, sf.RenderWindow):
 		sf.RenderWindow.view.__set__(self, view)
 		Render._setView(self,view)
 
-	size = property(lambda self : sf.RenderWindow.size.__get__(self), _setSize)
+	size = sf.RenderWindow.size
 	event = property(lambda self:self._event)
-	framerate = property(lambda self:1/(self._event.elapsedTime*10**-6))
+	framerate = property(lambda self:self._framerate)
 	setPosOnScreen = setPos
 	draw = sf.RenderWindow.draw
-	sizeOnScreen = property(lambda self:sf.RenderWindow.size.__get__(self))
+	sizeOnScreen = sf.RenderWindow.size

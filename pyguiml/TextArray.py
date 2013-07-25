@@ -80,7 +80,6 @@ class TextArray(Widget):
 								label.style))
 							self._labelList[-1].globalScale = label.globalScale
 							if re.match(r"^[ \n]*$", self._labelList[-1].text.string):
-								print("ok")
 								self._labelList[-1].size = sf.Vector2(\
 										self._labelList[-1].size.x, self._labelList[-1].characterSize)
 							oldCharacterPos = characterPos
@@ -89,7 +88,6 @@ class TextArray(Widget):
 
 			elif self._cutStyle == Cut.Word:
 				listeString = re.split("( )", label.text.string)
-				print(listeString)
 				i=0
 				k=0
 				breakLine = 0
@@ -120,7 +118,6 @@ class TextArray(Widget):
 								breakLine = 0
 
 						characterPos = label.text.find_character_pos(characterIndex).x
-						print(characterPos, characterIndex, "character")
 						self._labelList.append(Label(self, \
 							label.text.string[oldCharacterIndex:characterIndex],\
 							reduce(lambda x, y : x + sf.Vector2(0, y.size.y),\
@@ -139,7 +136,6 @@ class TextArray(Widget):
 							characterIndex+=haveBreak
 							haveBreak=None
 					i+=1
-		print(len(self._labelList), "len")
 
 		if resetSize:
 			self.size = self.size
