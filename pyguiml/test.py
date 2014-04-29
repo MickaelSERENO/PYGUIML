@@ -22,10 +22,6 @@ import cProfile
 import pstats
 import io
 
-
-pro = cProfile.Profile()
-pro.enable()
-
 window = Window(sf.VideoMode(800,600,32), "teste", backgroundColor = sf.Color.RED, framerateLimit=120)
 progress = ProgressBar(window, sf.Rectangle(sf.Vector2(), sf.Vector2(100, 20)))
 
@@ -34,7 +30,7 @@ progress3 = ProgressBar(window, sf.Rectangle(sf.Vector2(0, 300), sf.Vector2(100,
 progress4 = ProgressBar(window, sf.Rectangle(sf.Vector2(0, 400), sf.Vector2(100, 20)))
 progress5 = ProgressBar(window, sf.Rectangle(sf.Vector2(0, 430), sf.Vector2(100, 20)))
 label = Label(None, "Hello\nnop\n\n\ndon't\n\nfinish withing you !, have many many many many impro to doing ! You don't finish to listen me !", characterSize=20, font =sf.Font.from_file("DejaVuSans.ttf"))
-#textArray = TextArray(window, label=label, alignment=Position.Center, cutStyle =Cut.Word, sizeX = 600)
+textArray = TextArray(window, label=label, alignment=Position.Center, cutStyle =Cut.Word, sizeX = 600)
 
 slide = Slide(window, rect=sf.Rectangle(sf.Vector2(300, 30), sf.Vector2(500, 20)), step=1, inStep=5, values=sf.Vector2(0, 50))
 slide2 = Slide(window, rect=sf.Rectangle(sf.Vector2(100, 230), sf.Vector2(500, 20)), step=1, inStep=5, values=sf.Vector2(0, 50))
@@ -85,8 +81,3 @@ while window.is_open:
 	#	window.backgroundImage = None
 	#	window.backgroundImage = background0
 	
-
-pro.disable()
-stat = pstats.Stats(pro)
-stat.sort_stats("cumtime")
-stat.print_stats()
